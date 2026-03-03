@@ -8,7 +8,7 @@ function App() {
       <aside className="w-[30%] min-w-0 h-screen flex-shrink-0 overflow-hidden flex flex-col bg-[#ffffff] border-r border-stone-200">
         {/* 第一块：网站名，高度 40 */}
         <div className="h-[60px] flex-shrink-0 flex items-center pl-6 pr-4">
-          <h1 className="text-xl font-medium text-stone-800 font-serif">leonardozi.fun</h1>
+          <h1 className="site-title-sweep text-xl font-medium font-serif">leonardozi.fun</h1>
         </div>
         {/* 第二块：简介，填充剩余高度 */}
         <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">

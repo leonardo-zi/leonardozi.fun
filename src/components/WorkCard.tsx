@@ -15,7 +15,7 @@ export default function WorkCard({ work }: WorkCardProps) {
             className="w-full h-auto block object-cover"
           />
         </div>
-        <h3 className="mt-2 text-sm font-medium text-stone-800">{work.title}</h3>
+        <h3 className="mt-2 text-base font-medium text-stone-800">{work.title}</h3>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-xs text-stone-500">
           {work.tags.map((tag) => (
             <span key={tag}>{tag}</span>

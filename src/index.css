@@ -11,3 +11,37 @@ body {
 .masonry {
   column-gap: 1.5rem;
 }
+
+/* 标题色带：从左到右扫一次，仅加载时播放 */
+.site-title-sweep {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    rgba(38, 37, 31, 1) 0%,
+    rgba(38, 37, 31, 1) 33.33%,
+    rgba(198, 121, 196, 1) 40%,
+    rgba(250, 61, 29, 1) 45%,
+    rgba(255, 176, 5, 1) 50%,
+    rgba(225, 225, 254, 1) 55%,
+    rgba(3, 88, 247, 1) 60%,
+    transparent 66.67%,
+    transparent 100%
+  );
+
+  background-size: 400% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: title-sweep 1.2s ease-out forwards;
+}
+
+@keyframes title-sweep {
+  from {
+    opacity: 0;
+    background-position: 100% 0%;
+  }
+  to {
+    opacity: 1;
+    background-position: 0% 0%;
+  }
+}
