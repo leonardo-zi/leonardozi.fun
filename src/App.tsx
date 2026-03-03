@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* 左侧边栏：三块 */}
-      <aside className="w-[30%] min-w-0 h-screen flex-shrink-0 overflow-hidden flex flex-col bg-[#ffffff] border-r border-stone-200">
+      <aside className="w-[30%] min-w-0 h-screen flex-shrink-0 overflow-hidden flex flex-col bg-[#ffffff]">
         {/* 第一块：网站名，高度 40 */}
         <div className="h-[60px] flex-shrink-0 flex items-center pl-6 pr-4">
           <h1 className="site-title-sweep text-xl font-medium font-serif">leonardozi.fun</h1>
