@@ -1,4 +1,5 @@
-export type WorkLayout = "full" | "half"; // full=占一行, half=每行两个
+/** 样式相关：full 卡片占两列、图片 3:2 长方形；half 占一列、图片 1:1 正方形 */
+export type WorkLayout = "full" | "half";
 
 export interface Work {
   id: string;

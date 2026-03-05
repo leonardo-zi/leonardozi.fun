@@ -62,7 +62,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
 
   return (
     <>
-      {/* 效果：打开时背景+毛玻璃淡入，关闭时淡出 */}
+      {/* 样式：遮罩固定铺满、z-50、白半透明+毛玻璃 backdrop-blur-[3px]、p-4；style 控制淡入淡出 */}
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-[3px] p-4"
         style={{
@@ -74,7 +74,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
         aria-modal="true"
         aria-label="作品详情"
       >
-        {/* 效果：打开时从点击位置 scale(0.6) 位移+缩放到居中，关闭时反向 */}
+        {/* 样式：.modal-container 圆角边框、75vw×95vh、白底阴影；style 控制位移动画 */}
         <div
           className="modal-container relative flex w-[75vw] h-[95vh] flex-col bg-white shadow-xl overflow-hidden"
           style={{
@@ -84,12 +84,13 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* 样式：可滚动内容区 .modal-scroll-hide 隐藏滚动条 */}
           <div
             ref={scrollRef}
             className="flex-1 min-h-0 overflow-y-auto modal-scroll-hide"
             onScroll={handleScroll}
           >
-            {/* 效果：向下滚动时 header 渐隐，向上滚动时渐显 */}
+            {/* 样式：header 吸顶、白底、px-6 py-6 min-h-[52px]；style 控制向下滚渐隐 */}
             <header
               className="sticky top-0 z-10 flex shrink-0 items-center justify-between px-6 py-6 min-h-[52px] bg-white"
               style={{
@@ -98,6 +99,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
               }}
             >
               <h2 className="text-xl font-medium text-[rgba(38,37,31,1)]">{work.title}</h2>
+              {/* 样式：关闭按钮 40×40 圆形、浅灰底、悬停加深 */}
               <button
                 type="button"
                 onClick={requestClose}
@@ -112,6 +114,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
             <div className="p-6">
               <div className="flex flex-col gap-4">
                 {(work.detailImages ?? [work.image]).map((src, i) => (
+                  /* 样式：弹窗内单图容器圆角 6px、浅灰底 */
                   <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
                     <img
                       src={src}
