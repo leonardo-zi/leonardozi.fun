@@ -158,7 +158,7 @@ function App() {
           </p>
         </div>
         <div className="h-[60px] shrink-0 flex items-center px-6 text-xs text-[rgba(162,157,150,1)]">
-          © 2026 · Vibe Coding by Cursor
+          © 2025-2026 · Vibe Coding by Cursor
         </div>
       </aside>
 
