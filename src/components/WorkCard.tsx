@@ -4,10 +4,12 @@ import type { Work } from "../data/works";
 interface WorkCardProps {
   work: Work;
   onClick?: (work: Work, origin: { x: number; y: number }) => void;
+  /** 首张卡片直接可见，避免懒加载未触发导致点不开 */
+  isFirst?: boolean;
 }
 
-export default function WorkCard({ work, onClick }: WorkCardProps) {
-  const [isVisible, setIsVisible] = useState(false);
+export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
+  const [isVisible, setIsVisible] = useState(!!isFirst);
   const cardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -63,9 +65,9 @@ export default function WorkCard({ work, onClick }: WorkCardProps) {
         tabIndex={0}
         onClick={handleActivate}
         onKeyDown={handleKeyDown}
-        className="rounded-[8px] p-2 -m-2 border-[0.5px] border border-transparent transition-[background-color,border-color] duration-200 ease-out hover:bg-[#f4f4f4] hover:border-[#e0e0e0] cursor-pointer"
+        className="rounded-[8px] p-2 -m-2 border-[0.5px] border border-transparent transition-[background-color,border-color] duration-200 ease-in-out hover:bg-[#f4f4f4] hover:border-[#e0e0e0] cursor-pointer"
       >
-        <div className={"rounded-superellipse overflow-hidden bg-[rgba(162,157,150,0.12)] " + aspectClass}>
+        <div className={"rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] bg-[rgba(162,157,150,0.12)] " + aspectClass}>
           <img
             src={work.image}
             alt={work.title}
@@ -87,7 +89,7 @@ export default function WorkCard({ work, onClick }: WorkCardProps) {
   return (
     <article
       ref={cardRef as React.RefObject<HTMLElement>}
-      className={isFull ? "col-span-2" : ""}
+      className={isFull ? "md:col-span-2" : ""}
     >
       {/* 样式：full 时 col-span-2 占两列 */}
       {!isVisible ? (

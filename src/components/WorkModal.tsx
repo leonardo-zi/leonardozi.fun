@@ -62,25 +62,25 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
 
   return (
     <>
-      {/* 样式：遮罩固定铺满、z-50、白半透明+毛玻璃 backdrop-blur-[3px]、p-4；style 控制淡入淡出 */}
+      {/* 样式：手机端全屏白底，桌面端居中+毛玻璃+p-4；遮罩透明度 ↓ */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-white/10 backdrop-blur-[3px] p-4"
+        className="work-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-white p-0 md:backdrop-blur-[3px] md:p-4"
         style={{
-          opacity: visible ? 1 : 0,
-          transition: `opacity ${DURATION_MS}ms ease-out, backdrop-filter ${DURATION_MS}ms ease-out`,
+          opacity: visible ? 1 : 0, // 弹窗显隐：开=1 关=0
+          transition: `opacity ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1), backdrop-filter ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
         }}
         onClick={handleBackdropClick}
         role="dialog"
         aria-modal="true"
         aria-label="作品详情"
       >
-        {/* 样式：.modal-container 圆角边框、75vw×95vh、白底阴影；style 控制位移动画 */}
+        {/* 样式：边框与圆角同层，手机端无圆角、桌面端 8px 圆角 */}
         <div
-          className="modal-container relative flex w-[75vw] h-[95vh] flex-col bg-white shadow-xl overflow-hidden"
+          className="work-modal-inner relative flex w-full h-full flex-col bg-white overflow-hidden border-[0.5px] border-[#e0e0e0] rounded-none md:rounded-lg md:w-[75vw] md:h-[95vh] md:max-w-[1100px]"
           style={{
             transform: visible ? finalTransform : initialTransform,
-            opacity: visible ? 1 : 0.4,
-            transition: `transform ${DURATION_MS}ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity ${DURATION_MS}ms ease-out`,
+            opacity: visible ? 1 : 0.4, // 弹窗盒子透明度：开=1，关时过渡到 0.4（可改）
+            transition: `transform ${DURATION_MS}ms cubic-bezier(0.16, 1, 0.3, 1), opacity ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -94,8 +94,8 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
             <header
               className="sticky top-0 z-10 flex shrink-0 items-center justify-between px-6 py-6 min-h-[52px] bg-white"
               style={{
-                opacity: headerOpacity,
-                transition: "opacity 150ms ease-out",
+                opacity: headerOpacity, // 向下滚动时 header 渐隐（0~1）
+                transition: "opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)",
               }}
             >
               <h2 className="text-xl font-medium text-[rgba(38,37,31,1)]">{work.title}</h2>

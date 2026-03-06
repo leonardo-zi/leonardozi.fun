@@ -25,7 +25,7 @@
   display: none;
 }
 
-/* 样式：根容器横向布局、水平居中、最大宽度 1028px */
+/* 样式：根容器横向布局、水平居中、最大宽度 1028px；移动端由 App 内 flex-col 控制 */
 #root {
   display: flex;
   flex-direction: row;
@@ -35,6 +35,34 @@
   padding-right: 0;
   max-width: 1028px;
   width: 100%;
+}
+
+/* 样式：桌面端作品弹窗背后白色遮罩透明度，改 0.12 即可（0=全透 1=全白） */
+@media (min-width: 768px) {
+  .work-modal-backdrop {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+/* 样式：桌面端作品弹窗盒子阴影，改 0.08 可调深浅（越小越淡） */
+@media (min-width: 768px) {
+  .work-modal-inner {
+    box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* 样式：移动端侧栏全屏遮罩，点击背景可关闭 */
+.sidebar-overlay {
+  touch-action: none;
+}
+
+/* 样式：手机端作品弹窗与顶部栏侧栏一致，仅淡入淡出，不做位移/缩放 */
+@media (max-width: 767px) {
+  .work-modal-inner {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
 }
 
 /* 样式：页面背景白、最小高度满屏、字体抗锯齿 */

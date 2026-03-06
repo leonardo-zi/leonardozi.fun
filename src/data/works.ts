@@ -11,27 +11,14 @@ export interface Work {
   layout: WorkLayout;
 }
 
-/** works 文件夹下的 webp 文件（与 public/works 内实际文件名一致） */
+/** works 文件夹下的 webp，顺序固定：最上面作品用 2.webp，其余按此顺序轮询 */
 const WORKS_WEBP = [
-  "./works/1.WEBP",
   "./works/2.webp",
+  "./works/1.WEBP",
   "./works/3.webp",
   "./works/4.webp",
   "./works/5.webp",
 ];
-
-function pickRandom<T>(arr: T[], count: number = 1): T[] {
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  if (count <= 1) return shuffled.slice(0, 1);
-  return shuffled.slice(0, count);
-}
-
-function randomWorkImages(): { image: string; detailImages: string[] } {
-  const image = pickRandom(WORKS_WEBP)[0];
-  const detailCount = 2 + Math.floor(Math.random() * 2); // 2 或 3 张
-  const detailImages = pickRandom(WORKS_WEBP, detailCount);
-  return { image, detailImages };
-}
 
 const worksBase: Omit<Work, "image" | "detailImages">[] = [
   { id: "1", title: "山雨初晴", tags: ["界面", "原型"], date: "2025/03/01", layout: "full" },
@@ -42,7 +29,12 @@ const worksBase: Omit<Work, "image" | "detailImages">[] = [
   { id: "6", title: "松风听泉", tags: ["界面", "原型"], date: "2025/03/01", layout: "full" },
 ];
 
-export const works: Work[] = worksBase.map((w) => {
-  const { image, detailImages } = randomWorkImages();
+export const works: Work[] = worksBase.map((w, i) => {
+  const image = WORKS_WEBP[i % WORKS_WEBP.length];
+  const detailImages = [
+    WORKS_WEBP[i % WORKS_WEBP.length],
+    WORKS_WEBP[(i + 1) % WORKS_WEBP.length],
+    WORKS_WEBP[(i + 2) % WORKS_WEBP.length],
+  ];
   return { ...w, image, detailImages };
 });
