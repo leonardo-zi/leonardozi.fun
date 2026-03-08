@@ -9,6 +9,12 @@ interface ModalOrigin {
   dy: number;
 }
 
+const CURRENT_YEAR = new Date().getFullYear();
+
+function Copyright({ year = CURRENT_YEAR }: { year?: number }) {
+  return <>© {year} · Vibe Coding by Cursor</>;
+}
+
 /** 移动端全屏侧栏：点击顶部菜单后显示 */
 function SidebarContent({ onClose }: { onClose: () => void }) {
   return (
@@ -158,7 +164,7 @@ function App() {
           </p>
         </div>
         <div className="h-[60px] shrink-0 flex items-center px-6 text-xs text-[rgba(162,157,150,1)]">
-          © 2025-2026 · Vibe Coding by Cursor
+          <Copyright />
         </div>
       </aside>
 
@@ -175,7 +181,7 @@ function App() {
         </div>
         {/* 移动端：页脚放在页面最底部，仅 < 768px 显示 */}
         <div className="flex items-center justify-center px-4 py-6 text-xs text-[rgba(162,157,150,1)] md:hidden">
-          © 2026 · Vibe Coding by Cursor
+          <Copyright />
         </div>
       </main>
 
