@@ -17,7 +17,35 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
   const [closing, setClosing] = useState(false);
   const [headerOpacity, setHeaderOpacity] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollContentRef = useRef<HTMLDivElement>(null);
   const lastScrollTop = useRef(0);
+
+  // Lenis: smooth scroll inside modal (mobile + desktop).
+  useEffect(() => {
+    const LenisCtor = window.Lenis;
+    const wrapper = scrollRef.current;
+    const content = scrollContentRef.current;
+    if (!LenisCtor || !wrapper || !content) return;
+
+    const lenis = new LenisCtor({
+      wrapper,
+      content,
+      smoothWheel: true,
+      lerp: 0.08,
+    });
+
+    let rafId = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -90,43 +118,45 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
             className="flex-1 min-h-0 overflow-y-auto modal-scroll-hide"
             onScroll={handleScroll}
           >
-            {/* 样式：header 吸顶、白底、px-6 py-6 min-h-[52px]；style 控制向下滚渐隐 */}
-            <header
-              className="sticky top-0 z-10 flex shrink-0 items-center justify-between px-6 py-6 min-h-[52px] bg-white"
-              style={{
-                opacity: headerOpacity, // 向下滚动时 header 渐隐（0~1）
-                transition: "opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)",
-              }}
-            >
-              <h2 className="text-xl font-medium text-[rgba(38,37,31,1)]">{work.title}</h2>
-              {/* 样式：关闭按钮 40×40 圆形、浅灰底、悬停加深 */}
-              <button
-                type="button"
-                onClick={requestClose}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(162,157,150,0.12)] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
-                aria-label="关闭"
+            <div ref={scrollContentRef}>
+              {/* 样式：header 吸顶、白底、px-6 py-6 min-h-[52px]；style 控制向下滚渐隐 */}
+              <header
+                className="sticky top-0 z-10 flex shrink-0 items-center justify-between px-6 py-6 min-h-[52px] bg-white"
+                style={{
+                  opacity: headerOpacity, // 向下滚动时 header 渐隐（0~1）
+                  transition: "opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)",
+                }}
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
-                  <path d="M4 4l10 10M14 4L4 14" />
-                </svg>
-              </button>
-            </header>
-            <div className="p-6">
-              <div className="flex flex-col gap-4">
-                {(work.detailImages ?? [work.image]).map((src, i) => (
-                  /* 样式：弹窗内单图容器圆角 6px、浅灰底 */
-                  <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
-                    <img
-                      src={src}
-                      alt={`${work.title} - ${i + 1}`}
-                      className="w-full h-auto block object-cover"
-                    />
-                  </div>
-                ))}
+                <h2 className="text-xl font-medium text-[rgba(38,37,31,1)]">{work.title}</h2>
+                {/* 样式：关闭按钮 40×40 圆形、浅灰底、悬停加深 */}
+                <button
+                  type="button"
+                  onClick={requestClose}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(162,157,150,0.12)] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
+                  aria-label="关闭"
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
+                    <path d="M4 4l10 10M14 4L4 14" />
+                  </svg>
+                </button>
+              </header>
+              <div className="p-6">
+                <div className="flex flex-col gap-4">
+                  {(work.detailImages ?? [work.image]).map((src, i) => (
+                    /* 样式：弹窗内单图容器圆角 6px、浅灰底 */
+                    <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
+                      <img
+                        src={src}
+                        alt={`${work.title} - ${i + 1}`}
+                        className="w-full h-auto block object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-sm text-[rgba(162,157,150,1)] leading-relaxed">
+                  这里可以放作品说明，后续按需替换内容即可。
+                </p>
               </div>
-              <p className="mt-4 text-sm text-[rgba(162,157,150,1)] leading-relaxed">
-                这里可以放作品说明，后续按需替换内容即可。
-              </p>
             </div>
           </div>
         </div>

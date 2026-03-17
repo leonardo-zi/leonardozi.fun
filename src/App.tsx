@@ -12,7 +12,7 @@ interface ModalOrigin {
 const CURRENT_YEAR = new Date().getFullYear();
 
 function Copyright({ year = CURRENT_YEAR }: { year?: number }) {
-  return null;
+  return <>© {year} · Vibe Coding by Cursor</>;
 }
 
 /** 移动端全屏侧栏：点击顶部菜单后显示 */
@@ -52,7 +52,35 @@ function App() {
   const [sidebarJustOpened, setSidebarJustOpened] = useState(false);
   const [mobileHeaderOpacity, setMobileHeaderOpacity] = useState(1);
   const mainRef = useRef<HTMLDivElement>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
   const lastScrollTop = useRef(0);
+
+  // Lenis: smooth scroll for the main scroll container (not window).
+  useEffect(() => {
+    const LenisCtor = window.Lenis;
+    const wrapper = mainRef.current;
+    const content = mainContentRef.current;
+    if (!LenisCtor || !wrapper || !content) return;
+
+    const lenis = new LenisCtor({
+      wrapper,
+      content,
+      smoothWheel: true,
+      lerp: 0.08,
+    });
+
+    let rafId = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
 
   const requestCloseSidebar = useCallback(() => {
     if (sidebarClosing) return;
@@ -173,15 +201,17 @@ function App() {
         ref={mainRef}
         className="min-h-0 flex-1 overflow-y-auto bg-[#ffffff] md:w-[70%] md:shrink-0 md:h-screen"
       >
-        {/* 作品区：移动端统一单列并预留顶栏高度，桌面端两列且保留 full 占两列 */}
-        <div className="p-4 pt-24 grid grid-cols-1 gap-6 md:p-6 md:pt-6 md:grid-cols-2 md:gap-8">
-          {works.map((work, i) => (
-            <WorkCard key={work.id} work={work} onClick={handleOpen} isFirst={i === 0} />
-          ))}
-        </div>
-        {/* 移动端：页脚放在页面最底部，仅 < 768px 显示 */}
-        <div className="flex items-center justify-center px-4 py-6 text-xs text-[rgba(162,157,150,1)] md:hidden">
-          <Copyright />
+        <div ref={mainContentRef} className="min-h-full">
+          {/* 作品区：移动端统一单列并预留顶栏高度，桌面端两列且保留 full 占两列 */}
+          <div className="p-4 pt-24 grid grid-cols-1 gap-6 md:p-6 md:pt-6 md:grid-cols-2 md:gap-8">
+            {works.map((work, i) => (
+              <WorkCard key={work.id} work={work} onClick={handleOpen} isFirst={i === 0} />
+            ))}
+          </div>
+          {/* 移动端：页脚放在页面最底部，仅 < 768px 显示 */}
+          <div className="flex items-center justify-center px-4 py-6 text-xs text-[rgba(162,157,150,1)] md:hidden">
+            <Copyright />
+          </div>
         </div>
       </main>
 
