@@ -12,7 +12,7 @@ interface ModalOrigin {
 const CURRENT_YEAR = new Date().getFullYear();
 
 function Copyright({ year = CURRENT_YEAR }: { year?: number }) {
-  return <>© {year} · Vibe Coding by Cursor</>;
+  return null;
 }
 
 /** 移动端全屏侧栏：点击顶部菜单后显示 */
