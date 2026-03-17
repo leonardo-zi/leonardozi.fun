@@ -43,6 +43,8 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
     : "scale(0.9)";
   const finalTransform = "translate(0, 0) scale(1)";
   const visible = open && !closing;
+  const details = work.details ?? [];
+  const hasTopCopy = Boolean(work.overview || details.length > 0 || work.typeLabel);
 
   return (
     <>
@@ -86,7 +88,38 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
             className="flex-1 min-h-0 overflow-y-auto modal-scroll-hide"
           >
             <div className="mx-auto w-full max-w-[1028px]">
-              <div className="p-6 pt-16">
+              <div className="px-4 pt-16 pb-6 md:px-6">
+                {hasTopCopy && (
+                  <div className="pb-8">
+                    <h2 className="text-[28px] leading-[1.15] font-medium font-serif text-[rgba(38,37,31,1)] md:text-[44px]">
+                      {work.title}
+                    </h2>
+
+                    <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2">
+                      {details.length > 0 && (
+                        <section>
+                          <dl className="mt-5 space-y-2 text-sm text-[rgba(38,37,31,0.78)]">
+                            {details.map((item) => (
+                              <div key={`${item.label}-${item.value}`} className="grid grid-cols-[96px_1fr] gap-4">
+                                <dt className="font-medium text-[rgba(38,37,31,0.62)]">{item.label}:</dt>
+                                <dd className="min-w-0">{item.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </section>
+                      )}
+
+                      {(work.overview || work.title) && (
+                        <section>
+                          <p className="mt-5 text-sm leading-relaxed text-[rgba(38,37,31,0.78)]">
+                            {work.overview ?? "这里可以放作品说明，后续按需替换内容即可。"}
+                          </p>
+                        </section>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
                     /* 样式：弹窗内单图容器圆角 6px、浅灰底 */
@@ -99,9 +132,6 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
                     </div>
                   ))}
                 </div>
-                <p className="mt-4 text-sm text-[rgba(162,157,150,1)] leading-relaxed">
-                  这里可以放作品说明，后续按需替换内容即可。
-                </p>
               </div>
             </div>
           </div>
