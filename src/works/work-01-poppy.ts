@@ -3,7 +3,7 @@ import type { Work } from "./types";
 export const work01Poppy: Work = {
   id: "1",
   title: "Poppy",
-  image: "./works/poppy/poppy-bg.png",
+  image: "./works/bg/苏崇铭2.webp",
   overlayIcon: "./works/poppy/Poppy-icon.svg",
   detailImages: [
     "./works/poppy/poppy-1.webp",
@@ -24,4 +24,3 @@ export const work01Poppy: Work = {
     "Poppy 是一组偏视觉与结构的界面练习：用更克制的色彩与更清晰的层级来承载内容，同时通过轻量过渡保证浏览顺滑。重点在于把“第一眼能看懂”与“细节耐看”同时兼顾。",
   layout: "full",
 };
-

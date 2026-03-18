@@ -140,7 +140,6 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
 
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
-                    /* 样式：弹窗内单图容器圆角 6px、浅灰底 */
                     <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
                       <img
                         src={src}
@@ -150,6 +149,8 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
                     </div>
                   ))}
                 </div>
+                <div className="my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
+                <div className="h-[60px]" aria-hidden />
               </div>
             </div>
           </div>

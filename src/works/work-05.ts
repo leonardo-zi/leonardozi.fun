@@ -3,7 +3,7 @@ import type { Work } from "./types";
 export const work05: Work = {
   id: "5",
   title: "溪桥烟树",
-  image: "./works/bg/苏崇铭4 1.webp",
+  image: "./works/bg/苏崇铭7.webp",
   tags: ["网页"],
   date: "2025/01/01",
   typeLabel: "作品五 / 网页",
@@ -17,3 +17,4 @@ export const work05: Work = {
     "一次偏叙事的排版实验：让图片承载情绪、文字承载信息，通过留白与对齐关系引导视线；滚动过程保持克制和顺滑。",
   layout: "half",
 };
+

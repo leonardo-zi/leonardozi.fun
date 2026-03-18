@@ -3,7 +3,7 @@ import type { Work } from "./types";
 export const work02: Work = {
   id: "2",
   title: "云栖谷口",
-  image: "./works/bg/苏崇铭1 1.webp",
+  image: "./works/bg/苏崇铭5.webp",
   tags: ["品牌", "视觉"],
   date: "2025/02/01",
   typeLabel: "作品二 / 品牌与视觉",
