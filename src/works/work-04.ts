@@ -3,7 +3,7 @@ import type { Work } from "./types";
 export const work04: Work = {
   id: "4",
   title: "远山疏林",
-  image: "./works/4.webp",
+  image: "./works/bg/苏崇铭3 1.webp",
   tags: ["网页"],
   date: "2025/01/01",
   typeLabel: "作品四 / 网页",
@@ -17,4 +17,3 @@ export const work04: Work = {
     "用更“系统化”的方式组织页面：把间距、圆角与交互状态统一，减少视觉漂移；内容层级更清晰，后续迭代可以更快更稳。",
   layout: "half",
 };
-

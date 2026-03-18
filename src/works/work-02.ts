@@ -3,7 +3,7 @@ import type { Work } from "./types";
 export const work02: Work = {
   id: "2",
   title: "云栖谷口",
-  image: "./works/1.WEBP",
+  image: "./works/bg/苏崇铭1 1.webp",
   tags: ["品牌", "视觉"],
   date: "2025/02/01",
   typeLabel: "作品二 / 品牌与视觉",
@@ -17,4 +17,3 @@ export const work02: Work = {
     "这是一次虚构品牌方向的快速探索：先确定气质（轻、静、克制），再把它落到可复用的排版与图形规则里，确保在不同尺寸与媒介上都能保持一致的识别感。",
   layout: "half",
 };
-
