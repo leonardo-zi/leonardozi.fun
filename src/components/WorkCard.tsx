@@ -84,7 +84,7 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
               src={work.overlayIcon}
               alt=""
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 w-[44%] max-w-[220px] -translate-x-1/2 -translate-y-1/2"
+              className="pointer-events-none absolute left-1/2 top-1/2 w-[500px] h-[500px] max-w-[88%] max-h-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
             />
           )}
         </div>

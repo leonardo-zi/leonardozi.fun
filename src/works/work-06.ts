@@ -4,6 +4,7 @@ export const work06: Work = {
   id: "6",
   title: "松风听泉",
   image: "./works/bg/苏崇铭8.webp",
+  overlayIcon: "./works/aro/aro-icon.svg",
   tags: ["界面", "原型"],
   date: "2025/03/01",
   typeLabel: "作品六 / 界面与原型",

@@ -4,6 +4,7 @@ export const work03: Work = {
   id: "3",
   title: "江畔晚照",
   image: "./works/bg/苏崇铭8.webp",
+  overlayIcon: "./works/bobmusic/bobmusic-icon.svg",
   tags: ["网页"],
   date: "2025/01/01",
   typeLabel: "作品三 / 网页",

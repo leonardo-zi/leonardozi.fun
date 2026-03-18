@@ -4,6 +4,7 @@ export const work04: Work = {
   id: "4",
   title: "远山疏林",
   image: "./works/bg/苏崇铭4.webp",
+  overlayIcon: "./works/leonardozi/leonardozi-icon.svg",
   tags: ["网页"],
   date: "2025/01/01",
   typeLabel: "作品四 / 网页",
