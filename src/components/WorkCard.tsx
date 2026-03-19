@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Work } from "../works/types";
+import FadeImage from "./FadeImage";
 
 interface WorkCardProps {
   work: Work;
@@ -73,11 +74,10 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
             aspectClass
           }
         >
-          <img
+          <FadeImage
             src={work.image}
             alt={work.title}
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
+            fill
           />
           {work.overlayIcon && (
             <img

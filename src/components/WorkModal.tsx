@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Work } from "../works/types";
+import FadeImage from "./FadeImage";
 
 interface WorkModalProps {
   work: Work;
@@ -74,7 +75,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
           <button
             type="button"
             onClick={requestClose}
-            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(162,157,150,0.12)] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
+            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-[#f4f3f2] text-[rgba(162,157,150,1)] hover:bg-[#e6e4e1] transition-colors"
             aria-label="关闭"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
@@ -140,13 +141,12 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
 
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
-                    <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
-                      <img
-                        src={src}
-                        alt={`${work.title} - ${i + 1}`}
-                        className="w-full h-auto block object-cover"
-                      />
-                    </div>
+                    <FadeImage
+                      key={i}
+                      src={src}
+                      alt={`${work.title} - ${i + 1}`}
+                      className="rounded-[6px] overflow-hidden"
+                    />
                   ))}
                 </div>
                 <div className="my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
