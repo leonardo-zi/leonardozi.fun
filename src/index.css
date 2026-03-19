@@ -25,38 +25,41 @@
   display: none;
 }
 
-/* 样式：根容器横向布局、水平居中、最大宽度 1028px；移动端由 App 内 flex-col 控制 */
+/* 样式：根容器 — 桌面端左右布局，移动端 column */
 #root {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   margin: 0 auto;
-  text-align: left;
-  padding-left: 0;
-  padding-right: 0;
-  max-width: 1028px;
   width: 100%;
+  max-width: 1028px;
 }
 
-/* 样式：桌面端作品弹窗背后白色遮罩透明度，改 0.12 即可（0=全透 1=全白） */
+@media (min-width: 768px) {
+  #root {
+    flex-direction: row;
+  }
+}
+
+/* 样式：桌面端作品弹窗背后白色遮罩透明度 */
 @media (min-width: 768px) {
   .work-modal-backdrop {
     background-color: rgba(255, 255, 255, 0.12);
   }
 }
 
-/* 样式：桌面端作品弹窗盒子阴影，改 0.08 可调深浅（越小越淡） */
+/* 样式：桌面端作品弹窗盒子阴影 */
 @media (min-width: 768px) {
   .work-modal-inner {
     box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.05);
   }
 }
 
-/* 样式：移动端侧栏全屏遮罩，点击背景可关闭 */
+/* 样式：移动端侧栏全屏遮罩 */
 .sidebar-overlay {
   touch-action: none;
 }
 
-/* 样式：手机端作品弹窗与顶部栏侧栏一致，仅淡入淡出，不做位移/缩放 */
+/* 样式：手机端作品弹窗仅淡入淡出 */
 @media (max-width: 767px) {
   .work-modal-inner {
     transform: none !important;
@@ -73,7 +76,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 样式：全局隐藏滚动条，保留滚动功能 */
+/* 样式：全局隐藏滚动条 */
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -82,7 +85,7 @@ body {
   display: none;
 }
 
-/* 样式：站点标题加载时从左到右扫过一次彩色渐变（透明→实色） */
+/* 样式：站点标题扫光渐变 */
 .site-title-sweep {
   color: transparent;
   -webkit-text-fill-color: transparent;
@@ -98,14 +101,12 @@ body {
     transparent 66.67%,
     transparent 100%
   );
-
   background-size: 400% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   animation: title-sweep 1.2s ease-out forwards;
 }
 
-/* 样式：标题扫光动画关键帧，起始透明+渐变在右，结束不透明+渐变在左 */
 @keyframes title-sweep {
   from {
     opacity: 0;
@@ -117,7 +118,7 @@ body {
   }
 }
 
-/* 样式：整页内容加载/刷新时从透明淡入，时长 0.6s */
+/* 样式：整页内容淡入 */
 .intro-fade-in {
   animation: intro-fade-in 0.6s ease-out forwards;
 }
@@ -130,7 +131,7 @@ body {
   }
 }
 
-/* 样式：作品卡片懒加载骨架，灰底 #f4f4f4、圆角 8px */
+/* 样式：作品卡片骨架屏 */
 .work-card-skeleton {
   position: relative;
   overflow: hidden;
@@ -138,7 +139,6 @@ body {
   background-color: #f4f4f4;
 }
 
-/* 样式：骨架扫光层，从左到右循环动画 1.2s */
 .work-card-skeleton::before {
   content: "";
   position: absolute;

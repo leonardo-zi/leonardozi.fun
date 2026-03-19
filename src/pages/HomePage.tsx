@@ -171,7 +171,7 @@ export default function HomePage() {
       {/* 主区：移动端仅作品单列 + 底部页脚，桌面端仅作品两列；侧栏内容仅通过顶部菜单打开 */}
       <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto bg-[#ffffff] md:w-[70%] md:shrink-0 md:h-screen">
         {/* 作品区：移动端统一单列并预留顶栏高度，桌面端两列且保留 full 占两列 */}
-        <div className="p-4 pt-24 grid grid-cols-1 gap-6 md:p-6 md:pt-6 md:grid-cols-2 md:gap-8">
+        <div className="w-full p-4 pt-24 grid grid-cols-1 gap-6 md:p-6 md:pt-6 md:grid-cols-2 md:gap-8">
           {works.map((work, i) => (
             <WorkCard key={work.id} work={work} onClick={handleOpen} isFirst={i === 0} />
           ))}

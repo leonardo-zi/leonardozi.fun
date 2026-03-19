@@ -65,14 +65,20 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
         tabIndex={0}
         onClick={handleActivate}
         onKeyDown={handleKeyDown}
-        className="rounded-[8px] p-2 -m-2 border-[0.5px] border border-transparent transition-[background-color,border-color] duration-200 ease-in-out hover:bg-[#f4f4f4] hover:border-[#e0e0e0] cursor-pointer"
+        className="rounded-[8px] p-2 border-[0.5px] border-transparent transition-[background-color,border-color] duration-200 ease-in-out hover:bg-[#f4f4f4] hover:border-[#e0e0e0] cursor-pointer"
       >
         <div
           className={
-            "relative rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] bg-[#F5F5F5] " +
+            "relative rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] " +
             aspectClass
           }
         >
+          <img
+            src={work.image}
+            alt={work.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
           {work.overlayIcon && (
             <img
               src={work.overlayIcon}
@@ -96,14 +102,10 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
   return (
     <article
       ref={cardRef as React.RefObject<HTMLElement>}
-      className={isFull ? "md:col-span-2" : ""}
+      className={"overflow-hidden rounded-[8px] " + (isFull ? "md:col-span-2" : "")}
     >
-      {/* 样式：full 时 col-span-2 占两列 */}
       {!isVisible ? (
-        <div className="rounded-[8px] p-2 -m-2">
-          {/* 样式：骨架 .work-card-skeleton，full 为 3:2、half 为 1:1 */}
-          <div className={"work-card-skeleton " + aspectClass} />
-        </div>
+        <div className={"h-full work-card-skeleton " + aspectClass} />
       ) : (
         renderCardContent()
       )}
