@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Work } from "../data/works";
-
-const SCROLL_DIRECTION_THRESHOLD = 8;
+import type { Work } from "../works/types";
 
 interface WorkModalProps {
   work: Work;
@@ -15,47 +13,10 @@ const DURATION_MS = 240;
 export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [headerOpacity, setHeaderOpacity] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollContentRef = useRef<HTMLDivElement>(null);
-  const lastScrollTop = useRef(0);
 
-  // Lenis: smooth scroll inside modal (mobile + desktop).
-  useEffect(() => {
-    const LenisCtor = window.Lenis;
-    const wrapper = scrollRef.current;
-    const content = scrollContentRef.current;
-    if (!LenisCtor || !wrapper || !content) return;
-
-    const lenis = new LenisCtor({
-      wrapper,
-      content,
-      smoothWheel: true,
-      lerp: 0.08,
-    });
-
-    let rafId = 0;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, []);
-
-  const handleScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const y = el.scrollTop;
-    const delta = y - lastScrollTop.current;
-    if (Math.abs(delta) >= SCROLL_DIRECTION_THRESHOLD) {
-      setHeaderOpacity(delta > 0 ? 0 : 1);
-    }
-    lastScrollTop.current = y;
+  const requestClose = useCallback(() => {
+    setClosing((prev) => (prev ? prev : true));
   }, []);
 
   useEffect(() => {
@@ -65,18 +26,13 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
     window.addEventListener("keydown", handler);
     setOpen(true);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [requestClose]);
 
   useEffect(() => {
     if (!closing) return;
     const t = setTimeout(() => onClose(), DURATION_MS);
     return () => clearTimeout(t);
   }, [closing, onClose]);
-
-  function requestClose() {
-    if (closing) return;
-    setClosing(true);
-  }
 
   function handleBackdropClick(e: React.MouseEvent) {
     if (e.target === e.currentTarget) requestClose();
@@ -87,12 +43,14 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
     : "scale(0.9)";
   const finalTransform = "translate(0, 0) scale(1)";
   const visible = open && !closing;
+  const details = work.details ?? [];
+  const hasTopCopy = Boolean(work.overview || details.length > 0 || work.typeLabel);
 
   return (
     <>
-      {/* 样式：手机端全屏白底，桌面端居中+毛玻璃+p-4；遮罩透明度 ↓ */}
+      {/* 全屏弹窗：遮罩透明度 ↓ */}
       <div
-        className="work-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-white p-0 md:backdrop-blur-[3px] md:p-4"
+        className="work-modal-backdrop fixed inset-0 z-50 bg-white"
         style={{
           opacity: visible ? 1 : 0, // 弹窗显隐：开=1 关=0
           transition: `opacity ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1), backdrop-filter ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
@@ -102,9 +60,9 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
         aria-modal="true"
         aria-label="作品详情"
       >
-        {/* 样式：边框与圆角同层，手机端无圆角、桌面端 8px 圆角 */}
+        {/* 全屏容器：始终铺满视口 */}
         <div
-          className="work-modal-inner relative flex w-full h-full flex-col bg-white overflow-hidden border-[0.5px] border-[#e0e0e0] rounded-none md:rounded-lg md:w-[75vw] md:h-[95vh] md:max-w-[1100px]"
+          className="work-modal-inner relative flex h-full w-full flex-col overflow-hidden bg-white"
           style={{
             transform: visible ? finalTransform : initialTransform,
             opacity: visible ? 1 : 0.4, // 弹窗盒子透明度：开=1，关时过渡到 0.4（可改）
@@ -112,38 +70,76 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* 关闭按钮：始终固定在右上角 */}
+          <button
+            type="button"
+            onClick={requestClose}
+            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(162,157,150,0.12)] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
+            aria-label="关闭"
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
+              <path d="M4 4l10 10M14 4L4 14" />
+            </svg>
+          </button>
+
           {/* 样式：可滚动内容区 .modal-scroll-hide 隐藏滚动条 */}
           <div
             ref={scrollRef}
             className="flex-1 min-h-0 overflow-y-auto modal-scroll-hide"
-            onScroll={handleScroll}
           >
-            <div ref={scrollContentRef}>
-              {/* 样式：header 吸顶、白底、px-6 py-6 min-h-[52px]；style 控制向下滚渐隐 */}
-              <header
-                className="sticky top-0 z-10 flex shrink-0 items-center justify-between px-6 py-6 min-h-[52px] bg-white"
-                style={{
-                  opacity: headerOpacity, // 向下滚动时 header 渐隐（0~1）
-                  transition: "opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)",
-                }}
-              >
-                <h2 className="text-xl font-medium text-[rgba(38,37,31,1)]">{work.title}</h2>
-                {/* 样式：关闭按钮 40×40 圆形、浅灰底、悬停加深 */}
-                <button
-                  type="button"
-                  onClick={requestClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(162,157,150,0.12)] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
-                  aria-label="关闭"
-                >
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
-                    <path d="M4 4l10 10M14 4L4 14" />
-                  </svg>
-                </button>
-              </header>
-              <div className="p-6">
+            <div className="mx-auto w-full max-w-[1028px]">
+              <div className="px-4 pt-16 pb-6 md:px-6">
+                {hasTopCopy && (
+                  <div className="pb-[22px]">
+                    <div className="text-xs text-[rgba(162,157,150,1)]">
+                      {(work.typeLabel || work.tags?.length) && (
+                        <span className="tracking-[0.12em]">
+                          {work.typeLabel ?? work.tags.join(" · ")}
+                        </span>
+                      )}
+                      {work.date && (
+                        <>
+                          {(work.typeLabel || work.tags?.length) && <span className="px-2">·</span>}
+                          <span>{work.date}</span>
+                        </>
+                      )}
+                    </div>
+
+                    <h2 className="text-[28px] leading-[1.15] font-medium font-serif text-[rgba(38,37,31,1)] md:text-[44px]">
+                      {work.title}
+                    </h2>
+
+                    <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2">
+                      {details.length > 0 && (
+                        <section>
+                          <div className="text-xs font-medium text-[rgba(162,157,150,1)]">信息</div>
+                          <dl className="mt-5 space-y-2 text-sm text-[rgba(38,37,31,0.78)]">
+                            {details.map((item) => (
+                              <div key={`${item.label}-${item.value}`} className="grid grid-cols-[96px_1fr] gap-4">
+                                <dt className="font-medium text-[rgba(38,37,31,0.62)]">{item.label}:</dt>
+                                <dd className="min-w-0">{item.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </section>
+                      )}
+
+                      {(work.overview || work.title) && (
+                        <section>
+                          <div className="text-xs font-medium text-[rgba(162,157,150,1)]">说明</div>
+                          <p className="mt-5 text-sm leading-relaxed text-[rgba(38,37,31,0.78)]">
+                            {work.overview ?? "这里可以放作品说明，后续按需替换内容即可。"}
+                          </p>
+                        </section>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {hasTopCopy && <div className="my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />}
+
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
-                    /* 样式：弹窗内单图容器圆角 6px、浅灰底 */
                     <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
                       <img
                         src={src}
@@ -153,9 +149,8 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
                     </div>
                   ))}
                 </div>
-                <p className="mt-4 text-sm text-[rgba(162,157,150,1)] leading-relaxed">
-                  这里可以放作品说明，后续按需替换内容即可。
-                </p>
+                <div className="my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
+                <div className="h-[60px]" aria-hidden />
               </div>
             </div>
           </div>

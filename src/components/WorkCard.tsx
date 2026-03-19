@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Work } from "../data/works";
+import type { Work } from "../works/types";
 
 interface WorkCardProps {
   work: Work;
@@ -67,13 +67,20 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
         onKeyDown={handleKeyDown}
         className="rounded-[8px] p-2 -m-2 border-[0.5px] border border-transparent transition-[background-color,border-color] duration-200 ease-in-out hover:bg-[#f4f4f4] hover:border-[#e0e0e0] cursor-pointer"
       >
-        <div className={"rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] bg-[rgba(162,157,150,0.12)] " + aspectClass}>
-          <img
-            src={work.image}
-            alt={work.title}
-            className="w-full h-full block object-cover"
-            loading="lazy"
-          />
+        <div
+          className={
+            "relative rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] bg-[#F5F5F5] " +
+            aspectClass
+          }
+        >
+          {work.overlayIcon && (
+            <img
+              src={work.overlayIcon}
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 w-[500px] h-[500px] max-w-[88%] max-h-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
+            />
+          )}
         </div>
         <h3 className="mt-2 text-base font-medium text-[rgba(38,37,31,1)]">{work.title}</h3>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-xs text-[rgba(162,157,150,1)]">
