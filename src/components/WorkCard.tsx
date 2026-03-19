@@ -69,16 +69,10 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
       >
         <div
           className={
-            "relative rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] bg-[rgba(162,157,150,0.12)] " +
+            "relative rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] bg-[#F5F5F5] " +
             aspectClass
           }
         >
-          <img
-            src={work.image}
-            alt={work.title}
-            className="w-full h-full block object-cover"
-            loading="lazy"
-          />
           {work.overlayIcon && (
             <img
               src={work.overlayIcon}
