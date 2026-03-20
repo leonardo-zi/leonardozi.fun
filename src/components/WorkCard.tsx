@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import type { Work } from "../works/types";
-import FadeImage from "./FadeImage";
 
 interface WorkCardProps {
   work: Work;
@@ -74,10 +74,11 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
             aspectClass
           }
         >
-          <FadeImage
+          <img
             src={work.image}
             alt={work.title}
-            fill
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
           />
           {work.overlayIcon && (
             <img
@@ -100,15 +101,26 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
   }
 
   return (
-    <article
+    <motion.article
       ref={cardRef as React.RefObject<HTMLElement>}
       className={"overflow-hidden rounded-[8px] " + (isFull ? "md:col-span-2" : "")}
+      variants={{
+        hidden: { opacity: 0, y: 30 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.5,
+            ease: [0.25, 1, 0.5, 1], // 更轻快干脆的 ease-out
+          }
+        },
+      }}
     >
       {!isVisible ? (
         <div className={"h-full work-card-skeleton " + aspectClass} />
       ) : (
         renderCardContent()
       )}
-    </article>
+    </motion.article>
   );
 }
