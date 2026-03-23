@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* 系统无衬线 + 中文常见 UI 字体（苹方 / 微软雅黑等），避免标题误用宋体衬线 */
+@utility font-ui-sans-cn {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "Segoe UI",
+    sans-serif;
+}
+
 /* 样式：统一小圆角变量，用于按钮、卡片、图片容器 */
 :root {
   --radius-superellipse: 6px;

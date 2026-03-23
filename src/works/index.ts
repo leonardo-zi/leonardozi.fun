@@ -6,14 +6,26 @@ import { work04 } from "./work-04";
 import { work05 } from "./work-05";
 import { work06 } from "./work-06";
 
-const WORKS_WEBP_FALLBACK = ["./works/2.webp", "./works/1.WEBP", "./works/3.webp", "./works/4.webp", "./works/5.webp"];
+/** 弹窗多图 / 未单独配置封面时的占位（均在 public/works/bg） */
+const BG_PLACEHOLDER_IMAGES = [
+  "./works/bg/苏崇铭1.webp",
+  "./works/bg/苏崇铭2.webp",
+  "./works/bg/苏崇铭3.webp",
+  "./works/bg/苏崇铭4.webp",
+  "./works/bg/苏崇铭5.webp",
+  "./works/bg/苏崇铭6.webp",
+  "./works/bg/苏崇铭7.webp",
+  "./works/bg/苏崇铭8.webp",
+  "./works/bg/苏崇铭9.webp",
+  "./works/bg/苏崇铭10.webp",
+];
 
 export const works: Work[] = [work01Poppy, work02, work03, work04, work05, work06].map((w, i) => {
-  const defaultImage = WORKS_WEBP_FALLBACK[i % WORKS_WEBP_FALLBACK.length];
+  const defaultImage = BG_PLACEHOLDER_IMAGES[i % BG_PLACEHOLDER_IMAGES.length];
   const defaultDetailImages = [
-    WORKS_WEBP_FALLBACK[i % WORKS_WEBP_FALLBACK.length],
-    WORKS_WEBP_FALLBACK[(i + 1) % WORKS_WEBP_FALLBACK.length],
-    WORKS_WEBP_FALLBACK[(i + 2) % WORKS_WEBP_FALLBACK.length],
+    BG_PLACEHOLDER_IMAGES[i % BG_PLACEHOLDER_IMAGES.length],
+    BG_PLACEHOLDER_IMAGES[(i + 1) % BG_PLACEHOLDER_IMAGES.length],
+    BG_PLACEHOLDER_IMAGES[(i + 2) % BG_PLACEHOLDER_IMAGES.length],
   ];
   return {
     ...w,

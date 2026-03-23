@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { Work } from "../works/types";
 
 interface WorkCardProps {
@@ -10,6 +10,7 @@ interface WorkCardProps {
 }
 
 export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
+  const reduceMotion = useReducedMotion();
   const [isVisible, setIsVisible] = useState(!!isFirst);
   const cardRef = useRef<HTMLElement | null>(null);
 
@@ -100,21 +101,27 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
     );
   }
 
+  const itemVariants = {
+    hidden: reduceMotion
+      ? { opacity: 0 }
+      : { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: reduceMotion
+        ? { duration: 0.2, ease: "easeOut" as const }
+        : {
+            duration: 0.85,
+            ease: [0.22, 0.65, 0.12, 1] as [number, number, number, number],
+          },
+    },
+  };
+
   return (
     <motion.article
       ref={cardRef as React.RefObject<HTMLElement>}
       className={"overflow-hidden rounded-[8px] " + (isFull ? "md:col-span-2" : "")}
-      variants={{
-        hidden: { opacity: 0, y: 30 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: {
-            duration: 0.5,
-            ease: [0.25, 1, 0.5, 1], // 更轻快干脆的 ease-out
-          }
-        },
-      }}
+      variants={itemVariants}
     >
       {!isVisible ? (
         <div className={"h-full work-card-skeleton " + aspectClass} />

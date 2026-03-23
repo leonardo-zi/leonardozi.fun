@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import WorkCard from "../components/WorkCard";
 import WorkModal from "../components/WorkModal";
 import { works } from "../works";
@@ -46,6 +46,7 @@ const SCROLL_THRESHOLD = 8;
 const SIDEBAR_DURATION_MS = 240;
 
 export default function HomePage() {
+  const reduceMotion = useReducedMotion();
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const [modalOrigin, setModalOrigin] = useState<ModalOrigin | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -175,15 +176,17 @@ export default function HomePage() {
         <motion.div
           className="w-full p-4 pt-24 grid grid-cols-1 gap-6 md:p-6 md:pt-6 md:grid-cols-2 md:gap-8"
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "100px" }}
+          animate="visible"
           variants={{
-            hidden: { opacity: 0 },
+            hidden: {},
             visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-              },
+              transition: reduceMotion
+                ? { staggerChildren: 0, delayChildren: 0 }
+                : {
+                    /** 放慢节奏：保证每一张都能被清楚看到再出现下一张 */
+                    delayChildren: 0.55,
+                    staggerChildren: 0.62,
+                  },
             },
           }}
         >

@@ -44,7 +44,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
   const finalTransform = "translate(0, 0) scale(1)";
   const visible = open && !closing;
   const details = work.details ?? [];
-  const hasTopCopy = Boolean(work.overview || details.length > 0 || work.typeLabel);
+  const hasTopCopy = Boolean(work.title || work.overview || details.length > 0);
 
   return (
     <>
@@ -91,29 +91,14 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
               <div className="px-4 pt-16 pb-6 md:px-6">
                 {hasTopCopy && (
                   <div className="pb-[22px]">
-                    <div className="text-xs text-[rgba(162,157,150,1)]">
-                      {(work.typeLabel || work.tags?.length) && (
-                        <span className="tracking-[0.12em]">
-                          {work.typeLabel ?? work.tags.join(" · ")}
-                        </span>
-                      )}
-                      {work.date && (
-                        <>
-                          {(work.typeLabel || work.tags?.length) && <span className="px-2">·</span>}
-                          <span>{work.date}</span>
-                        </>
-                      )}
-                    </div>
-
-                    <h2 className="text-[28px] leading-[1.15] font-medium font-serif text-[rgba(38,37,31,1)] md:text-[44px]">
+                    <h2 className="text-[28px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)] md:text-[44px]">
                       {work.title}
                     </h2>
 
                     <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2">
                       {details.length > 0 && (
                         <section>
-                          <div className="text-xs font-medium text-[rgba(162,157,150,1)]">信息</div>
-                          <dl className="mt-5 space-y-2 text-sm text-[rgba(38,37,31,0.78)]">
+                          <dl className="space-y-2 text-sm text-[rgba(38,37,31,0.78)]">
                             {details.map((item) => (
                               <div key={`${item.label}-${item.value}`} className="grid grid-cols-[96px_1fr] gap-4">
                                 <dt className="font-medium text-[rgba(38,37,31,0.62)]">{item.label}:</dt>
@@ -126,8 +111,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
 
                       {(work.overview || work.title) && (
                         <section>
-                          <div className="text-xs font-medium text-[rgba(162,157,150,1)]">说明</div>
-                          <p className="mt-5 text-sm leading-relaxed text-[rgba(38,37,31,0.78)]">
+                          <p className="text-sm leading-relaxed text-[rgba(38,37,31,0.78)]">
                             {work.overview ?? "这里可以放作品说明，后续按需替换内容即可。"}
                           </p>
                         </section>
