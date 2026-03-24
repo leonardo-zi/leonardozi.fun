@@ -184,8 +184,8 @@ export default function HomePage() {
                 ? { staggerChildren: 0, delayChildren: 0 }
                 : {
                     /** 放慢节奏：保证每一张都能被清楚看到再出现下一张 */
-                    delayChildren: 0.55,
-                    staggerChildren: 0.62,
+                    delayChildren: 0.2,
+                    staggerChildren: 0.3,
                   },
             },
           }}

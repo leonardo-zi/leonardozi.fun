@@ -104,7 +104,7 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
   const itemVariants = {
     hidden: reduceMotion
       ? { opacity: 0 }
-      : { opacity: 0, y: 40 },
+      : { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
