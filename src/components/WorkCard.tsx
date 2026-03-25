@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import gsap from "gsap";
 import type { Work } from "../works/types";
 
 interface WorkCardProps {
@@ -8,10 +8,11 @@ interface WorkCardProps {
   /** 首张卡片直接可见，避免懒加载未触发导致点不开 */
   isFirst?: boolean;
   lang: "cn" | "en";
+  /** 用于控制逐张出现的延时顺序 */
+  animationIndex?: number;
 }
 
-export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps) {
-  const reduceMotion = useReducedMotion();
+export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0 }: WorkCardProps) {
   const [isVisible, setIsVisible] = useState(!!isFirst);
   const cardRef = useRef<HTMLElement | null>(null);
 
@@ -95,25 +96,27 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
     );
   }
 
-  const itemVariants = {
-    hidden: reduceMotion
-      ? { opacity: 0 }
-      : { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: reduceMotion
-        ? { duration: 0.2, ease: "easeOut" as const }
-        : {
-            duration: 0.85,
-            ease: [0.22, 0.65, 0.12, 1] as [number, number, number, number],
-          },
-    },
-  };
+  // 用 gsap 确保每次挂载都能“推入”动画（避免 framer 在某些条件下看起来不触发）
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    gsap.killTweensOf(el);
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 28 },
+      {
+        opacity: 1,
+        y: 0,
+        delay: Math.min(0.6, animationIndex * 0.085),
+        duration: 0.85,
+        ease: "power3.out",
+      }
+    );
+  }, [animationIndex]);
 
   return (
-    <motion.article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden rounded-[8px]" variants={itemVariants}>
+    <article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden rounded-[8px]">
       {!isVisible ? <div className="work-card-skeleton min-h-[200px] w-full" /> : renderCardContent()}
-    </motion.article>
+    </article>
   );
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import WorkCard from "../components/WorkCard";
 import WorkModal from "../components/WorkModal";
@@ -264,9 +264,8 @@ function LanguageToggleButtons({ lang, onChange }: { lang: Lang; onChange: (l: L
       >
         CN
         <span
-          className={`pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-[0.5px] w-full origin-left bg-[#000000] transition-transform duration-150 ease-in-out ${
-            cnSelected ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-          }`}
+          className={`pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-[0.5px] w-full origin-left bg-[#000000] transition-transform duration-150 ease-in-out ${cnSelected ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+            }`}
         />
       </button>
       <div className="h-[0.5px] w-[10px] bg-[#aaa]" aria-hidden />
@@ -278,9 +277,8 @@ function LanguageToggleButtons({ lang, onChange }: { lang: Lang; onChange: (l: L
       >
         EN
         <span
-          className={`pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-[0.5px] w-full origin-left bg-[#000000] transition-transform duration-150 ease-in-out ${
-            enSelected ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-          }`}
+          className={`pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-[0.5px] w-full origin-left bg-[#000000] transition-transform duration-150 ease-in-out ${enSelected ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+            }`}
         />
       </button>
     </>
@@ -291,7 +289,6 @@ const SCROLL_THRESHOLD = 8;
 const SIDEBAR_DURATION_MS = 240;
 
 export default function HomePage() {
-  const reduceMotion = useReducedMotion();
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window === "undefined") return "cn";
     const saved = window.localStorage.getItem("lang");
@@ -305,6 +302,9 @@ export default function HomePage() {
       // ignore
     }
   }, [lang]);
+
+  // 页面加载时生成一次：保证“刷新后”每次都会重新挂载 WorkCard 并播放入场动画
+  const [pageLoadNonce] = useState(() => Date.now());
 
   const worksLeftColumn = worksInIdsOrder(works, WORK_IDS_LEFT_COLUMN);
   const worksRightColumn = worksInIdsOrder(works, WORK_IDS_RIGHT_COLUMN);
@@ -421,8 +421,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* 桌面端：左侧边栏；在 <=800px 时移到页面顶部 */}
-      {!isMobileLayout ? (
+      {/* 桌面端：左侧边栏（手机模式下移入 main，随作品一起滚动） */}
+      {!isMobileLayout && (
         <aside className="hidden w-full max-w-[360px] shrink-0 flex-col overflow-hidden bg-[#ffffff] md:flex md:h-screen">
           <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
             <SiteMark />
@@ -445,30 +445,33 @@ export default function HomePage() {
             <Copyright lang={lang} />
           </div>
         </aside>
-      ) : (
-        <aside className="w-full shrink-0 flex-col bg-[#ffffff]">
-          <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
-            <SiteMark />
-          </div>
-          <div className="px-6 py-0">
-            <div className="flex flex-col gap-[32px]">
-              <div className="flex flex-col gap-3 text-[12px] leading-relaxed text-[#000000]">
-                <div>
-                  {lang === "en"
-                    ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
-                    : "用代码和设计做点小东西。这里是个人作品与笔记的集合，偶尔写写界面、原型和想法。"}
-                </div>
-                <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
-              </div>
-
-              <SidebarToc lang={lang} />
-            </div>
-          </div>
-        </aside>
       )}
 
       {/* 主区：移动端仅作品单列 + 底部页脚，桌面端仅作品两列；侧栏内容仅通过顶部菜单打开 */}
       <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto bg-[#ffffff] md:min-w-0 md:h-screen">
+        {/* 手机模式：把左侧边栏内容放在作品上方，随 main 一起滚动 */}
+        {isMobileLayout && (
+          <aside className="w-full shrink-0 flex-col bg-[#ffffff]">
+            <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
+              <SiteMark />
+            </div>
+            <div className="px-6 py-0 pb-[50px]">
+              <div className="flex flex-col gap-[32px]">
+                <div className="flex flex-col gap-3 text-[12px] leading-relaxed text-[#000000]">
+                  <div>
+                    {lang === "en"
+                      ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
+                      : "用代码和设计做点小东西。这里是个人作品与笔记的集合，偶尔写写界面、原型和想法。"}
+                  </div>
+                  <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
+                </div>
+
+                <SidebarToc lang={lang} />
+              </div>
+            </div>
+          </aside>
+        )}
+
         {/* 作品区：语言栏/作品列 */}
         <div className="flex w-full flex-col items-stretch gap-0 p-4 pt-0 pb-0 md:px-4">
           {/* 桌面端语言切换展示：在 <=800px 时合并到版权条里 */}
@@ -481,69 +484,57 @@ export default function HomePage() {
           )}
 
           {/* 作品列：<=1230px 时单列（穿插另一列）；>1230px 时两列 */}
-          <div className={isSingleColumn ? "flex w-full flex-col gap-0" : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-0"}>
+          <div
+            className={
+              isSingleColumn
+                ? "flex w-full flex-col gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+                : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+            }
+          >
             {isSingleColumn ? (
               <motion.div
                 className="flex min-w-0 flex-1 flex-col gap-2"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: {},
-                  visible: {
-                    transition: reduceMotion
-                      ? { staggerChildren: 0, delayChildren: 0 }
-                      : {
-                          delayChildren: 0.2,
-                          staggerChildren: 0.3,
-                        },
-                  },
-                }}
               >
                 {worksInterleaved.map((work, i) => (
-                  <WorkCard key={work.id} work={work} onClick={handleOpen} isFirst={i === 0} lang={lang} />
+                  <WorkCard
+                    key={`${work.id}-${pageLoadNonce}`}
+                    work={work}
+                    onClick={handleOpen}
+                    isFirst={i === 0}
+                    lang={lang}
+                    animationIndex={i}
+                  />
                 ))}
               </motion.div>
             ) : (
               <>
                 <motion.div
                   className="flex min-w-0 flex-1 flex-col gap-2"
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    hidden: {},
-                    visible: {
-                      transition: reduceMotion
-                        ? { staggerChildren: 0, delayChildren: 0 }
-                        : {
-                            delayChildren: 0.2,
-                            staggerChildren: 0.3,
-                          },
-                    },
-                  }}
                 >
                   {worksLeftColumn.map((work, i) => (
-                    <WorkCard key={work.id} work={work} onClick={handleOpen} isFirst={i === 0} lang={lang} />
+                    <WorkCard
+                      key={`${work.id}-${pageLoadNonce}`}
+                      work={work}
+                      onClick={handleOpen}
+                      isFirst={i === 0}
+                      lang={lang}
+                      animationIndex={i}
+                    />
                   ))}
                 </motion.div>
 
                 <motion.div
                   className="flex min-w-0 flex-1 flex-col gap-2"
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    hidden: {},
-                    visible: {
-                      transition: reduceMotion
-                        ? { staggerChildren: 0, delayChildren: 0 }
-                        : {
-                            delayChildren: 0.25,
-                            staggerChildren: 0.3,
-                          },
-                    },
-                  }}
                 >
-                  {worksRightColumn.map((work) => (
-                    <WorkCard key={work.id} work={work} onClick={handleOpen} isFirst={false} lang={lang} />
+                  {worksRightColumn.map((work, i) => (
+                    <WorkCard
+                      key={`${work.id}-${pageLoadNonce}`}
+                      work={work}
+                      onClick={handleOpen}
+                      isFirst={false}
+                      lang={lang}
+                      animationIndex={i + worksLeftColumn.length}
+                    />
                   ))}
                 </motion.div>
               </>

@@ -9,9 +9,9 @@ interface WorkModalProps {
 }
 
 /** 弹窗打开/关闭动画时长（ms） */
-const DURATION_MS = 240;
+const DURATION_MS = 360;
 
-export default function WorkModal({ work, origin, onClose, lang }: WorkModalProps) {
+export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,10 +39,9 @@ export default function WorkModal({ work, origin, onClose, lang }: WorkModalProp
     if (e.target === e.currentTarget) requestClose();
   }
 
-  const initialTransform = origin
-    ? `translate(${origin.dx}px, ${origin.dy}px) scale(0.6)`
-    : "scale(0.9)";
-  const finalTransform = "translate(0, 0) scale(1)";
+  // 改成全屏遮罩的淡入淡出：不再根据点击位置做“从卡片弹出”平移/缩放
+  const initialTransform = "scale(0.98)";
+  const finalTransform = "scale(1)";
   const visible = open && !closing;
   const details = (lang === "en" ? work.detailsEn ?? work.details : work.details) ?? [];
   const overview = lang === "en" ? work.overviewEn ?? work.overview : work.overview;
@@ -54,8 +53,11 @@ export default function WorkModal({ work, origin, onClose, lang }: WorkModalProp
       <div
         className="work-modal-backdrop fixed inset-0 z-50 bg-white"
         style={{
-          opacity: visible ? 1 : 0, // 弹窗显隐：开=1 关=0
-          transition: `opacity ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1), backdrop-filter ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
+          // 让背景在遮罩中“看得见但更虚”：白色遮罩 + backdrop blur
+          opacity: visible ? 1 : 0,
+          backgroundColor: "rgba(255, 255, 255, 0.86)",
+          backdropFilter: visible ? "blur(10px)" : "blur(0px)",
+          transition: `opacity ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1), backdrop-filter ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1), background-color ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
         }}
         onClick={handleBackdropClick}
         role="dialog"
@@ -67,7 +69,7 @@ export default function WorkModal({ work, origin, onClose, lang }: WorkModalProp
           className="work-modal-inner relative flex h-full w-full flex-col overflow-hidden bg-white"
           style={{
             transform: visible ? finalTransform : initialTransform,
-            opacity: visible ? 1 : 0.4, // 弹窗盒子透明度：开=1，关时过渡到 0.4（可改）
+            opacity: visible ? 1 : 0,
             transition: `transform ${DURATION_MS}ms cubic-bezier(0.16, 1, 0.3, 1), opacity ${DURATION_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`,
           }}
           onClick={(e) => e.stopPropagation()}
