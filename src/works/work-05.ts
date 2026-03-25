@@ -4,18 +4,29 @@ export const work05: Work = {
   id: "5",
   title: "Wisdom Horse",
   image: "./works/bg/苏崇铭7.webp",
+  cardImageHeightPx: 650,
   overlayIcon: "./works/wisdomhorse/wisdomhorse-icon.svg",
   tags: ["网页"],
+  tagsEn: ["Webpage"],
   date: "2025/01/01",
   typeLabel: "作品五 / 网页",
+  typeLabelEn: "Work 05 / Webpage",
   details: [
     { label: "作品类型", value: "图文叙事页面" },
     { label: "时间", value: "2025/01" },
     { label: "关键词", value: "图文比例、段落节奏、滚动体验" },
     { label: "关注点", value: "轻量、顺滑、可读" },
   ],
+  detailsEn: [
+    { label: "Type", value: "Image-and-Text Narrative Page" },
+    { label: "Time", value: "2025/01" },
+    { label: "Keywords", value: "Image/Text Proportion, Paragraph Rhythm, Scrolling Experience" },
+    { label: "Focus", value: "Lightweight, Smooth, Readable" },
+  ],
   overview:
     "一次偏叙事的排版实验：让图片承载情绪、文字承载信息，通过留白与对齐关系引导视线；滚动过程保持克制和顺滑。",
+  overviewEn:
+    "A narrative-leaning typography experiment: let images carry emotion while text carries information. Guide the eye through whitespace and alignment; keep the scroll process restrained and smooth.",
   layout: "half",
   detailImages: [
     "./works/wisdomhorse/02-03.webp",

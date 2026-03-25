@@ -16,7 +16,7 @@
 
 /* 样式：统一小圆角变量，用于按钮、卡片、图片容器 */
 :root {
-  --radius-superellipse: 6px;
+  --radius-superellipse: 4px;
 }
 
 .rounded-superellipse {
@@ -39,7 +39,7 @@
   display: none;
 }
 
-/* 样式：根容器横向布局、水平居中、最大宽度 1028px；移动端由 App 内 flex-col 控制 */
+/* 样式：根容器水平居中、最大宽度 1760px */
 #root {
   display: flex;
   flex-direction: column;
@@ -47,8 +47,9 @@
   text-align: left;
   padding-left: 0;
   padding-right: 0;
-  max-width: 1028px;
+  max-width: 1760px;
   width: 100%;
+  min-height: 100vh;
 }
 
 @media (min-width: 768px) {

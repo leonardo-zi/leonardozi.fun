@@ -5,12 +5,13 @@ interface WorkModalProps {
   work: Work;
   origin?: { dx: number; dy: number };
   onClose: () => void;
+  lang: "cn" | "en";
 }
 
 /** 弹窗打开/关闭动画时长（ms） */
 const DURATION_MS = 240;
 
-export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
+export default function WorkModal({ work, origin, onClose, lang }: WorkModalProps) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -43,8 +44,9 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
     : "scale(0.9)";
   const finalTransform = "translate(0, 0) scale(1)";
   const visible = open && !closing;
-  const details = work.details ?? [];
-  const hasTopCopy = Boolean(work.title || work.overview || details.length > 0);
+  const details = (lang === "en" ? work.detailsEn ?? work.details : work.details) ?? [];
+  const overview = lang === "en" ? work.overviewEn ?? work.overview : work.overview;
+  const hasTopCopy = Boolean(work.title || overview || details.length > 0);
 
   return (
     <>
@@ -109,10 +111,10 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
                         </section>
                       )}
 
-                      {(work.overview || work.title) && (
+                      {(overview || work.title) && (
                         <section>
                           <p className="text-sm leading-relaxed text-[rgba(38,37,31,0.78)]">
-                            {work.overview ?? "这里可以放作品说明，后续按需替换内容即可。"}
+                            {overview ?? "You can place a project description here and update it as needed."}
                           </p>
                         </section>
                       )}
@@ -124,7 +126,7 @@ export default function WorkModal({ work, origin, onClose }: WorkModalProps) {
 
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
-                    <div key={i} className="rounded-[6px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
+                    <div key={i} className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
                       <img
                         src={src}
                         alt={`${work.title} - ${i + 1}`}

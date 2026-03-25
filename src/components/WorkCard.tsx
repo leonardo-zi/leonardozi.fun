@@ -7,9 +7,10 @@ interface WorkCardProps {
   onClick?: (work: Work, origin: { x: number; y: number }) => void;
   /** 首张卡片直接可见，避免懒加载未触发导致点不开 */
   isFirst?: boolean;
+  lang: "cn" | "en";
 }
 
-export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
+export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps) {
   const reduceMotion = useReducedMotion();
   const [isVisible, setIsVisible] = useState(!!isFirst);
   const cardRef = useRef<HTMLElement | null>(null);
@@ -57,9 +58,6 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
     }
   }
 
-  const isFull = work.layout === "full";
-  const aspectClass = isFull ? "aspect-3/2" : "aspect-square";
-
   function renderCardContent() {
     return (
       <div
@@ -67,18 +65,14 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
         tabIndex={0}
         onClick={handleActivate}
         onKeyDown={handleKeyDown}
-        className="rounded-[8px] p-2 border-[0.5px] border-transparent transition-[background-color,border-color] duration-200 ease-in-out hover:bg-[#f4f4f4] hover:border-[#e0e0e0] cursor-pointer"
+        className="rounded-[8px] p-2 border-[0.5px] border-transparent cursor-pointer"
       >
-        <div
-          className={
-            "relative rounded-superellipse overflow-hidden border-[0.5px] border-[#e0e0e0] " +
-            aspectClass
-          }
-        >
+        <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#e0e0e0]">
           <img
             src={work.image}
             alt={work.title}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="block w-full object-cover"
+            style={{ height: work.cardImageHeightPx ?? 509 }}
             loading="lazy"
           />
           {work.overlayIcon && (
@@ -86,13 +80,13 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
               src={work.overlayIcon}
               alt=""
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 w-[500px] h-[500px] max-w-[88%] max-h-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
+              className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
             />
           )}
         </div>
-        <h3 className="mt-2 text-base font-medium text-[rgba(38,37,31,1)]">{work.title}</h3>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-xs text-[rgba(162,157,150,1)]">
-          {work.tags.map((tag) => (
+        <h3 className="mt-2 text-[12px] font-medium text-[#000000]">{work.title}</h3>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-[12px] text-[#000000]">
+          {(lang === "en" ? work.tagsEn ?? work.tags : work.tags).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
           <span>{work.date}</span>
@@ -118,16 +112,8 @@ export default function WorkCard({ work, onClick, isFirst }: WorkCardProps) {
   };
 
   return (
-    <motion.article
-      ref={cardRef as React.RefObject<HTMLElement>}
-      className={"overflow-hidden rounded-[8px] " + (isFull ? "md:col-span-2" : "")}
-      variants={itemVariants}
-    >
-      {!isVisible ? (
-        <div className={"h-full work-card-skeleton " + aspectClass} />
-      ) : (
-        renderCardContent()
-      )}
+    <motion.article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden rounded-[8px]" variants={itemVariants}>
+      {!isVisible ? <div className="work-card-skeleton min-h-[200px] w-full" /> : renderCardContent()}
     </motion.article>
   );
 }

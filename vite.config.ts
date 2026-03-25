@@ -6,4 +6,7 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 export default defineConfig({
   base: "./",
   plugins: [react(), tailwindcss(), viteSingleFile()],
+  server: {
+    port: 5173,
+  },
 });
