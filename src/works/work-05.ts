@@ -2,7 +2,7 @@ import type { Work } from "./types";
 
 export const work05: Work = {
   id: "5",
-  title: "溪桥烟树",
+  title: "Wisdom Horse",
   image: "./works/bg/苏崇铭7.webp",
   overlayIcon: "./works/wisdomhorse/wisdomhorse-icon.svg",
   tags: ["网页"],
@@ -17,4 +17,26 @@ export const work05: Work = {
   overview:
     "一次偏叙事的排版实验：让图片承载情绪、文字承载信息，通过留白与对齐关系引导视线；滚动过程保持克制和顺滑。",
   layout: "half",
+  detailImages: [
+    "./works/wisdomhorse/02-03.webp",
+    "./works/wisdomhorse/02-04.webp",
+    "./works/wisdomhorse/02-05.webp",
+    "./works/wisdomhorse/02-06.webp",
+    "./works/wisdomhorse/03-02.webp",
+    "./works/wisdomhorse/03-03.webp",
+    "./works/wisdomhorse/03-04.webp",
+    "./works/wisdomhorse/03-05.webp",
+    "./works/wisdomhorse/03-06.webp",
+    "./works/wisdomhorse/04-02.webp",
+    "./works/wisdomhorse/04-03.webp",
+    "./works/wisdomhorse/04-04.webp",
+    "./works/wisdomhorse/04-05.webp",
+    "./works/wisdomhorse/04-06.webp",
+    "./works/wisdomhorse/05-02.webp",
+    "./works/wisdomhorse/05-03.webp",
+    "./works/wisdomhorse/05-04.webp",
+    "./works/wisdomhorse/05-05.webp",
+    "./works/wisdomhorse/05-06.webp",
+    "./works/wisdomhorse/05-07.webp",
+  ],
 };

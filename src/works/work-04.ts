@@ -2,7 +2,7 @@ import type { Work } from "./types";
 
 export const work04: Work = {
   id: "4",
-  title: "远山疏林",
+  title: "Others",
   image: "./works/bg/苏崇铭4.webp",
   overlayIcon: "./works/leonardozi/leonardozi-icon.svg",
   tags: ["网页"],
@@ -15,6 +15,12 @@ export const work04: Work = {
     { label: "输出", value: "基础组件 + 页面模板" },
   ],
   overview:
-    "用更“系统化”的方式组织页面：把间距、圆角与交互状态统一，减少视觉漂移；内容层级更清晰，后续迭代可以更快更稳。",
+    "用更\"系统化\"的方式组织页面：把间距、圆角与交互状态统一，减少视觉漂移；内容层级更清晰，后续迭代可以更快更稳。",
   layout: "half",
+  detailImages: [
+    "./works/leonardozi/11-02.webp",
+    "./works/leonardozi/11-03.webp",
+    "./works/leonardozi/11-04.webp",
+    "./works/leonardozi/11-05.webp",
+  ],
 };

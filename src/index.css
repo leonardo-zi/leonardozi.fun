@@ -122,7 +122,7 @@ body {
   background-size: 400% 100%;
   background-clip: text;
   -webkit-background-clip: text;
-  animation: title-sweep 1.2s ease-out forwards;
+  animation: title-sweep 1.2s ease-out 0.5s forwards;
 }
 
 /* 样式：标题扫光动画关键帧，起始透明+渐变在右，结束不透明+渐变在左 */

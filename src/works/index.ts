@@ -4,7 +4,6 @@ import { work02 } from "./work-02";
 import { work03 } from "./work-03";
 import { work04 } from "./work-04";
 import { work05 } from "./work-05";
-import { work06 } from "./work-06";
 
 /** 弹窗多图 / 未单独配置封面时的占位（均在 public/works/bg） */
 const BG_PLACEHOLDER_IMAGES = [
@@ -20,7 +19,7 @@ const BG_PLACEHOLDER_IMAGES = [
   "./works/bg/苏崇铭10.webp",
 ];
 
-export const works: Work[] = [work01Poppy, work02, work03, work04, work05, work06].map((w, i) => {
+export const works: Work[] = [work01Poppy, work02, work03, work04, work05].map((w, i) => {
   const defaultImage = BG_PLACEHOLDER_IMAGES[i % BG_PLACEHOLDER_IMAGES.length];
   const defaultDetailImages = [
     BG_PLACEHOLDER_IMAGES[i % BG_PLACEHOLDER_IMAGES.length],
