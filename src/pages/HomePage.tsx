@@ -2,14 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import WorkCard from "../components/WorkCard";
-import WorkModal from "../components/WorkModal";
+import LenisPreventScrollArea from "../components/LenisPreventScrollArea";
+import WorkDetailPage from "./WorkDetailPage";
 import { works } from "../works";
 import type { Work } from "../works/types";
-
-interface ModalOrigin {
-  dx: number;
-  dy: number;
-}
 
 const CURRENT_YEAR = new Date().getFullYear();
 const SITE_ICON_SRC = "/works/icon/leonardozi_icon.png";
@@ -82,7 +78,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
           </svg>
         </button>
       </div>
-      <div className="flex-1 min-h-0 overflow-y-auto px-6 py-0">
+      <LenisPreventScrollArea className="flex-1 min-h-0 overflow-y-auto px-6 py-0">
         <div className="flex flex-col gap-[32px]">
           <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
             <div>{desc1}</div>
@@ -143,7 +139,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
             </div>
           </div>
         </div>
-      </div>
+      </LenisPreventScrollArea>
     </div>
   );
 }
@@ -285,8 +281,26 @@ function LanguageToggleButtons({ lang, onChange }: { lang: Lang; onChange: (l: L
   );
 }
 
-const SCROLL_THRESHOLD = 8;
 const SIDEBAR_DURATION_MS = 240;
+const WORK_QUERY_KEY = "work";
+
+function getWorkIdFromLocation(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get(WORK_QUERY_KEY);
+    return id && id.trim().length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+function setWorkIdInLocation(id: string | null) {
+  const url = new URL(window.location.href);
+  if (id) url.searchParams.set(WORK_QUERY_KEY, id);
+  else url.searchParams.delete(WORK_QUERY_KEY);
+  window.history.pushState({}, "", url);
+}
 
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>(() => {
@@ -336,14 +350,11 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, [worksInterleaved, worksLeftColumn, worksRightColumn]);
 
-  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
-  const [modalOrigin, setModalOrigin] = useState<ModalOrigin | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarClosing, setSidebarClosing] = useState(false);
   const [sidebarJustOpened, setSidebarJustOpened] = useState(false);
-  const [mobileHeaderOpacity, setMobileHeaderOpacity] = useState(1);
   const mainRef = useRef<HTMLDivElement>(null);
-  const lastScrollTop = useRef(0);
+  const [activeWorkId, setActiveWorkId] = useState<string | null>(() => getWorkIdFromLocation());
 
   const isSingleColumn = useMediaQuery("(max-width: 1230px)");
   const isMobileLayout = useMediaQuery("(max-width: 800px)");
@@ -368,73 +379,32 @@ export default function HomePage() {
     return () => clearTimeout(t);
   }, [sidebarClosing]);
 
-  const handleOpen = useCallback((work: Work, origin: { x: number; y: number }) => {
-    const viewportCenterX = window.innerWidth / 2;
-    const viewportCenterY = window.innerHeight / 2;
-    setModalOrigin({
-      dx: origin.x - viewportCenterX,
-      dy: origin.y - viewportCenterY,
-    });
-    setSelectedWork(work);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setSelectedWork(null);
-    setModalOrigin(null);
-  }, []);
-
-  const onMobileScroll = useCallback(() => {
-    // iOS Safari 需要使用 window/body 的自然滚动才能触发地址栏收起；
-    // 当我们用内部容器滚动（overflow-y-auto + h-screen）时，顶部栏不会收起。
-    // 因此移动端不再监听 mainRef 的 scroll。
-    if (isMobileLayout) return;
-    const el = mainRef.current;
-    if (!el) return;
-    const y = el.scrollTop;
-    const delta = y - lastScrollTop.current;
-    if (Math.abs(delta) >= SCROLL_THRESHOLD) {
-      setMobileHeaderOpacity(delta > 0 ? 0 : 1);
-    }
-    lastScrollTop.current = y;
-  }, [isMobileLayout]);
-
+  // 详情页：支持浏览器返回/前进（popstate）
   useEffect(() => {
-    if (isMobileLayout) return;
-    const el = mainRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", onMobileScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onMobileScroll);
-  }, [isMobileLayout, onMobileScroll]);
+    const onPopState = () => setActiveWorkId(getWorkIdFromLocation());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  const activeWork = activeWorkId ? works.find((w) => w.id === activeWorkId) ?? null : null;
+
+  const openWorkDetails = useCallback((work: Work) => {
+    setWorkIdInLocation(work.id);
+    setActiveWorkId(work.id);
+  }, []);
+
+  const closeWorkDetails = useCallback(() => {
+    setWorkIdInLocation(null);
+    setActiveWorkId(null);
+  }, []);
+
+  // 详情页：整页覆盖主页（不保留左侧栏/作品列表布局）
+  if (activeWork) {
+    return <WorkDetailPage work={activeWork} lang={lang} onBack={closeWorkDetails} />;
+  }
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row md:h-screen md:overflow-hidden">
-      {/* 移动端：顶部栏 = 菜单按钮 + 标题，滚动时消失；仅 < 768px */}
-      <header
-        className="sidebar-top-bar fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between bg-transparent px-4 py-4 md:hidden max-[800px]:hidden"
-        style={{
-          opacity: mobileHeaderOpacity,
-          paddingTop: "calc(env(safe-area-inset-top, 0px) + 16px)",
-          backgroundColor: "rgba(255, 255, 255, 0.72)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <SiteMark />
-        <button
-          type="button"
-          onClick={() => {
-            setSidebarOpen(true);
-            setSidebarClosing(false);
-            setSidebarJustOpened(true);
-          }}
-          className="flex h-10 w-10 items-center justify-center rounded-[6px] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
-          aria-label="打开菜单"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 6h18M3 12h18M3 18h18" />
-          </svg>
-        </button>
-      </header>
-
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* 移动端：全屏侧栏遮罩，打开/关闭带 240ms 淡入淡出 */}
       {sidebarOpen && (
         <div
@@ -456,11 +426,11 @@ export default function HomePage() {
 
       {/* 桌面端：左侧边栏（手机模式下移入 main，随作品一起滚动） */}
       {!isMobileLayout && (
-        <aside className="hidden w-full max-w-[360px] shrink-0 flex-col overflow-hidden bg-[#ffffff] md:flex md:h-screen">
+        <aside className="hidden w-full max-w-[360px] shrink-0 flex-col overflow-hidden bg-[#ffffff] md:flex md:sticky md:top-0 md:h-screen">
           <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
             <SiteMark />
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto px-6 py-0">
+          <LenisPreventScrollArea className="flex-1 min-h-0 overflow-y-auto px-6 py-0">
             <div className="flex flex-col gap-[32px]">
               <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
                 <div>
@@ -473,7 +443,7 @@ export default function HomePage() {
 
               <SidebarToc lang={lang} />
             </div>
-          </div>
+          </LenisPreventScrollArea>
           <div className="h-[60px] shrink-0 flex items-center px-6">
             <Copyright lang={lang} />
           </div>
@@ -483,80 +453,58 @@ export default function HomePage() {
       {/* 主区：移动端仅作品单列 + 底部页脚，桌面端仅作品两列；侧栏内容仅通过顶部菜单打开 */}
       <main
         ref={isMobileLayout ? undefined : mainRef}
-        className={
-          isMobileLayout
-            ? "flex-1 bg-[#ffffff] md:min-w-0"
-            : "min-h-0 flex-1 overflow-y-auto bg-[#ffffff] md:min-w-0 md:h-screen"
-        }
+        className="flex-1 bg-[#ffffff] md:min-w-0"
       >
-        {/* 手机模式：把左侧边栏内容放在作品上方，随 main 一起滚动 */}
-        {isMobileLayout && (
-          <aside className="w-full shrink-0 flex-col bg-[#ffffff]">
-            <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
-              <SiteMark />
-            </div>
-            <div className="px-6 py-0 pb-[50px]">
-              <div className="flex flex-col gap-[32px]">
-                <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
-                  <div>
-                    {lang === "en"
-                      ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
-                      : "用代码和设计做点小东西。这里是个人作品与笔记的集合，偶尔写写界面、原型和想法。"}
+        <>
+          {/* 手机模式：把左侧边栏内容放在作品上方，随 main 一起滚动 */}
+          {isMobileLayout && (
+            <aside className="w-full shrink-0 flex-col bg-[#ffffff]">
+              <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
+                <SiteMark />
+              </div>
+              <div className="px-6 py-0 pb-[50px]">
+                <div className="flex flex-col gap-[32px]">
+                  <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
+                    <div>
+                      {lang === "en"
+                        ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
+                        : "用代码和设计做点小东西。这里是个人作品与笔记的集合，偶尔写写界面、原型和想法。"}
+                    </div>
+                    <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
                   </div>
-                  <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
+
+                  <SidebarToc lang={lang} />
                 </div>
-
-                <SidebarToc lang={lang} />
               </div>
-            </div>
-          </aside>
-        )}
-
-        {/* 作品区：语言栏/作品列 */}
-        <div className="flex w-full flex-col items-stretch gap-0 p-4 pt-0 pb-0 md:px-4">
-          {/* 桌面端语言切换展示：在 <=800px 时合并到版权条里 */}
-          {!isMobileLayout && (
-            <div className="hidden h-[67px] w-full items-center justify-end gap-[6px] px-[9px] md:flex">
-              <div className="flex items-center gap-[6px]">
-                <LanguageToggleButtons lang={lang} onChange={setLang} />
-              </div>
-            </div>
+            </aside>
           )}
 
-          {/* 作品列：<=1230px 时单列（穿插另一列）；>1230px 时两列 */}
-          <div
-            className={
-              isSingleColumn
-                ? "flex w-full flex-col gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
-                : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
-            }
-          >
-            {isSingleColumn ? (
-              <motion.div
-                className="flex min-w-0 flex-1 flex-col gap-2"
-              >
-                {worksInterleaved.map((work, i) => (
-                  <WorkCard
-                    key={`${work.id}-${pageLoadNonce}`}
-                    work={work}
-                    onClick={handleOpen}
-                    isFirst={i === 0}
-                    lang={lang}
-                    animationIndex={i}
-                    loadNonce={pageLoadNonce}
-                  />
-                ))}
-              </motion.div>
-            ) : (
-              <>
-                <motion.div
-                  className="flex min-w-0 flex-1 flex-col gap-2"
-                >
-                  {worksLeftColumn.map((work, i) => (
+          {/* 作品区：语言栏/作品列 */}
+          <div className="flex w-full flex-col items-stretch gap-0 p-4 pt-0 pb-0 md:px-4">
+            {/* 桌面端语言切换展示：在 <=800px 时合并到版权条里 */}
+            {!isMobileLayout && (
+              <div className="hidden h-[76px] w-full items-center justify-end gap-[6px] px-[9px] md:flex">
+                <div className="flex items-center gap-[6px]">
+                  <LanguageToggleButtons lang={lang} onChange={setLang} />
+                </div>
+              </div>
+            )}
+
+            {/* 作品列：<=1230px 时单列（穿插另一列）；>1230px 时两列 */}
+            <div
+              className={
+                isSingleColumn
+                  ? "flex w-full flex-col gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+                  : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+              }
+            >
+              {isSingleColumn ? (
+                <motion.div className="flex min-w-0 flex-1 flex-col gap-2">
+                  {worksInterleaved.map((work, i) => (
                     <WorkCard
                       key={`${work.id}-${pageLoadNonce}`}
                       work={work}
-                      onClick={handleOpen}
+                      onClick={(w) => openWorkDetails(w)}
                       isFirst={i === 0}
                       lang={lang}
                       animationIndex={i}
@@ -564,46 +512,58 @@ export default function HomePage() {
                     />
                   ))}
                 </motion.div>
+              ) : (
+                <>
+                  <motion.div className="flex min-w-0 flex-1 flex-col gap-2">
+                    {worksLeftColumn.map((work, i) => (
+                      <WorkCard
+                        key={`${work.id}-${pageLoadNonce}`}
+                        work={work}
+                        onClick={(w) => openWorkDetails(w)}
+                        isFirst={i === 0}
+                        lang={lang}
+                        animationIndex={i}
+                        loadNonce={pageLoadNonce}
+                      />
+                    ))}
+                  </motion.div>
 
-                <motion.div
-                  className="flex min-w-0 flex-1 flex-col gap-2"
-                >
-                  {worksRightColumn.map((work, i) => (
-                    <WorkCard
-                      key={`${work.id}-${pageLoadNonce}`}
-                      work={work}
-                      onClick={handleOpen}
-                      isFirst={false}
-                      lang={lang}
-                      animationIndex={i + worksLeftColumn.length}
-                      loadNonce={pageLoadNonce}
-                    />
-                  ))}
-                </motion.div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* <=800px：把左侧底部版权条移到作品栏下面，并把语言按钮合并到右侧 */}
-        {isMobileLayout && (
-          <div className="flex h-[60px] items-center justify-between px-6">
-            <div className="text-[14px] sm:text-[12px] text-[#000000]">©{CURRENT_YEAR} leonardozi</div>
-            <div className="flex items-center gap-[6px]">
-              <LanguageToggleButtons lang={lang} onChange={setLang} />
+                  <motion.div className="flex min-w-0 flex-1 flex-col gap-2">
+                    {worksRightColumn.map((work, i) => (
+                      <WorkCard
+                        key={`${work.id}-${pageLoadNonce}`}
+                        work={work}
+                        onClick={(w) => openWorkDetails(w)}
+                        isFirst={false}
+                        lang={lang}
+                        animationIndex={i + worksLeftColumn.length}
+                        loadNonce={pageLoadNonce}
+                      />
+                    ))}
+                  </motion.div>
+                </>
+              )}
             </div>
           </div>
-        )}
 
-        {/* 移动端：页脚放在页面最底部，仅 < 768px 且未进入 <=800px 布局 */}
-        {!isMobileLayout && (
-          <div className="flex items-center justify-center px-4 py-6 md:hidden">
-            <Copyright lang={lang} />
-          </div>
-        )}
+          {/* <=800px：把左侧底部版权条移到作品栏下面，并把语言按钮合并到右侧 */}
+          {isMobileLayout && (
+            <div className="flex h-[60px] items-center justify-between px-6">
+              <div className="text-[14px] sm:text-[12px] text-[#000000]">©{CURRENT_YEAR} leonardozi</div>
+              <div className="flex items-center gap-[6px]">
+                <LanguageToggleButtons lang={lang} onChange={setLang} />
+              </div>
+            </div>
+          )}
+
+          {/* 移动端：页脚放在页面最底部，仅 < 768px 且未进入 <=800px 布局 */}
+          {!isMobileLayout && (
+            <div className="flex items-center justify-center px-4 py-6 md:hidden">
+              <Copyright lang={lang} />
+            </div>
+          )}
+        </>
       </main>
-
-      {selectedWork && <WorkModal work={selectedWork} origin={modalOrigin ?? undefined} onClose={handleClose} lang={lang} />}
     </div>
   );
 }
