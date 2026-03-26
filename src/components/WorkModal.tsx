@@ -91,8 +91,8 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
             ref={scrollRef}
             className="flex-1 min-h-0 overflow-y-auto modal-scroll-hide"
           >
-            <div className="mx-auto w-full max-w-[1028px]">
-              <div className="px-4 pt-16 pb-6 md:px-6">
+            <div className="mx-auto w-full max-w-[700px]">
+              <div className="px-0 pt-16 pb-6 md:px-0">
                 {hasTopCopy && (
                   <div className="pb-[22px]">
                     <h2 className="text-[28px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)] md:text-[44px]">

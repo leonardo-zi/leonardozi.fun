@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
 import type { Work } from "../works/types";
 
 interface WorkCardProps {
@@ -10,9 +9,11 @@ interface WorkCardProps {
   lang: "cn" | "en";
   /** 用于控制逐张出现的延时顺序 */
   animationIndex?: number;
+  /** 每次页面硬刷新都不同：用于强制重新初始化入场动画 */
+  loadNonce: number;
 }
 
-export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0 }: WorkCardProps) {
+export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0, loadNonce }: WorkCardProps) {
   const [isVisible, setIsVisible] = useState(!!isFirst);
   const cardRef = useRef<HTMLElement | null>(null);
 
@@ -96,23 +97,12 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     );
   }
 
-  // 用 gsap 确保每次挂载都能“推入”动画（避免 framer 在某些条件下看起来不触发）
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    gsap.killTweensOf(el);
-    gsap.fromTo(
-      el,
-      { opacity: 0, y: 28 },
-      {
-        opacity: 1,
-        y: 0,
-        delay: Math.min(0.6, animationIndex * 0.085),
-        duration: 0.85,
-        ease: "power3.out",
-      }
-    );
-  }, [animationIndex]);
+  // 关闭所有“进入/加载”动效：isVisible=true 时直接渲染最终卡片内容
+  // 保留 IntersectionObserver 的加载控制逻辑，避免影响点击/交互。
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  void animationIndex;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  void loadNonce;
 
   return (
     <article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden rounded-[8px]">

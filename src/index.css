@@ -123,33 +123,11 @@ body {
   background-size: 400% 100%;
   background-clip: text;
   -webkit-background-clip: text;
-  animation: title-sweep 1.2s ease-out 0.5s forwards;
-}
-
-/* 样式：标题扫光动画关键帧，起始透明+渐变在右，结束不透明+渐变在左 */
-@keyframes title-sweep {
-  from {
-    opacity: 0;
-    background-position: 100% 0%;
-  }
-  to {
-    opacity: 1;
-    background-position: 0% 0%;
-  }
+  /* 删除加载扫光动画：避免与其他进入动效冲突/卡顿 */
+  animation: none;
 }
 
 /* 样式：整页内容加载/刷新时从透明淡入，时长 0.6s */
-.intro-fade-in {
-  animation: intro-fade-in 0.6s ease-out forwards;
-}
-@keyframes intro-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
 /* 样式：作品卡片懒加载骨架，灰底 #f4f4f4、圆角 8px */
 .work-card-skeleton {
@@ -170,12 +148,15 @@ body {
     rgba(255, 255, 255, 0.6) 45%,
     rgba(255, 255, 255, 0) 80%
   );
-  transform: translateX(-100%);
-  animation: work-card-shimmer 1.2s ease-in-out infinite;
+  /* 去掉无限扫光动画，避免首屏多骨架并行动画导致卡顿 */
+  transform: none;
+  animation: none;
 }
 
-@keyframes work-card-shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+/* 全站禁用动画/过渡：只保留内容与交互逻辑 */
+*,
+*::before,
+*::after {
+  animation: none !important;
+  transition: none !important;
 }

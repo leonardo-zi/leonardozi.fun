@@ -376,7 +376,7 @@ export default function HomePage() {
   }, [onMobileScroll]);
 
   return (
-    <div className="intro-fade-in flex h-screen flex-col overflow-hidden md:flex-row">
+    <div className="flex h-screen flex-col overflow-hidden md:flex-row">
       {/* 移动端：顶部栏 = 菜单按钮 + 标题，滚动时消失；仅 < 768px */}
       <header
         className="sidebar-top-bar fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between bg-white px-4 py-4 md:hidden max-[800px]:hidden"
@@ -503,6 +503,7 @@ export default function HomePage() {
                     isFirst={i === 0}
                     lang={lang}
                     animationIndex={i}
+                    loadNonce={pageLoadNonce}
                   />
                 ))}
               </motion.div>
@@ -519,6 +520,7 @@ export default function HomePage() {
                       isFirst={i === 0}
                       lang={lang}
                       animationIndex={i}
+                      loadNonce={pageLoadNonce}
                     />
                   ))}
                 </motion.div>
@@ -534,6 +536,7 @@ export default function HomePage() {
                       isFirst={false}
                       lang={lang}
                       animationIndex={i + worksLeftColumn.length}
+                      loadNonce={pageLoadNonce}
                     />
                   ))}
                 </motion.div>
