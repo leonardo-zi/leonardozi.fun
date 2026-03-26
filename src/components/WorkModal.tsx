@@ -94,15 +94,15 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
             ref={scrollRef}
             className="flex-1 min-h-0 overflow-y-auto modal-scroll-hide"
           >
-            <div className="mx-auto w-full max-w-[700px]">
-              <div className="px-0 pt-16 pb-6 md:px-0">
+            <div className="mx-auto w-full max-w-[700px] px-6 sm:px-8 md:px-0">
+              <div className="pt-20 pb-8 min-[801px]:pt-24">
                 {hasTopCopy && (
-                  <div className="pb-[22px]">
-                    <h2 className="text-[28px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)] md:text-[44px]">
+                  <div className="pb-6 min-[801px]:pb-8">
+                    <h2 className="text-[28px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)] min-[801px]:text-[44px]">
                       {work.title}
                     </h2>
 
-                    <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2">
+                    <div className="mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 min-[801px]:grid-cols-2">
                       {details.length > 0 && (
                         <section>
                           <dl className="space-y-2 text-sm text-[rgba(38,37,31,0.78)]">
@@ -127,7 +127,7 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                   </div>
                 )}
 
-                {hasTopCopy && <div className="my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />}
+                {hasTopCopy && <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />}
 
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
@@ -142,7 +142,7 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                     </div>
                   ))}
                 </div>
-                <div className="my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
+                <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
                 <div className="h-[60px]" aria-hidden />
               </div>
             </div>
