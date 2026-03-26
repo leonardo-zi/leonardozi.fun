@@ -358,6 +358,10 @@ export default function HomePage() {
   }, []);
 
   const onMobileScroll = useCallback(() => {
+    // iOS Safari 需要使用 window/body 的自然滚动才能触发地址栏收起；
+    // 当我们用内部容器滚动（overflow-y-auto + h-screen）时，顶部栏不会收起。
+    // 因此移动端不再监听 mainRef 的 scroll。
+    if (isMobileLayout) return;
     const el = mainRef.current;
     if (!el) return;
     const y = el.scrollTop;
@@ -366,17 +370,18 @@ export default function HomePage() {
       setMobileHeaderOpacity(delta > 0 ? 0 : 1);
     }
     lastScrollTop.current = y;
-  }, []);
+  }, [isMobileLayout]);
 
   useEffect(() => {
+    if (isMobileLayout) return;
     const el = mainRef.current;
     if (!el) return;
     el.addEventListener("scroll", onMobileScroll, { passive: true });
     return () => el.removeEventListener("scroll", onMobileScroll);
-  }, [onMobileScroll]);
+  }, [isMobileLayout, onMobileScroll]);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden md:flex-row">
+    <div className="flex min-h-screen flex-col md:flex-row md:h-screen md:overflow-hidden">
       {/* 移动端：顶部栏 = 菜单按钮 + 标题，滚动时消失；仅 < 768px */}
       <header
         className="sidebar-top-bar fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between bg-transparent px-4 py-4 md:hidden max-[800px]:hidden"
@@ -450,7 +455,14 @@ export default function HomePage() {
       )}
 
       {/* 主区：移动端仅作品单列 + 底部页脚，桌面端仅作品两列；侧栏内容仅通过顶部菜单打开 */}
-      <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto bg-[#ffffff] md:min-w-0 md:h-screen">
+      <main
+        ref={isMobileLayout ? undefined : mainRef}
+        className={
+          isMobileLayout
+            ? "flex-1 bg-[#ffffff] md:min-w-0"
+            : "min-h-0 flex-1 overflow-y-auto bg-[#ffffff] md:min-w-0 md:h-screen"
+        }
+      >
         {/* 手机模式：把左侧边栏内容放在作品上方，随 main 一起滚动 */}
         {isMobileLayout && (
           <aside className="w-full shrink-0 flex-col bg-[#ffffff]">
