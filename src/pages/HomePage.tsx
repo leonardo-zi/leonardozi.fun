@@ -310,6 +310,32 @@ export default function HomePage() {
   const worksRightColumn = worksInIdsOrder(works, WORK_IDS_RIGHT_COLUMN);
   const worksInterleaved = interleaveByIndex(worksLeftColumn, worksRightColumn);
 
+  useEffect(() => {
+    // 预取“下一个最可能被看到”的卡片图，减少滚动后等待。
+    const nextWorkImage =
+      (worksInterleaved[1]?.image ?? worksLeftColumn[1]?.image ?? worksRightColumn[0]?.image) || null;
+
+    if (!nextWorkImage) return;
+
+    const run = () => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = nextWorkImage;
+    };
+
+    if ("requestIdleCallback" in window) {
+      const id = (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout?: number }) => number }).requestIdleCallback(run, {
+        timeout: 1200,
+      });
+      return () => {
+        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
+      };
+    }
+
+    const t = setTimeout(run, 350);
+    return () => clearTimeout(t);
+  }, [worksInterleaved, worksLeftColumn, worksRightColumn]);
+
   const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const [modalOrigin, setModalOrigin] = useState<ModalOrigin | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);

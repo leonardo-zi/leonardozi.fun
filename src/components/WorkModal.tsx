@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Work } from "../works/types";
+import ModalLazyImage from "./ModalLazyImage";
 
 interface WorkModalProps {
   work: Work;
@@ -10,6 +11,7 @@ interface WorkModalProps {
 
 /** 弹窗打开/关闭动画时长（ms） */
 const DURATION_MS = 360;
+const EAGER_IMAGES_COUNT = 1;
 
 export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
   const [open, setOpen] = useState(false);
@@ -130,10 +132,12 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                 <div className="flex flex-col gap-4">
                   {(work.detailImages ?? [work.image]).map((src, i) => (
                     <div key={i} className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
-                      <img
+                      <ModalLazyImage
                         src={src}
                         alt={`${work.title} - ${i + 1}`}
-                        className="w-full h-auto block object-cover"
+                        eager={i < EAGER_IMAGES_COUNT}
+                        scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                        placeholderMinHeight={240}
                       />
                     </div>
                   ))}

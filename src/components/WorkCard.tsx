@@ -61,6 +61,9 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
   }
 
   function renderCardContent() {
+    const isPriorityImage = Boolean(isFirst);
+    const cardImageHeightPx = work.cardImageHeightPx ?? 509;
+
     return (
       <div
         role="button"
@@ -74,8 +77,10 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
             src={work.image}
             alt={work.title}
             className="block w-full object-cover"
-            style={{ height: work.cardImageHeightPx ?? 509 }}
-            loading="lazy"
+            style={{ height: cardImageHeightPx }}
+            loading={isPriorityImage ? "eager" : "lazy"}
+            fetchPriority={isPriorityImage ? "high" : "auto"}
+            decoding="async"
           />
           {work.overlayIcon && (
             <img
@@ -83,6 +88,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
               alt=""
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
+              decoding="async"
             />
           )}
         </div>
