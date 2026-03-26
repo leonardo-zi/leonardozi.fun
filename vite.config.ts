@@ -7,6 +7,6 @@ export default defineConfig({
   base: "./",
   plugins: [react(), tailwindcss(), viteSingleFile()],
   server: {
-    port: 5173,
+    port: 4414,
   },
 });

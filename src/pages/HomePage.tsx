@@ -379,10 +379,12 @@ export default function HomePage() {
     <div className="flex h-screen flex-col overflow-hidden md:flex-row">
       {/* 移动端：顶部栏 = 菜单按钮 + 标题，滚动时消失；仅 < 768px */}
       <header
-        className="sidebar-top-bar fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between bg-white px-4 py-4 md:hidden max-[800px]:hidden"
+        className="sidebar-top-bar fixed left-0 right-0 top-0 z-40 flex shrink-0 items-center justify-between bg-transparent px-4 py-4 md:hidden max-[800px]:hidden"
         style={{
           opacity: mobileHeaderOpacity,
-          transition: "opacity 150ms cubic-bezier(0.33, 1, 0.68, 1)",
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 16px)",
+          backgroundColor: "rgba(255, 255, 255, 0.72)",
+          backdropFilter: "blur(12px)",
         }}
       >
         <SiteMark />

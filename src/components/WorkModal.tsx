@@ -79,6 +79,7 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
             type="button"
             onClick={requestClose}
             className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(162,157,150,0.12)] text-[rgba(162,157,150,1)] hover:bg-[rgba(162,157,150,0.2)]"
+            style={{ top: "calc(env(safe-area-inset-top, 0px) + 16px)" }}
             aria-label="关闭"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
