@@ -51,10 +51,13 @@ export default function WorkDetailPage({
               <button
                 type="button"
                 onClick={onBack}
-                className="inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[12px] text-[rgba(38,37,31,1)]"
+                className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[12px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
               >
                 <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={16} height={16} aria-hidden />
-                {lang === "en" ? "Back to home" : "返回主页"}
+                <span className="relative inline-block">
+                  {lang === "en" ? "Back to home" : "返回主页"}
+                  <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[rgba(38,37,31,1)] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                </span>
               </button>
             </div>
 
@@ -68,17 +71,28 @@ export default function WorkDetailPage({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[12px] text-[rgba(38,37,31,1)]"
+                  className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[12px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
                 >
                   <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={16} height={16} aria-hidden />
-                  {lang === "en" ? "Back to home" : "返回主页"}
+                  <span className="relative inline-block">
+                    {lang === "en" ? "Back to home" : "返回主页"}
+                    <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[rgba(38,37,31,1)] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                  </span>
                 </button>
               </div>
 
               {/* 主页/作品：仅桌面端显示 */}
               <div className="hidden min-[1020px]:flex h-fit pt-[76px] items-center">
                 <div className="text-[12px] text-[rgba(38,37,31,0.62)]">
-                  {lang === "en" ? "Home" : "主页"} / {work.title}
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="group relative inline-flex items-center text-[12px] text-[rgba(38,37,31,0.62)] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
+                    {lang === "en" ? "Home" : "主页"}
+                    <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[rgba(38,37,31,0.62)] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                  </button>{" "}
+                  / {work.title}
                 </div>
               </div>
 

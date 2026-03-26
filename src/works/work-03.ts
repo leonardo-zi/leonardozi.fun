@@ -9,6 +9,8 @@ export const work03: Work = {
   tags: ["网页"],
   tagsEn: ["Webpage"],
   date: "2025/01/01",
+  cardIntro: "单页网页练习，聚焦栅格与排版节奏。",
+  cardIntroEn: "Single-page web study focused on grid and typographic rhythm.",
   typeLabel: "作品三 / 网页",
   typeLabelEn: "Work 03 / Webpage",
   details: [

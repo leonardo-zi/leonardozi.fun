@@ -9,6 +9,8 @@ export const work05: Work = {
   tags: ["网页"],
   tagsEn: ["Webpage"],
   date: "2025/01/01",
+  cardIntro: "图文叙事排版实验，强调留白与阅读流。",
+  cardIntroEn: "Image-text narrative layout study focused on whitespace and reading flow.",
   typeLabel: "作品五 / 网页",
   typeLabelEn: "Work 05 / Webpage",
   details: [

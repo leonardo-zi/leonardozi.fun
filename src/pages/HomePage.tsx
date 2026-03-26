@@ -60,6 +60,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
   const tocTitle = lang === "en" ? "Contents" : "目录";
   const tocPhotos = lang === "en" ? "Photos" : "照片";
   const tocReading = lang === "en" ? "Reading" : "阅读";
+  const tocMusic = lang === "en" ? "Music" : "音乐";
   const tocContact = lang === "en" ? "Contact" : "联络";
   const tocResume = lang === "en" ? "Resume" : "简历";
 
@@ -80,7 +81,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
       </div>
       <LenisPreventScrollArea className="flex-1 min-h-0 overflow-y-auto px-6 py-0">
         <div className="flex flex-col gap-[32px]">
-          <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
+          <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-[16px] text-[#000000]">
             <div>{desc1}</div>
             <div>{desc2}</div>
           </div>
@@ -90,50 +91,75 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
             <div className="mt-[28px] flex flex-col gap-[24px]">
               {/* 目录块：标题div + 条目列表div */}
               <div className="flex flex-col">
-                <div className="text-[14px] sm:text-[12px] font-semibold leading-none text-[#000000]">{tocTitle}</div>
+                <div className="text-[14px] sm:text-[12px] font-semibold leading-[16px] text-[#000000]">{tocTitle}</div>
                 <div className="mt-[12px] flex flex-col gap-[6px]">
-                  <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+                  <button
+                    type="button"
+                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
                     <span className="relative inline-block">
                       {tocPhotos}
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                     </span>
                     <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
-                  </div>
-                  <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+                  </button>
+                  <button
+                    type="button"
+                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
                     <span className="relative inline-block">
                       {tocReading}
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                     </span>
                     <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
-                  </div>
+                  </button>
+                  <button
+                    type="button"
+                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
+                    <span className="relative inline-block">
+                      {tocMusic}
+                      <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                    </span>
+                    <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
+                  </button>
                 </div>
               </div>
 
               {/* 联络块：标题div + 条目列表div */}
               <div className="flex flex-col">
-                <div className="text-[14px] sm:text-[12px] font-semibold leading-none text-[#000000]">{tocContact}</div>
+                <div className="text-[14px] sm:text-[12px] font-semibold leading-[16px] text-[#000000]">{tocContact}</div>
                 <div className="mt-[12px] flex flex-col gap-[6px]">
-                  <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+                  <button
+                    type="button"
+                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
                     <span className="relative inline-block">
                       {tocResume}
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                     </span>
                     <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-                  </div>
-                  <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+                  </button>
+                  <button
+                    type="button"
+                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
                     <span className="relative inline-block">
                       Email
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                     </span>
                     <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-                  </div>
-                  <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+                  </button>
+                  <button
+                    type="button"
+                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                  >
                     <span className="relative inline-block">
                       WeChat
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                     </span>
                     <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -148,6 +174,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const tocTitle = lang === "en" ? "Contents" : "目录";
   const tocPhotos = lang === "en" ? "Photos" : "照片";
   const tocReading = lang === "en" ? "Reading" : "阅读";
+  const tocMusic = lang === "en" ? "Music" : "音乐";
   const tocContact = lang === "en" ? "Contact" : "联络";
   const tocResume = lang === "en" ? "Resume" : "简历";
 
@@ -157,50 +184,75 @@ function SidebarToc({ lang }: { lang: Lang }) {
         <div className="h-[0.5px] w-full bg-[#aaa]" />
         {/* 目录块：标题div + 条目列表div */}
         <div className="flex flex-col">
-          <div className="text-[14px] sm:text-[12px] font-semibold leading-none text-[#000000]">{tocTitle}</div>
+          <div className="text-[14px] sm:text-[12px] font-semibold leading-[16px] text-[#000000]">{tocTitle}</div>
           <div className="mt-[12px] flex flex-col gap-[6px]">
-            <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+            >
               <span className="relative inline-block">
                 {tocPhotos}
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
               </span>
               <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </div>
-            <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+            </button>
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+            >
               <span className="relative inline-block">
                 {tocReading}
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
               </span>
               <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </div>
+            </button>
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+            >
+              <span className="relative inline-block">
+                {tocMusic}
+                <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+              </span>
+              <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
+            </button>
           </div>
         </div>
 
         {/* 联络块：标题div + 条目列表div */}
         <div className="flex flex-col">
-          <div className="text-[14px] sm:text-[12px] font-semibold leading-none text-[#000000]">{tocContact}</div>
+          <div className="text-[14px] sm:text-[12px] font-semibold leading-[16px] text-[#000000]">{tocContact}</div>
           <div className="mt-[12px] flex flex-col gap-[6px]">
-            <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+            >
               <span className="relative inline-block">
                 {tocResume}
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
               </span>
               <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </div>
-            <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+            </button>
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+            >
               <span className="relative inline-block">
                 Email
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
               </span>
               <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </div>
-            <div className="group flex items-center justify-between text-[14px] sm:text-[12px] text-[#000000]">
+            </button>
+            <button
+              type="button"
+              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+            >
               <span className="relative inline-block">
                 WeChat
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
               </span>
               <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -254,7 +306,7 @@ function LanguageToggleButtons({ lang, onChange }: { lang: Lang; onChange: (l: L
     <>
       <button
         type="button"
-        className={`group relative flex h-[28px] w-[20px] items-center justify-center text-[14px] sm:text-[12px] leading-none ${cnSelected ? "text-[#000000]" : "text-[#aaa]"}`}
+        className={`group relative flex h-[28px] w-[20px] items-center justify-center text-[14px] sm:text-[12px] leading-none cursor-pointer hover:opacity-80 active:opacity-60 ${cnSelected ? "text-[#000000]" : "text-[#aaa]"}`}
         aria-current={cnSelected ? "page" : undefined}
         onClick={() => onChange("cn")}
       >
@@ -267,7 +319,7 @@ function LanguageToggleButtons({ lang, onChange }: { lang: Lang; onChange: (l: L
       <div className="h-[0.5px] w-[10px] bg-[#aaa]" aria-hidden />
       <button
         type="button"
-        className={`group relative flex h-[28px] w-[20px] items-center justify-center text-[14px] sm:text-[12px] leading-none ${enSelected ? "text-[#000000]" : "text-[#aaa]"}`}
+        className={`group relative flex h-[28px] w-[20px] items-center justify-center text-[14px] sm:text-[12px] leading-none cursor-pointer hover:opacity-80 active:opacity-60 ${enSelected ? "text-[#000000]" : "text-[#aaa]"}`}
         aria-current={enSelected ? "page" : undefined}
         onClick={() => onChange("en")}
       >
@@ -432,7 +484,7 @@ export default function HomePage() {
           </div>
           <LenisPreventScrollArea className="flex-1 min-h-0 overflow-y-auto px-6 py-0">
             <div className="flex flex-col gap-[32px]">
-              <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
+              <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-[16px] text-[#000000]">
                 <div>
                   {lang === "en"
                     ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
@@ -464,7 +516,7 @@ export default function HomePage() {
               </div>
               <div className="px-6 py-0 pb-[50px]">
                 <div className="flex flex-col gap-[32px]">
-                  <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-relaxed text-[#000000]">
+                  <div className="flex flex-col gap-3 text-[14px] sm:text-[12px] leading-[16px] text-[#000000]">
                     <div>
                       {lang === "en"
                         ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."

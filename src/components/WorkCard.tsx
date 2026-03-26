@@ -63,6 +63,15 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
   function renderCardContent() {
     const isPriorityImage = Boolean(isFirst);
     const cardImageHeightPx = work.cardImageHeightPx ?? 509;
+    const year = (() => {
+      const m = String(work.date ?? "").match(/\b(\d{4})\b/);
+      return m?.[1] ?? String(work.date ?? "").slice(0, 4);
+    })();
+    const cardIntro =
+      (lang === "en" ? work.cardIntroEn ?? work.cardIntro : work.cardIntro) ??
+      (lang === "en" ? work.typeLabelEn ?? work.typeLabel : work.typeLabel) ??
+      (lang === "en" ? work.overviewEn ?? work.overview : work.overview) ??
+      "";
 
     return (
       <div
@@ -92,12 +101,12 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
             />
           )}
         </div>
-        <h3 className="mt-2 text-[14px] sm:text-[12px] font-medium text-[#000000]">{work.title}</h3>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-[14px] sm:text-[12px] text-[#000000]">
-          {(lang === "en" ? work.tagsEn ?? work.tags : work.tags).map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-          <span>{work.date}</span>
+        <div className="mt-2 flex flex-col gap-1 leading-[16px]">
+          <div className="flex items-baseline justify-between gap-3">
+            <h3 className="min-w-0 text-[12px] font-normal text-[#000000] truncate">{work.title}</h3>
+            <div className="shrink-0 text-[12px] text-[#000000] tabular-nums">{year}</div>
+          </div>
+          <div className="text-[11px] text-[#888888] line-clamp-2">{cardIntro}</div>
         </div>
       </div>
     );

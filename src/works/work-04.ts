@@ -8,6 +8,8 @@ export const work04: Work = {
   tags: ["网页"],
   tagsEn: ["Webpage"],
   date: "2025/01/01",
+  cardIntro: "组件化页面结构练习，强调一致性与可复用。",
+  cardIntroEn: "Componentized page study focused on consistency and reusability.",
   typeLabel: "作品四 / 网页",
   typeLabelEn: "Work 04 / Webpage",
   details: [

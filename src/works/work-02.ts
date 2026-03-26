@@ -9,6 +9,8 @@ export const work02: Work = {
   tags: ["品牌", "视觉"],
   tagsEn: ["Brand", "Visuals"],
   date: "2025/02/01",
+  cardIntro: "品牌视觉小体系探索，统一色彩与图形语言。",
+  cardIntroEn: "Mini brand visual system study with unified color and graphic language.",
   typeLabel: "作品二 / 品牌与视觉",
   typeLabelEn: "Work 02 / Brand & Visuals",
   details: [

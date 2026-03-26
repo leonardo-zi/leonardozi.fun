@@ -14,6 +14,8 @@ export const work01Poppy: Work = {
   tags: ["界面", "原型"],
   tagsEn: ["Interface", "Prototype"],
   date: "2025/03/01",
+  cardIntro: "移动端界面练习，强调清晰层级与易读性。",
+  cardIntroEn: "Mobile UI study focused on clear hierarchy and readability.",
   typeLabel: "作品一 / 界面与原型",
   typeLabelEn: "Work 01 / Interface & Prototype",
   details: [

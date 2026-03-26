@@ -13,6 +13,10 @@ export interface Work {
   /** English version of tags (optional) */
   tagsEn?: string[];
   date: string;
+  /** WorkCard 第二行简介（可选，不填会回退到 typeLabel/overview） */
+  cardIntro?: string;
+  /** English version of cardIntro (optional) */
+  cardIntroEn?: string;
   /** 弹窗顶部信息（可选） */
   typeLabel?: string;
   /** English version of typeLabel (optional) */
