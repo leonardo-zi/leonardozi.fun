@@ -86,8 +86,8 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
             />
           )}
         </div>
-        <h3 className="mt-2 text-[12px] font-medium text-[#000000]">{work.title}</h3>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-[12px] text-[#000000]">
+        <h3 className="mt-2 text-[14px] sm:text-[12px] font-medium text-[#000000]">{work.title}</h3>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0 text-[14px] sm:text-[12px] text-[#000000]">
           {(lang === "en" ? work.tagsEn ?? work.tags : work.tags).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
