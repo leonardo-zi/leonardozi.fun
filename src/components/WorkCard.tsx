@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import type { Work } from "../works/types";
 
 interface WorkCardProps {
@@ -14,34 +13,6 @@ interface WorkCardProps {
 }
 
 export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0, loadNonce }: WorkCardProps) {
-  const [isVisible, setIsVisible] = useState(!!isFirst);
-  const cardRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const el = cardRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: "120px 0px",
-        threshold: 0.1,
-      }
-    );
-
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, []);
-
   function handleActivate(e: React.MouseEvent | React.KeyboardEvent) {
     if (!onClick) return;
     const target = e.currentTarget as HTMLElement;
@@ -112,16 +83,12 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     );
   }
 
-  // 关闭所有“进入/加载”动效：isVisible=true 时直接渲染最终卡片内容
-  // 保留 IntersectionObserver 的加载控制逻辑，避免影响点击/交互。
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   void animationIndex;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   void loadNonce;
 
   return (
-    <article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden rounded-[8px]">
-      {!isVisible ? <div className="work-card-skeleton min-h-[200px] w-full" /> : renderCardContent()}
-    </article>
+    <article className="min-w-0 overflow-hidden rounded-[8px]">{renderCardContent()}</article>
   );
 }

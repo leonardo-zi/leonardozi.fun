@@ -51,9 +51,9 @@ export default function WorkDetailPage({
               <button
                 type="button"
                 onClick={onBack}
-                className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[12px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
+                className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[11px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
               >
-                <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={16} height={16} aria-hidden />
+                <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={14} height={14} aria-hidden />
                 <span className="relative inline-block">
                   {lang === "en" ? "Back to home" : "返回主页"}
                   <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[rgba(38,37,31,1)] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
@@ -71,9 +71,9 @@ export default function WorkDetailPage({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[12px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
+                  className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[11px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
                 >
-                  <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={16} height={16} aria-hidden />
+                  <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={14} height={14} aria-hidden />
                   <span className="relative inline-block">
                     {lang === "en" ? "Back to home" : "返回主页"}
                     <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[rgba(38,37,31,1)] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
@@ -83,33 +83,34 @@ export default function WorkDetailPage({
 
               {/* 主页/作品：仅桌面端显示 */}
               <div className="hidden min-[1020px]:flex h-fit pt-[76px] items-center">
-                <div className="text-[12px] text-[rgba(38,37,31,0.62)]">
+                <div className="text-[11px] text-[#000000]">
                   <button
                     type="button"
                     onClick={onBack}
-                    className="group relative inline-flex items-center text-[12px] text-[rgba(38,37,31,0.62)] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className="group relative inline-flex items-center text-[11px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
                   >
                     {lang === "en" ? "Home" : "主页"}
-                    <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[rgba(38,37,31,0.62)] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
-                  </button>{" "}
-                  / {work.title}
+                    <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                  </button>
+                  {" / "}
+                  <span className="text-[#aaaaaa]">{work.title}</span>
                 </div>
               </div>
 
               {hasTopCopy && (
                 <div className="pt-8 pb-6 min-[801px]:pb-8">
-                  <h2 className="text-[28px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)] min-[801px]:text-[44px]">
+                  <h2 className="text-[24px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)]">
                     {work.title}
                   </h2>
 
                   <div className="mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 min-[801px]:grid-cols-2">
                     {details.length > 0 && (
                       <section>
-                        <dl className="space-y-2 text-sm text-[rgba(38,37,31,0.78)]">
+                        <dl className="space-y-2 text-[11px] text-[#000000]">
                           {details.map((item) => (
                             <div key={`${item.label}-${item.value}`} className="grid grid-cols-[96px_1fr] gap-4">
-                              <dt className="font-medium text-[rgba(38,37,31,0.62)]">{item.label}:</dt>
-                              <dd className="min-w-0">{item.value}</dd>
+                              <dt className="font-medium text-[#aaaaaa]">{item.label}:</dt>
+                              <dd className="min-w-0 text-[#000000]">{item.value}</dd>
                             </div>
                           ))}
                         </dl>
@@ -118,7 +119,7 @@ export default function WorkDetailPage({
 
                     {(overview || work.title) && (
                       <section>
-                        <p className="text-sm leading-relaxed text-[rgba(38,37,31,0.78)]">
+                        <p className="text-[11px] leading-relaxed text-[#000000]">
                           {overview ?? "You can place a project description here and update it as needed."}
                         </p>
                       </section>

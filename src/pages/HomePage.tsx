@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Icon } from "@iconify/react";
+import { Icon, addCollection } from "@iconify/react";
+import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
 import WorkCard from "../components/WorkCard";
 import LenisPreventScrollArea from "../components/LenisPreventScrollArea";
 import WorkDetailPage from "./WorkDetailPage";
@@ -9,8 +10,11 @@ import type { Work } from "../works/types";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const SITE_ICON_SRC = "/works/icon/leonardozi_icon.png";
+addCollection(materialSymbolsLight);
 
 type Lang = "cn" | "en";
+const TOC_BUTTON_CLASS =
+  "group flex h-[18px] w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60";
 
 function formatEditedDate(date: Date): string {
   return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
@@ -95,7 +99,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
                 <div className="mt-[12px] flex flex-col gap-[6px]">
                   <button
                     type="button"
-                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className={TOC_BUTTON_CLASS}
                   >
                     <span className="relative inline-block">
                       {tocPhotos}
@@ -105,7 +109,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
                   </button>
                   <button
                     type="button"
-                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className={TOC_BUTTON_CLASS}
                   >
                     <span className="relative inline-block">
                       {tocReading}
@@ -115,7 +119,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
                   </button>
                   <button
                     type="button"
-                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className={TOC_BUTTON_CLASS}
                   >
                     <span className="relative inline-block">
                       {tocMusic}
@@ -132,7 +136,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
                 <div className="mt-[12px] flex flex-col gap-[6px]">
                   <button
                     type="button"
-                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className={TOC_BUTTON_CLASS}
                   >
                     <span className="relative inline-block">
                       {tocResume}
@@ -142,7 +146,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
                   </button>
                   <button
                     type="button"
-                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className={TOC_BUTTON_CLASS}
                   >
                     <span className="relative inline-block">
                       Email
@@ -152,7 +156,7 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
                   </button>
                   <button
                     type="button"
-                    className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className={TOC_BUTTON_CLASS}
                   >
                     <span className="relative inline-block">
                       WeChat
@@ -188,7 +192,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
           <div className="mt-[12px] flex flex-col gap-[6px]">
             <button
               type="button"
-              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+              className={TOC_BUTTON_CLASS}
             >
               <span className="relative inline-block">
                 {tocPhotos}
@@ -198,7 +202,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
             </button>
             <button
               type="button"
-              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+              className={TOC_BUTTON_CLASS}
             >
               <span className="relative inline-block">
                 {tocReading}
@@ -208,7 +212,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
             </button>
             <button
               type="button"
-              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+              className={TOC_BUTTON_CLASS}
             >
               <span className="relative inline-block">
                 {tocMusic}
@@ -225,7 +229,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
           <div className="mt-[12px] flex flex-col gap-[6px]">
             <button
               type="button"
-              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+              className={TOC_BUTTON_CLASS}
             >
               <span className="relative inline-block">
                 {tocResume}
@@ -235,7 +239,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
             </button>
             <button
               type="button"
-              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+              className={TOC_BUTTON_CLASS}
             >
               <span className="relative inline-block">
                 Email
@@ -245,7 +249,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
             </button>
             <button
               type="button"
-              className="group flex w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+              className={TOC_BUTTON_CLASS}
             >
               <span className="relative inline-block">
                 WeChat
