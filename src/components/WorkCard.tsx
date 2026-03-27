@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 
@@ -17,6 +17,9 @@ interface WorkCardProps {
 export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0, loadNonce }: WorkCardProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [overlayLoaded, setOverlayLoaded] = useState(false);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const overlayRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -29,7 +32,25 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
 
   useEffect(() => {
     setImageLoaded(false);
+    setOverlayLoaded(false);
   }, [work.image, loadNonce]);
+
+  useEffect(() => {
+    const img = imageRef.current;
+    if (!img) return;
+    if (img.complete) {
+      // 缓存命中时兜底，避免出现“灰底一下子跳成成图”的生硬感。
+      setImageLoaded(true);
+    }
+  }, [work.image, loadNonce]);
+
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay || !work.overlayIcon) return;
+    if (overlay.complete) {
+      setOverlayLoaded(true);
+    }
+  }, [work.overlayIcon, loadNonce]);
 
   const isLikelySafari = useMemo(() => {
     if (typeof navigator === "undefined") return false;
@@ -84,8 +105,11 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       >
         <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#e0e0e0]">
           <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
-          <div className={`relative z-1 transition-opacity duration-500 ease-out ${imageLoaded ? "opacity-100" : "opacity-0"}`}>
+          <div
+            className={`relative z-1 transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+          >
             <img
+              ref={imageRef}
               src={work.image}
               alt={work.title}
               className="block w-full object-cover"
@@ -98,11 +122,16 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
             />
             {work.overlayIcon && (
               <img
+                ref={overlayRef}
                 src={work.overlayIcon}
                 alt=""
                 aria-hidden
-                className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
+                className={`pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  overlayLoaded ? "opacity-100" : "opacity-0"
+                }`}
                 decoding="async"
+                onLoad={() => setOverlayLoaded(true)}
+                onError={() => setOverlayLoaded(true)}
               />
             )}
           </div>

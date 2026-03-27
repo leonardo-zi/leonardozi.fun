@@ -105,17 +105,17 @@ export default function WorkDetailPage({
 
               {/* 主页/作品：仅桌面端显示 */}
               <div className="hidden min-[1020px]:flex h-fit pt-[76px] items-center">
-                <div className="text-[11px] text-[#000000]">
+                <div className="text-[11px] text-[#aaaaaa]">
                   <button
                     type="button"
                     onClick={onBack}
-                    className="group relative inline-flex items-center text-[11px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60"
+                    className="group relative inline-flex items-center text-[11px] text-[#aaaaaa] cursor-pointer transition-colors duration-150 hover:text-[#000000] active:opacity-60"
                   >
                     {lang === "en" ? "Home" : "主页"}
-                    <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                    <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-current transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                   </button>
                   {" / "}
-                  <span className="text-[#aaaaaa]">{work.title}</span>
+                  <span>{work.title}</span>
                 </div>
               </div>
 
