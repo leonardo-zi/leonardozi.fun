@@ -1,3 +1,4 @@
+import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 
 interface WorkCardProps {
@@ -83,12 +84,24 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  void animationIndex;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const clampedAnimationIndex = Math.max(0, Math.min(animationIndex, 12));
+  const delaySeconds = clampedAnimationIndex * 0.09;
+
+  // 父层会传 loadNonce 强制重新挂载；此处保留引用避免未使用告警。
   void loadNonce;
 
   return (
-    <article className="min-w-0 overflow-hidden rounded-[8px]">{renderCardContent()}</article>
+    <AnimatedContent
+      distance={24}
+      direction="vertical"
+      duration={0.8}
+      ease="power3.out"
+      initialOpacity={0}
+      animateOpacity
+      threshold={0.12}
+      delay={delaySeconds}
+    >
+      <article className="min-w-0 overflow-hidden rounded-[8px]">{renderCardContent()}</article>
+    </AnimatedContent>
   );
 }

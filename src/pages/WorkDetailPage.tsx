@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Icon } from "@iconify/react";
+import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 import ModalLazyImage from "../components/ModalLazyImage";
 
@@ -132,15 +133,27 @@ export default function WorkDetailPage({
 
               <div className="flex flex-col gap-4">
                 {(work.detailImages ?? [work.image]).map((src, i) => (
-                  <div key={i} className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
-                    <ModalLazyImage
-                      src={src}
-                      alt={`${work.title} - ${i + 1}`}
-                      eager={i < EAGER_IMAGES_COUNT}
-                      scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
-                      placeholderMinHeight={240}
-                    />
-                  </div>
+                  <AnimatedContent
+                    key={i}
+                    distance={24}
+                    direction="vertical"
+                    duration={0.8}
+                    ease="power3.out"
+                    initialOpacity={0}
+                    animateOpacity
+                    threshold={0.12}
+                    delay={Math.min(i, 10) * 0.08}
+                  >
+                    <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
+                      <ModalLazyImage
+                        src={src}
+                        alt={`${work.title} - ${i + 1}`}
+                        eager={i < EAGER_IMAGES_COUNT}
+                        scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                        placeholderMinHeight={240}
+                      />
+                    </div>
+                  </AnimatedContent>
                 ))}
               </div>
 
