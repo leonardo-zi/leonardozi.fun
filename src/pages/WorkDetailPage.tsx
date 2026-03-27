@@ -127,7 +127,7 @@ export default function WorkDetailPage({
                 </div>
               )}
 
-              {hasTopCopy && <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />}
+              {hasTopCopy && <div className="my-16 min-[801px]:my-[100px]" aria-hidden />}
 
               <div className="flex flex-col gap-4">
                 {(work.detailImages ?? [work.image]).map((src, i) => (
@@ -143,7 +143,7 @@ export default function WorkDetailPage({
                 ))}
               </div>
 
-              <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
+              <div className="my-16 min-[801px]:my-[100px]" aria-hidden />
               <div className="h-[60px]" aria-hidden />
             </div>
 

@@ -547,11 +547,11 @@ export default function HomePage() {
               className={
                 isSingleColumn
                   ? "flex w-full flex-col gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
-                  : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+                  : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-4 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
               }
             >
               {isSingleColumn ? (
-                <motion.div className="flex min-w-0 flex-1 flex-col gap-2">
+                <motion.div className="flex min-w-0 flex-1 flex-col gap-4">
                   {worksInterleaved.map((work, i) => (
                     <WorkCard
                       key={`${work.id}-${pageLoadNonce}`}
@@ -566,7 +566,7 @@ export default function HomePage() {
                 </motion.div>
               ) : (
                 <>
-                  <motion.div className="flex min-w-0 flex-1 flex-col gap-2">
+                  <motion.div className="flex min-w-0 flex-1 flex-col gap-4">
                     {worksLeftColumn.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}
@@ -580,7 +580,7 @@ export default function HomePage() {
                     ))}
                   </motion.div>
 
-                  <motion.div className="flex min-w-0 flex-1 flex-col gap-2">
+                  <motion.div className="flex min-w-0 flex-1 flex-col gap-4">
                     {worksRightColumn.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}

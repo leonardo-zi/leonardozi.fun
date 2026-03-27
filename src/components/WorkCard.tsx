@@ -79,7 +79,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
         tabIndex={0}
         onClick={handleActivate}
         onKeyDown={handleKeyDown}
-        className="rounded-[8px] p-2 border-[0.5px] border-transparent cursor-pointer"
+        className="rounded-[8px] border-[0.5px] border-transparent cursor-pointer"
       >
         <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#e0e0e0]">
           <img
@@ -101,7 +101,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
             />
           )}
         </div>
-        <div className="mt-2 flex flex-col gap-1 leading-[16px]">
+        <div className="mt-2 flex flex-col gap-0.5 leading-[16px]">
           <div className="flex items-baseline justify-between gap-3">
             <h3 className="min-w-0 text-[12px] font-normal text-[#000000] truncate">{work.title}</h3>
             <div className="shrink-0 text-[12px] text-[#000000] tabular-nums">{year}</div>
