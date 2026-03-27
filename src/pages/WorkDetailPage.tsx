@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
@@ -16,6 +16,27 @@ export default function WorkDetailPage({
   onBack: () => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
+  const isLikelySafari = useMemo(() => {
+    if (typeof navigator === "undefined") return false;
+    const ua = navigator.userAgent;
+    return /Safari/i.test(ua) && !/Chrome|Chromium|CriOS|Android/i.test(ua);
+  }, []);
+
+  const isMobileViewport = useMemo(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    return window.matchMedia("(max-width: 800px)").matches;
+  }, []);
 
   useEffect(() => {
     // 进入详情页时滚动到顶部，保持“页面切换”直觉
@@ -132,18 +153,9 @@ export default function WorkDetailPage({
               {hasTopCopy && <div className="my-16 min-[801px]:my-[100px]" aria-hidden />}
 
               <div className="flex flex-col gap-4">
-                {(work.detailImages ?? [work.image]).map((src, i) => (
-                  <AnimatedContent
-                    key={i}
-                    distance={24}
-                    direction="vertical"
-                    duration={0.8}
-                    ease="power3.out"
-                    initialOpacity={0}
-                    animateOpacity
-                    threshold={0.12}
-                    delay={Math.min(i, 10) * 0.08}
-                  >
+                {(work.detailImages ?? [work.image]).map((src, i) => {
+                  const useLightProfile = isMobileViewport || isLikelySafari;
+                  const imageBlock = (
                     <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
                       <ModalLazyImage
                         src={src}
@@ -153,8 +165,28 @@ export default function WorkDetailPage({
                         placeholderMinHeight={240}
                       />
                     </div>
-                  </AnimatedContent>
-                ))}
+                  );
+
+                  if (reducedMotion) {
+                    return <div key={i}>{imageBlock}</div>;
+                  }
+
+                  return (
+                    <AnimatedContent
+                      key={i}
+                      distance={useLightProfile ? 12 : 16}
+                      direction="vertical"
+                      duration={useLightProfile ? 0.45 : 0.55}
+                      ease="power3.out"
+                      initialOpacity={0}
+                      animateOpacity
+                      threshold={useLightProfile ? 0.2 : 0.14}
+                      delay={Math.min(i, 8) * (useLightProfile ? 0.035 : 0.05)}
+                    >
+                      {imageBlock}
+                    </AnimatedContent>
+                  );
+                })}
               </div>
 
               <div className="my-16 min-[801px]:my-[100px]" aria-hidden />

@@ -578,7 +578,7 @@ export default function HomePage() {
                         onClick={(w) => openWorkDetails(w)}
                         isFirst={i === 0}
                         lang={lang}
-                        animationIndex={i}
+                        animationIndex={i * 2}
                         loadNonce={pageLoadNonce}
                       />
                     ))}
@@ -592,7 +592,7 @@ export default function HomePage() {
                         onClick={(w) => openWorkDetails(w)}
                         isFirst={false}
                         lang={lang}
-                        animationIndex={i + worksLeftColumn.length}
+                        animationIndex={i * 2 + 1}
                         loadNonce={pageLoadNonce}
                       />
                     ))}
