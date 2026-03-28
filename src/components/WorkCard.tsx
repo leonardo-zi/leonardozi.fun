@@ -18,8 +18,11 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
   const [reducedMotion, setReducedMotion] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [overlayLoaded, setOverlayLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(Boolean(isFirst));
+  const [promoteLayer, setPromoteLayer] = useState(true);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const overlayRef = useRef<HTMLImageElement | null>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -33,6 +36,8 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
   useEffect(() => {
     setImageLoaded(false);
     setOverlayLoaded(false);
+    setIsInView(Boolean(isFirst));
+    setPromoteLayer(true);
   }, [work.image, loadNonce]);
 
   useEffect(() => {
@@ -52,6 +57,30 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     }
   }, [work.overlayIcon, loadNonce]);
 
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || isInView) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          setIsInView(true);
+          observer.unobserve(entry.target);
+          break;
+        }
+      },
+      {
+        root: null,
+        rootMargin: "180px 0px",
+        threshold: 0.02,
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isInView]);
+
   const isLikelySafari = useMemo(() => {
     if (typeof navigator === "undefined") return false;
     const ua = navigator.userAgent;
@@ -62,6 +91,14 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
     return window.matchMedia("(max-width: 800px)").matches;
   }, []);
+
+  // 让图片/overlay 的淡入时间强制生效：不用 Tailwind 的 duration/delay 刻度。
+  const fadeTransition = {
+    transitionProperty: "opacity",
+    transitionDuration: "1200ms",
+    transitionDelay: "0ms",
+    transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+  } as const;
 
   function handleActivate(e: React.MouseEvent | React.KeyboardEvent) {
     if (!onClick) return;
@@ -106,7 +143,11 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
         <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#e0e0e0]">
           <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
           <div
-            className={`relative z-1 transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+            className="relative z-1"
+            style={{
+              opacity: imageLoaded && isInView ? 1 : 0,
+              ...fadeTransition,
+            }}
           >
             <img
               ref={imageRef}
@@ -126,9 +167,11 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
                 src={work.overlayIcon}
                 alt=""
                 aria-hidden
-                className={`pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  overlayLoaded ? "opacity-100" : "opacity-0"
-                }`}
+                className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
+                style={{
+                  opacity: overlayLoaded && isInView ? 1 : 0,
+                  ...fadeTransition,
+                }}
                 decoding="async"
                 onLoad={() => setOverlayLoaded(true)}
                 onError={() => setOverlayLoaded(true)}
@@ -150,10 +193,21 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
   const clampedAnimationIndex = Math.max(0, Math.min(animationIndex, 8));
   const useLightProfile = isMobileViewport || isLikelySafari;
   const delaySeconds = clampedAnimationIndex * (useLightProfile ? 0.05 : 0.07);
-  const distance = useLightProfile ? 8 : 12;
-  const duration = useLightProfile ? 0.55 : 0.68;
+  const distance = useLightProfile ? 80 : 120;
+  const duration = useLightProfile ? 0.65 : 0.8;
   // 提前触发：降低阈值，让卡片在更早阶段进入动画与加载流程。
   const threshold = useLightProfile ? 0.03 : 0.02;
+
+  useEffect(() => {
+    if (!isInView) return;
+    if (reducedMotion) {
+      setPromoteLayer(false);
+      return;
+    }
+    const totalMs = Math.round((delaySeconds + duration) * 1000) + 120;
+    const t = window.setTimeout(() => setPromoteLayer(false), totalMs);
+    return () => window.clearTimeout(t);
+  }, [delaySeconds, duration, isInView, reducedMotion]);
 
   if (reducedMotion) {
     return <article className="min-w-0 overflow-hidden rounded-[8px]">{renderCardContent()}</article>;
@@ -165,12 +219,16 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       direction="vertical"
       duration={duration}
       ease="power3.out"
-      initialOpacity={0}
+      initialOpacity={0.18}
       animateOpacity
       threshold={threshold}
       delay={delaySeconds}
     >
-      <article className="min-w-0 overflow-hidden rounded-[8px] transform-gpu will-change-transform">
+      <article
+        ref={cardRef as React.RefObject<HTMLElement>}
+        className="min-w-0 overflow-hidden rounded-[8px]"
+        style={{ willChange: promoteLayer ? "transform, opacity" : "auto" }}
+      >
         {renderCardContent()}
       </article>
     </AnimatedContent>

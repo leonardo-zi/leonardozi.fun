@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { Icon, addCollection } from "@iconify/react";
 import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
 import WorkCard from "../components/WorkCard";
@@ -555,7 +554,7 @@ export default function HomePage() {
               }
             >
               {isSingleColumn ? (
-                <motion.div className="flex min-w-0 flex-1 flex-col gap-4">
+                <div className="flex flex-1 flex-col gap-4">
                   {worksInterleaved.map((work, i) => (
                     <WorkCard
                       key={`${work.id}-${pageLoadNonce}`}
@@ -567,10 +566,10 @@ export default function HomePage() {
                       loadNonce={pageLoadNonce}
                     />
                   ))}
-                </motion.div>
+                </div>
               ) : (
                 <>
-                  <motion.div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <div className="flex flex-1 flex-col gap-4">
                     {worksLeftColumn.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}
@@ -582,9 +581,9 @@ export default function HomePage() {
                         loadNonce={pageLoadNonce}
                       />
                     ))}
-                  </motion.div>
+                  </div>
 
-                  <motion.div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <div className="flex flex-1 flex-col gap-4">
                     {worksRightColumn.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}
@@ -596,7 +595,7 @@ export default function HomePage() {
                         loadNonce={pageLoadNonce}
                       />
                     ))}
-                  </motion.div>
+                  </div>
                 </>
               )}
             </div>
@@ -623,4 +622,3 @@ export default function HomePage() {
     </div>
   );
 }
-
