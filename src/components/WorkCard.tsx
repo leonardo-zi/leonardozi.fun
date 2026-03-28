@@ -92,11 +92,18 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     return window.matchMedia("(max-width: 800px)").matches;
   }, []);
 
-  // 让图片/overlay 的淡入时间强制生效：不用 Tailwind 的 duration/delay 刻度。
-  const fadeTransition = {
+  // 背景图淡入更慢，减少“突兀跳出”。
+  const imageFadeTransition = {
     transitionProperty: "opacity",
-    transitionDuration: "1200ms",
+    transitionDuration: "1800ms",
     transitionDelay: "0ms",
+    transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+  } as const;
+  // 中间图标在背景图之后出现，淡入可稍快一些。
+  const overlayFadeTransition = {
+    transitionProperty: "opacity",
+    transitionDuration: "900ms",
+    transitionDelay: "80ms",
     transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
   } as const;
 
@@ -146,7 +153,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
             className="relative z-1"
             style={{
               opacity: imageLoaded && isInView ? 1 : 0,
-              ...fadeTransition,
+              ...imageFadeTransition,
             }}
           >
             <img
@@ -161,7 +168,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />
-            {work.overlayIcon && (
+            {work.overlayIcon && imageLoaded && (
               <img
                 ref={overlayRef}
                 src={work.overlayIcon}
@@ -169,8 +176,8 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
                 aria-hidden
                 className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
                 style={{
-                  opacity: overlayLoaded && isInView ? 1 : 0,
-                  ...fadeTransition,
+                  opacity: imageLoaded && overlayLoaded && isInView ? 1 : 0,
+                  ...overlayFadeTransition,
                 }}
                 decoding="async"
                 onLoad={() => setOverlayLoaded(true)}

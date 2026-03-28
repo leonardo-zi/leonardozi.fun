@@ -41,8 +41,7 @@
 
 /* 样式：根容器水平居中、最大宽度 1760px */
 #root {
-  display: flex;
-  flex-direction: column;
+  display: block;
   margin: 0 auto;
   text-align: left;
   padding-left: 0;
@@ -50,12 +49,6 @@
   max-width: 1760px;
   width: 100%;
   min-height: 100vh;
-}
-
-@media (min-width: 768px) {
-  #root {
-    flex-direction: row;
-  }
 }
 
 /* 样式：桌面端作品弹窗背后白色遮罩透明度，改 0.12 即可（0=全透 1=全白） */

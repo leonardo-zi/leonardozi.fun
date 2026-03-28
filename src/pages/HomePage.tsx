@@ -272,7 +272,6 @@ function useMediaQuery(query: string) {
   useEffect(() => {
     const mql = window.matchMedia(query);
     const onChange = () => setMatches(mql.matches);
-    onChange();
 
     // Safari 兼容旧版 addListener
     if ("addEventListener" in mql) {
@@ -459,7 +458,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    <div className="grid min-h-screen grid-cols-1 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
       {/* 移动端：全屏侧栏遮罩，打开/关闭带 240ms 淡入淡出 */}
       {sidebarOpen && (
         <div
@@ -481,7 +480,7 @@ export default function HomePage() {
 
       {/* 桌面端：左侧边栏（手机模式下移入 main，随作品一起滚动） */}
       {!isMobileLayout && (
-        <aside className="hidden w-full max-w-[360px] shrink-0 flex-col overflow-hidden bg-[#ffffff] md:flex md:sticky md:top-0 md:h-screen">
+        <aside className="hidden min-w-0 flex-col overflow-hidden bg-[#ffffff] md:flex md:sticky md:top-0 md:h-screen">
           <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
             <SiteMark />
           </div>
@@ -508,7 +507,7 @@ export default function HomePage() {
       {/* 主区：移动端仅作品单列 + 底部页脚，桌面端仅作品两列；侧栏内容仅通过顶部菜单打开 */}
       <main
         ref={isMobileLayout ? undefined : mainRef}
-        className="flex-1 bg-[#ffffff] md:min-w-0"
+        className="bg-[#ffffff] min-w-0"
       >
         <>
           {/* 手机模式：把左侧边栏内容放在作品上方，随 main 一起滚动 */}
@@ -549,12 +548,12 @@ export default function HomePage() {
             <div
               className={
                 isSingleColumn
-                  ? "flex w-full flex-col gap-0 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
-                  : "flex w-full flex-col gap-0 md:flex-row md:items-start md:gap-4 max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+                  ? "w-full max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
+                  : "w-full max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
               }
             >
               {isSingleColumn ? (
-                <div className="flex flex-1 flex-col gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {worksInterleaved.map((work, i) => (
                     <WorkCard
                       key={`${work.id}-${pageLoadNonce}`}
@@ -568,8 +567,8 @@ export default function HomePage() {
                   ))}
                 </div>
               ) : (
-                <>
-                  <div className="flex flex-1 flex-col gap-4">
+                <div className="grid grid-cols-2 items-start gap-4">
+                  <div className="flex min-w-0 flex-col gap-4">
                     {worksLeftColumn.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}
@@ -583,7 +582,7 @@ export default function HomePage() {
                     ))}
                   </div>
 
-                  <div className="flex flex-1 flex-col gap-4">
+                  <div className="flex min-w-0 flex-col gap-4">
                     {worksRightColumn.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}
@@ -596,7 +595,7 @@ export default function HomePage() {
                       />
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>
