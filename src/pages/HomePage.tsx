@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon, addCollection } from "@iconify/react";
 import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
 import WorkCard from "../components/WorkCard";
@@ -373,10 +373,103 @@ export default function HomePage() {
 
   // 页面加载时生成一次：保证“刷新后”每次都会重新挂载 WorkCard 并播放入场动画
   const [pageLoadNonce] = useState(() => Date.now());
+  const [cardsReadyForReveal, setCardsReadyForReveal] = useState(false);
 
-  const worksLeftColumn = worksInIdsOrder(works, WORK_IDS_LEFT_COLUMN);
-  const worksRightColumn = worksInIdsOrder(works, WORK_IDS_RIGHT_COLUMN);
-  const worksInterleaved = interleaveByIndex(worksLeftColumn, worksRightColumn);
+  const worksLeftColumn = useMemo(() => worksInIdsOrder(works, WORK_IDS_LEFT_COLUMN), []);
+  const worksRightColumn = useMemo(() => worksInIdsOrder(works, WORK_IDS_RIGHT_COLUMN), []);
+  const worksInterleaved = useMemo(
+    () => interleaveByIndex(worksLeftColumn, worksRightColumn),
+    [worksLeftColumn, worksRightColumn]
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    setCardsReadyForReveal(false);
+    const preloadAsset = (src: string) =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.decoding = "async";
+        const done = () => resolve();
+        img.onload = () => {
+          // 先 decode 再展示，减少首帧切换时的突兀和卡顿。
+          if (typeof img.decode === "function") {
+            img.decode().then(done).catch(done);
+            return;
+          }
+          done();
+        };
+        img.onerror = done;
+        img.src = src;
+        if (img.complete) {
+          if (typeof img.decode === "function") {
+            img.decode().then(done).catch(done);
+          } else {
+            done();
+          }
+        }
+      });
+
+    // 只阻塞首屏关键卡片（避免一次性加载全量资源导致首屏卡顿）。
+    const criticalWorks = worksInterleaved.slice(0, 3);
+    const criticalSet = new Set<string>();
+    for (const work of criticalWorks) {
+      if (work.image) criticalSet.add(work.image);
+      if (work.overlayIcon) criticalSet.add(work.overlayIcon);
+    }
+    const criticalAssets = Array.from(criticalSet);
+
+    const revealNow = () => {
+      if (!cancelled) setCardsReadyForReveal(true);
+    };
+
+    if (criticalAssets.length === 0) {
+      revealNow();
+    } else {
+      const warmup = Promise.all(criticalAssets.map(preloadAsset)).then(() => true);
+      // 给一个上限，弱网下不会长时间空白。
+      const failSafe = new Promise<boolean>((resolve) => {
+        window.setTimeout(() => resolve(false), 700);
+      });
+      Promise.race([warmup, failSafe]).then(revealNow);
+    }
+
+    // 非首屏资源放到空闲时段渐进预热，避免抢占关键渲染。
+    const restSet = new Set<string>();
+    for (const work of worksInterleaved.slice(3)) {
+      if (work.image) restSet.add(work.image);
+      if (work.overlayIcon) restSet.add(work.overlayIcon);
+    }
+    const restAssets = Array.from(restSet);
+    const warmRest = () => {
+      let i = 0;
+      const runNext = () => {
+        if (cancelled || i >= restAssets.length) return;
+        void preloadAsset(restAssets[i]).finally(() => {
+          i += 1;
+          window.setTimeout(runNext, 80);
+        });
+      };
+      runNext();
+    };
+
+    if ("requestIdleCallback" in window) {
+      const id = (
+        window as unknown as {
+          requestIdleCallback: (cb: () => void, opts?: { timeout?: number }) => number;
+        }
+      ).requestIdleCallback(warmRest, { timeout: 1500 });
+      return () => {
+        cancelled = true;
+        (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
+      };
+    }
+
+    const t = setTimeout(warmRest, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [pageLoadNonce, worksInterleaved]);
 
   useEffect(() => {
     // 预取“下一个最可能被看到”的卡片图，减少滚动后等待。
@@ -563,6 +656,7 @@ export default function HomePage() {
                       lang={lang}
                       animationIndex={i}
                       loadNonce={pageLoadNonce}
+                      pageReady={cardsReadyForReveal}
                     />
                   ))}
                 </div>
@@ -578,6 +672,7 @@ export default function HomePage() {
                         lang={lang}
                         animationIndex={i * 2}
                         loadNonce={pageLoadNonce}
+                        pageReady={cardsReadyForReveal}
                       />
                     ))}
                   </div>
@@ -592,6 +687,7 @@ export default function HomePage() {
                         lang={lang}
                         animationIndex={i * 2 + 1}
                         loadNonce={pageLoadNonce}
+                        pageReady={cardsReadyForReveal}
                       />
                     ))}
                   </div>

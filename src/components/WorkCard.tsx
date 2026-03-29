@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 
 interface WorkCardProps {
@@ -12,14 +11,18 @@ interface WorkCardProps {
   animationIndex?: number;
   /** 每次页面硬刷新都不同：用于强制重新初始化入场动画 */
   loadNonce: number;
+  /** 首页级预加载闸门，true 后才允许卡片入场 */
+  pageReady?: boolean;
 }
 
-export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0, loadNonce }: WorkCardProps) {
+export default function WorkCard({ work, onClick, isFirst, lang, animationIndex = 0, loadNonce, pageReady = true }: WorkCardProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageDecoded, setImageDecoded] = useState(false);
   const [overlayLoaded, setOverlayLoaded] = useState(false);
+  const [overlayDecoded, setOverlayDecoded] = useState(false);
   const [isInView, setIsInView] = useState(Boolean(isFirst));
-  const [promoteLayer, setPromoteLayer] = useState(true);
+  const [imageVisible, setImageVisible] = useState(false);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const overlayRef = useRef<HTMLImageElement | null>(null);
   const cardRef = useRef<HTMLElement | null>(null);
@@ -35,9 +38,11 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
 
   useEffect(() => {
     setImageLoaded(false);
+    setImageDecoded(false);
     setOverlayLoaded(false);
+    setOverlayDecoded(false);
     setIsInView(Boolean(isFirst));
-    setPromoteLayer(true);
+    setImageVisible(false);
   }, [work.image, loadNonce]);
 
   useEffect(() => {
@@ -56,6 +61,46 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       setOverlayLoaded(true);
     }
   }, [work.overlayIcon, loadNonce]);
+
+  useEffect(() => {
+    if (!imageLoaded) return;
+    const img = imageRef.current;
+    if (!img) return;
+    let cancelled = false;
+    const done = () => {
+      if (!cancelled) setImageDecoded(true);
+    };
+    if (typeof img.decode === "function") {
+      img.decode().then(done).catch(done);
+    } else {
+      done();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [imageLoaded, work.image, loadNonce]);
+
+  useEffect(() => {
+    if (!work.overlayIcon) {
+      setOverlayDecoded(true);
+      return;
+    }
+    if (!overlayLoaded) return;
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    let cancelled = false;
+    const done = () => {
+      if (!cancelled) setOverlayDecoded(true);
+    };
+    if (typeof overlay.decode === "function") {
+      overlay.decode().then(done).catch(done);
+    } else {
+      done();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [overlayLoaded, work.overlayIcon, loadNonce]);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -91,21 +136,6 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
     return window.matchMedia("(max-width: 800px)").matches;
   }, []);
-
-  // 背景图淡入更慢，减少“突兀跳出”。
-  const imageFadeTransition = {
-    transitionProperty: "opacity",
-    transitionDuration: "1800ms",
-    transitionDelay: "0ms",
-    transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-  } as const;
-  // 中间图标在背景图之后出现，淡入可稍快一些。
-  const overlayFadeTransition = {
-    transitionProperty: "opacity",
-    transitionDuration: "900ms",
-    transitionDelay: "80ms",
-    transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-  } as const;
 
   function handleActivate(e: React.MouseEvent | React.KeyboardEvent) {
     if (!onClick) return;
@@ -149,36 +179,27 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       >
         <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#e0e0e0]">
           <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
-          <div
-            className="relative z-1"
-            style={{
-              opacity: imageLoaded && isInView ? 1 : 0,
-              ...imageFadeTransition,
-            }}
-          >
+          <div className="relative z-1">
             <img
               ref={imageRef}
               src={work.image}
               alt={work.title}
               className="block w-full object-cover"
-              style={{ height: cardImageHeightPx }}
+              style={{ height: cardImageHeightPx, ...imageRevealStyle }}
               loading={isPriorityImage ? "eager" : "lazy"}
-              fetchPriority={isPriorityImage ? "high" : "auto"}
+              fetchPriority={isPriorityImage ? "high" : "low"}
               decoding="async"
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />
-            {work.overlayIcon && imageLoaded && (
+            <div className="pointer-events-none absolute inset-0 bg-white" style={imageVeilStyle} />
+            {work.overlayIcon && (
               <img
                 ref={overlayRef}
                 src={work.overlayIcon}
                 alt=""
                 aria-hidden
                 className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
-                style={{
-                  opacity: imageLoaded && overlayLoaded && isInView ? 1 : 0,
-                  ...overlayFadeTransition,
-                }}
                 decoding="async"
                 onLoad={() => setOverlayLoaded(true)}
                 onError={() => setOverlayLoaded(true)}
@@ -199,45 +220,70 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
 
   const clampedAnimationIndex = Math.max(0, Math.min(animationIndex, 8));
   const useLightProfile = isMobileViewport || isLikelySafari;
-  const delaySeconds = clampedAnimationIndex * (useLightProfile ? 0.05 : 0.07);
-  const distance = useLightProfile ? 80 : 120;
-  const duration = useLightProfile ? 0.65 : 0.8;
-  // 提前触发：降低阈值，让卡片在更早阶段进入动画与加载流程。
-  const threshold = useLightProfile ? 0.03 : 0.02;
+  const delayMs = Math.round(clampedAnimationIndex * (useLightProfile ? 36 : 48));
+  const distancePx = useLightProfile ? 14 : 18;
+  const durationMs = useLightProfile ? 320 : 380;
+  const cardReady = imageDecoded && (!work.overlayIcon || overlayDecoded);
+  const shouldReveal = pageReady && isInView && cardReady;
+  // 背景图单独放慢，让 0 -> 100 的出现更“温柔”可感知。
+  const imageSettleDurationMs = (durationMs + (useLightProfile ? 460 : 560)) * 5;
+
+  const revealStyle = reducedMotion
+    ? undefined
+    : {
+      opacity: shouldReveal ? 1 : 0,
+      transform: shouldReveal ? "translate3d(0,0,0)" : `translate3d(0,${distancePx}px,0)`,
+      transitionProperty: "opacity, transform",
+      transitionDuration: `${durationMs}ms`,
+      transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)",
+      transitionDelay: shouldReveal ? `${delayMs}ms` : "0ms",
+      willChange: shouldReveal ? "auto" : "opacity, transform",
+    } as const;
+
+  const imageRevealStyle = reducedMotion
+    ? undefined
+    : {
+      opacity: imageVisible ? 1 : 0,
+      transform: imageVisible ? "scale(1)" : "scale(1.028)",
+      transitionProperty: "opacity, transform",
+      transitionDuration: `${imageSettleDurationMs}ms`,
+      transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+      transitionDelay: "0ms",
+      willChange: imageVisible ? "auto" : "opacity, transform",
+    } as const;
+
+  const imageVeilStyle = reducedMotion
+    ? undefined
+    : {
+      opacity: imageVisible ? 0 : 0.18,
+      transitionProperty: "opacity",
+      transitionDuration: `${imageSettleDurationMs}ms`,
+      transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+      transitionDelay: "0ms",
+    } as const;
 
   useEffect(() => {
-    if (!isInView) return;
-    if (reducedMotion) {
-      setPromoteLayer(false);
-      return;
-    }
-    const totalMs = Math.round((delaySeconds + duration) * 1000) + 120;
-    const t = window.setTimeout(() => setPromoteLayer(false), totalMs);
-    return () => window.clearTimeout(t);
-  }, [delaySeconds, duration, isInView, reducedMotion]);
-
-  if (reducedMotion) {
-    return <article className="min-w-0 overflow-hidden rounded-[8px]">{renderCardContent()}</article>;
-  }
+    if (!shouldReveal) return;
+    setImageVisible(false);
+    const raf = window.requestAnimationFrame(() => setImageVisible(true));
+    return () => window.cancelAnimationFrame(raf);
+  }, [delayMs, shouldReveal, loadNonce, work.image]);
 
   return (
-    <AnimatedContent
-      distance={distance}
-      direction="vertical"
-      duration={duration}
-      ease="power3.out"
-      initialOpacity={0.18}
-      animateOpacity
-      threshold={threshold}
-      delay={delaySeconds}
+    <article
+      ref={cardRef as React.RefObject<HTMLElement>}
+      className="min-w-0 overflow-hidden rounded-[8px]"
+      style={revealStyle}
     >
-      <article
-        ref={cardRef as React.RefObject<HTMLElement>}
-        className="min-w-0 overflow-hidden rounded-[8px]"
-        style={{ willChange: promoteLayer ? "transform, opacity" : "auto" }}
+      <div
+        style={{
+          opacity: shouldReveal ? 1 : 0,
+          transition: reducedMotion ? undefined : `opacity ${durationMs}ms cubic-bezier(0.22,1,0.36,1)`,
+          transitionDelay: reducedMotion || !shouldReveal ? "0ms" : `${delayMs}ms`,
+        }}
       >
         {renderCardContent()}
-      </article>
-    </AnimatedContent>
+      </div>
+    </article>
   );
 }
