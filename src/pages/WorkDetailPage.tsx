@@ -4,8 +4,6 @@ import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 import ModalLazyImage from "../components/ModalLazyImage";
 
-const EAGER_IMAGES_COUNT = 1;
-
 export default function WorkDetailPage({
   work,
   lang,
@@ -160,7 +158,7 @@ export default function WorkDetailPage({
                       <ModalLazyImage
                         src={src}
                         alt={`${work.title} - ${i + 1}`}
-                        eager={i < EAGER_IMAGES_COUNT}
+                        eager
                         scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
                         placeholderMinHeight={240}
                       />

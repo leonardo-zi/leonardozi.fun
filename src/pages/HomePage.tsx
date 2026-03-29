@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { Icon, addCollection } from "@iconify/react";
 import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
 import WorkCard from "../components/WorkCard";
@@ -6,12 +6,14 @@ import LenisPreventScrollArea from "../components/LenisPreventScrollArea";
 import WorkDetailPage from "./WorkDetailPage";
 import { works } from "../works";
 import type { Work } from "../works/types";
+import albumExistingFiles from "virtual:album-existing";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const SITE_ICON_SRC = "/works/icon/leonardozi_icon.png";
 addCollection(materialSymbolsLight);
 
 type Lang = "cn" | "en";
+type MainView = "works" | "music";
 const TOC_BUTTON_CLASS =
   "group flex h-[18px] w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60";
 
@@ -22,6 +24,136 @@ function formatEditedDate(date: Date): string {
 /** 桌面端右栏作品：与 `works` 数组顺序无关，固定左列为 Poppy / Bob Music / Wisdom Horse，右列为 Aro / Others */
 const WORK_IDS_LEFT_COLUMN = ["1", "3", "5"] as const;
 const WORK_IDS_RIGHT_COLUMN = ["2", "4"] as const;
+const ALBUM_PNG_FILES = [
+  "IMG_2455.png",
+  "IMG_2456.png",
+  "IMG_2635.png",
+  "IMG_2647.png",
+  "IMG_2648.png",
+  "IMG_2649.png",
+  "IMG_2650.png",
+  "IMG_2651.png",
+  "IMG_2653.png",
+  "IMG_2654.png",
+  "IMG_2655.png",
+  "IMG_2656.png",
+  "IMG_2657.png",
+  "IMG_2658.png",
+] as const;
+
+const ALBUM_MP4_FILES = [
+  "P1032482461_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P1180431545_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P1181218312_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P1183202445_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P1186986834_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P359497182_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P380938669_Anull_video_gr290_sdr_1080x1080_-.mp4",
+  "P471843041_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P471938121_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P540553833_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P552796074_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P603710951_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P628705458_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P628709109_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P628709289_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P628723730_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P629593601_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P647088244_Anull_video_gr290_sdr_1080x1080-.mp4",
+  "P798682411_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P858389691_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P915447347_Anull_video_gr280_sdr_1080x1080-.mp4",
+  "P948560511_Anull_video_gr280_sdr_1080x1080-.mp4",
+] as const;
+
+type AlbumMediaRow = { file: string; year: number };
+
+const ALBUM_MEDIA_ROWS_ALL: AlbumMediaRow[] = [
+  { file: "万能青年旅店-万能青年旅店.jpg", year: 2010 },
+  { file: "崔健-新长征路上的摇滚.jpg", year: 1989 },
+  { file: "周华健-水浒传.jpg", year: 1998 },
+  ...ALBUM_PNG_FILES.map((file) => ({ file, year: 2024 })),
+  ...ALBUM_MP4_FILES.map((file) => ({ file, year: 2025 })),
+];
+
+const albumExistingSet = new Set(albumExistingFiles);
+/** 仅保留 public/album 中实际存在的文件，避免出现无图/裂图占位卡片 */
+const ALBUM_MEDIA_ROWS: AlbumMediaRow[] = ALBUM_MEDIA_ROWS_ALL.filter((row) => albumExistingSet.has(row.file));
+
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"] as const;
+
+function albumMediaType(file: string): "image" | "video" {
+  return file.toLowerCase().endsWith(".mp4") ? "video" : "image";
+}
+
+function parseArtistAlbumFromFile(file: string): { artist: string; album: string } | null {
+  if (!file.includes("-")) return null;
+  const lower = file.toLowerCase();
+  const ext = IMAGE_EXTENSIONS.find((e) => lower.endsWith(e));
+  if (!ext) return null;
+  const base = file.slice(0, -ext.length);
+  const dash = base.indexOf("-");
+  if (dash <= 0) return null;
+  const artist = base.slice(0, dash);
+  const album = base.slice(dash + 1);
+  if (!artist || !album) return null;
+  return { artist, album };
+}
+
+type AlbumItem = {
+  id: string;
+  image: string;
+  mediaType: "image" | "video";
+  album: string;
+  artist: string;
+  year: string;
+  yearNum: number;
+};
+
+function buildAlbumItems(rows: readonly AlbumMediaRow[]): AlbumItem[] {
+  const staged = rows.map((row, sortIndex) => {
+    const image = `/album/${row.file}`;
+    const mediaType = albumMediaType(row.file);
+    const parsed = parseArtistAlbumFromFile(row.file);
+    const year = String(row.year);
+    if (parsed) {
+      return {
+        sortIndex,
+        image,
+        mediaType,
+        album: parsed.album,
+        artist: parsed.artist,
+        year,
+        yearNum: row.year,
+      };
+    }
+    const stem = row.file.replace(/\.[^.]+$/, "");
+    return {
+      sortIndex,
+      image,
+      mediaType,
+      album: stem,
+      artist: "Unknown Artist",
+      year,
+      yearNum: row.year,
+    };
+  });
+  staged.sort((a, b) => {
+    if (b.yearNum !== a.yearNum) return b.yearNum - a.yearNum;
+    return a.sortIndex - b.sortIndex;
+  });
+  return staged.map((item, i) => ({
+    id: `album-${i + 1}`,
+    image: item.image,
+    mediaType: item.mediaType,
+    album: item.album,
+    artist: item.artist,
+    year: item.year,
+    yearNum: item.yearNum,
+  }));
+}
+
+const albumItems: AlbumItem[] = buildAlbumItems(ALBUM_MEDIA_ROWS);
 
 function worksInIdsOrder(all: Work[], ids: readonly string[]): Work[] {
   return ids.map((id) => all.find((w) => w.id === id)).filter((w): w is Work => Boolean(w));
@@ -52,7 +184,15 @@ function Copyright({ year = CURRENT_YEAR, lang }: { year?: number; lang: Lang })
 }
 
 /** 移动端全屏侧栏：点击顶部菜单后显示 */
-function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) {
+function SidebarContent({
+  onClose,
+  lang,
+  onSelectView,
+}: {
+  onClose: () => void;
+  lang: Lang;
+  onSelectView: (next: MainView) => void;
+}) {
   const desc1 =
     lang === "en"
       ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
@@ -60,9 +200,8 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
   const desc2 =
     lang === "en" ? "Vibe Coding is a great invention" : "Vibe Coding 真是伟大的发明";
 
-  const tocTitle = lang === "en" ? "Contents" : "目录";
-  const tocPhotos = lang === "en" ? "Photos" : "照片";
-  const tocReading = lang === "en" ? "Reading" : "阅读";
+  const tocTitle = lang === "en" ? "Sections" : "分区";
+  const tocWorks = lang === "en" ? "Works" : "作品";
   const tocMusic = lang === "en" ? "Music" : "音乐";
   const tocContact = lang === "en" ? "Contact" : "联络";
   const tocResume = lang === "en" ? "Resume" : "简历";
@@ -96,30 +235,14 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
               <div className="flex flex-col">
                 <div className="text-[14px] sm:text-[12px] font-semibold leading-[16px] text-[#000000]">{tocTitle}</div>
                 <div className="mt-[12px] flex flex-col gap-[6px]">
-                  <button
-                    type="button"
-                    className={TOC_BUTTON_CLASS}
-                  >
+                  <button type="button" className={TOC_BUTTON_CLASS} onClick={() => onSelectView("works")}>
                     <span className="relative inline-block">
-                      {tocPhotos}
+                      {tocWorks}
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
                     </span>
                     <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
                   </button>
-                  <button
-                    type="button"
-                    className={TOC_BUTTON_CLASS}
-                  >
-                    <span className="relative inline-block">
-                      {tocReading}
-                      <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
-                    </span>
-                    <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
-                  </button>
-                  <button
-                    type="button"
-                    className={TOC_BUTTON_CLASS}
-                  >
+                  <button type="button" className={TOC_BUTTON_CLASS} onClick={() => onSelectView("music")}>
                     <span className="relative inline-block">
                       {tocMusic}
                       <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
@@ -173,10 +296,9 @@ function SidebarContent({ onClose, lang }: { onClose: () => void; lang: Lang }) 
   );
 }
 
-function SidebarToc({ lang }: { lang: Lang }) {
-  const tocTitle = lang === "en" ? "Contents" : "目录";
-  const tocPhotos = lang === "en" ? "Photos" : "照片";
-  const tocReading = lang === "en" ? "Reading" : "阅读";
+function SidebarToc({ lang, onSelectView }: { lang: Lang; onSelectView: (next: MainView) => void }) {
+  const tocTitle = lang === "en" ? "Sections" : "分区";
+  const tocWorks = lang === "en" ? "Works" : "作品";
   const tocMusic = lang === "en" ? "Music" : "音乐";
   const tocContact = lang === "en" ? "Contact" : "联络";
   const tocResume = lang === "en" ? "Resume" : "简历";
@@ -189,30 +311,14 @@ function SidebarToc({ lang }: { lang: Lang }) {
         <div className="flex flex-col">
           <div className="text-[14px] sm:text-[12px] font-semibold leading-[16px] text-[#000000]">{tocTitle}</div>
           <div className="mt-[12px] flex flex-col gap-[6px]">
-            <button
-              type="button"
-              className={TOC_BUTTON_CLASS}
-            >
+            <button type="button" className={TOC_BUTTON_CLASS} onClick={() => onSelectView("works")}>
               <span className="relative inline-block">
-                {tocPhotos}
+                {tocWorks}
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
               </span>
               <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
             </button>
-            <button
-              type="button"
-              className={TOC_BUTTON_CLASS}
-            >
-              <span className="relative inline-block">
-                {tocReading}
-                <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
-              </span>
-              <Icon icon="material-symbols-light:arrow-forward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </button>
-            <button
-              type="button"
-              className={TOC_BUTTON_CLASS}
-            >
+            <button type="button" className={TOC_BUTTON_CLASS} onClick={() => onSelectView("music")}>
               <span className="relative inline-block">
                 {tocMusic}
                 <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
@@ -260,6 +366,90 @@ function SidebarToc({ lang }: { lang: Lang }) {
         </div>
       </div>
     </>
+  );
+}
+
+function AlbumCard({
+  item,
+  index,
+  loadCursor,
+  onSlotReady,
+}: {
+  item: AlbumItem;
+  index: number;
+  loadCursor: number;
+  onSlotReady: () => void;
+}) {
+  const resumeIfNotEnded = useCallback((e: SyntheticEvent<HTMLVideoElement>) => {
+    const v = e.currentTarget;
+    if (!v.ended && v.paused) void v.play();
+  }, []);
+
+  const reportedRef = useRef(false);
+
+  useEffect(() => {
+    reportedRef.current = false;
+  }, [loadCursor, index]);
+
+  useEffect(() => {
+    if (index !== loadCursor) return;
+    const t = window.setTimeout(() => {
+      if (!reportedRef.current) {
+        reportedRef.current = true;
+        onSlotReady();
+      }
+    }, 14_000);
+    return () => clearTimeout(t);
+  }, [index, loadCursor, onSlotReady]);
+
+  const reportSlotReady = useCallback(() => {
+    if (index !== loadCursor || reportedRef.current) return;
+    reportedRef.current = true;
+    onSlotReady();
+  }, [index, loadCursor, onSlotReady]);
+
+  const shouldAttachMedia = index <= loadCursor;
+
+  return (
+    <article className="min-w-0 overflow-hidden rounded-[8px]">
+      <div className="aspect-square w-full rounded-superellipse border-[0.5px] border-[#e0e0e0] overflow-hidden bg-[rgba(162,157,150,0.12)] contain-layout">
+        {shouldAttachMedia ? (
+          item.mediaType === "video" ? (
+            <video
+              src={encodeURI(item.image)}
+              className="pointer-events-none block h-full w-full object-cover"
+              autoPlay
+              muted
+              playsInline
+              loop
+              preload="auto"
+              aria-label={item.album}
+              onLoadedData={reportSlotReady}
+              onError={reportSlotReady}
+              onPause={resumeIfNotEnded}
+              onContextMenu={(e) => e.preventDefault()}
+            />
+          ) : (
+            <img
+              src={encodeURI(item.image)}
+              alt={item.album}
+              className="block h-full w-full object-cover"
+              decoding="async"
+              fetchPriority={index === loadCursor ? "high" : "low"}
+              onLoad={reportSlotReady}
+              onError={reportSlotReady}
+            />
+          )
+        ) : null}
+      </div>
+      <div className="mt-2 flex flex-col gap-0.5 leading-[16px]">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="min-w-0 truncate text-[12px] font-normal text-[#000000]">{item.album}</h3>
+          <div className="shrink-0 text-[12px] text-[#000000] tabular-nums">{item.year}</div>
+        </div>
+        <div className="text-[11px] text-[#888888] truncate">{item.artist}</div>
+      </div>
+    </article>
   );
 }
 
@@ -374,6 +564,9 @@ export default function HomePage() {
   // 页面加载时生成一次：保证“刷新后”每次都会重新挂载 WorkCard 并播放入场动画
   const [pageLoadNonce] = useState(() => Date.now());
   const [cardsReadyForReveal, setCardsReadyForReveal] = useState(false);
+  const [mainView, setMainView] = useState<MainView>("works");
+  /** 音乐网格：仅加载 index ≤ cursor 的媒体；从左到右、自上而下即 albumItems 顺序，逐个就绪后再加载下一格，避免首屏带宽与解码挤爆 */
+  const [musicLoadCursor, setMusicLoadCursor] = useState(0);
 
   const worksLeftColumn = useMemo(() => worksInIdsOrder(works, WORK_IDS_LEFT_COLUMN), []);
   const worksRightColumn = useMemo(() => worksInIdsOrder(works, WORK_IDS_RIGHT_COLUMN), []);
@@ -472,6 +665,14 @@ export default function HomePage() {
   }, [pageLoadNonce, worksInterleaved]);
 
   useEffect(() => {
+    if (mainView === "music") setMusicLoadCursor(0);
+  }, [mainView]);
+
+  const advanceMusicSlot = useCallback(() => {
+    setMusicLoadCursor((c) => Math.min(c + 1, albumItems.length));
+  }, []);
+
+  useEffect(() => {
     // 预取“下一个最可能被看到”的卡片图，减少滚动后等待。
     const nextWorkImage =
       (worksInterleaved[1]?.image ?? worksLeftColumn[1]?.image ?? worksRightColumn[0]?.image) || null;
@@ -566,7 +767,14 @@ export default function HomePage() {
         >
           <div className="absolute inset-0 bg-white" onClick={requestCloseSidebar} aria-hidden />
           <div className="absolute inset-0 flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <SidebarContent onClose={requestCloseSidebar} lang={lang} />
+            <SidebarContent
+              onClose={requestCloseSidebar}
+              lang={lang}
+              onSelectView={(next) => {
+                setMainView(next);
+                requestCloseSidebar();
+              }}
+            />
           </div>
         </div>
       )}
@@ -588,7 +796,7 @@ export default function HomePage() {
                 <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
               </div>
 
-              <SidebarToc lang={lang} />
+              <SidebarToc lang={lang} onSelectView={setMainView} />
             </div>
           </LenisPreventScrollArea>
           <div className="h-[60px] shrink-0 flex items-center px-6">
@@ -620,7 +828,7 @@ export default function HomePage() {
                     <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
                   </div>
 
-                  <SidebarToc lang={lang} />
+                  <SidebarToc lang={lang} onSelectView={setMainView} />
                 </div>
               </div>
             </aside>
@@ -645,52 +853,66 @@ export default function HomePage() {
                   : "w-full max-[800px]:pb-[32px] min-[801px]:pb-[150px]"
               }
             >
-              {isSingleColumn ? (
-                <div className="grid grid-cols-1 gap-4">
-                  {worksInterleaved.map((work, i) => (
-                    <WorkCard
-                      key={`${work.id}-${pageLoadNonce}`}
-                      work={work}
-                      onClick={(w) => openWorkDetails(w)}
-                      isFirst={i === 0}
-                      lang={lang}
-                      animationIndex={i}
-                      loadNonce={pageLoadNonce}
-                      pageReady={cardsReadyForReveal}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 items-start gap-4">
-                  <div className="flex min-w-0 flex-col gap-4">
-                    {worksLeftColumn.map((work, i) => (
+              {mainView === "works" ? (
+                isSingleColumn ? (
+                  <div className="grid grid-cols-1 gap-4">
+                    {worksInterleaved.map((work, i) => (
                       <WorkCard
                         key={`${work.id}-${pageLoadNonce}`}
                         work={work}
                         onClick={(w) => openWorkDetails(w)}
                         isFirst={i === 0}
                         lang={lang}
-                        animationIndex={i * 2}
+                        animationIndex={i}
                         loadNonce={pageLoadNonce}
                         pageReady={cardsReadyForReveal}
                       />
                     ))}
                   </div>
+                ) : (
+                  <div className="grid grid-cols-2 items-start gap-4">
+                    <div className="flex min-w-0 flex-col gap-4">
+                      {worksLeftColumn.map((work, i) => (
+                        <WorkCard
+                          key={`${work.id}-${pageLoadNonce}`}
+                          work={work}
+                          onClick={(w) => openWorkDetails(w)}
+                          isFirst={i === 0}
+                          lang={lang}
+                          animationIndex={i * 2}
+                          loadNonce={pageLoadNonce}
+                          pageReady={cardsReadyForReveal}
+                        />
+                      ))}
+                    </div>
 
-                  <div className="flex min-w-0 flex-col gap-4">
-                    {worksRightColumn.map((work, i) => (
-                      <WorkCard
-                        key={`${work.id}-${pageLoadNonce}`}
-                        work={work}
-                        onClick={(w) => openWorkDetails(w)}
-                        isFirst={false}
-                        lang={lang}
-                        animationIndex={i * 2 + 1}
-                        loadNonce={pageLoadNonce}
-                        pageReady={cardsReadyForReveal}
-                      />
-                    ))}
+                    <div className="flex min-w-0 flex-col gap-4">
+                      {worksRightColumn.map((work, i) => (
+                        <WorkCard
+                          key={`${work.id}-${pageLoadNonce}`}
+                          work={work}
+                          onClick={(w) => openWorkDetails(w)}
+                          isFirst={false}
+                          lang={lang}
+                          animationIndex={i * 2 + 1}
+                          loadNonce={pageLoadNonce}
+                          pageReady={cardsReadyForReveal}
+                        />
+                      ))}
+                    </div>
                   </div>
+                )
+              ) : (
+                <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 min-[960px]:grid-cols-3 min-[1360px]:grid-cols-4">
+                  {albumItems.map((item, i) => (
+                    <AlbumCard
+                      key={item.id}
+                      item={item}
+                      index={i}
+                      loadCursor={musicLoadCursor}
+                      onSlotReady={advanceMusicSlot}
+                    />
+                  ))}
                 </div>
               )}
             </div>
