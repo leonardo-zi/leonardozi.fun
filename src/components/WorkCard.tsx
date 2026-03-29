@@ -203,7 +203,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       direction="vertical"
       duration={useLightProfile ? 0.8 : 0.95}
       ease="power3.out"
-      initialOpacity={0.1}
+      initialOpacity={0}
       animateOpacity
       threshold={useLightProfile ? 0.08 : 0.05}
       delay={Math.min(clampedAnimationIndex, 10) * (useLightProfile ? 0.28 : 0.36)}
@@ -213,7 +213,6 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
         className="min-w-0 overflow-hidden rounded-[8px]"
         style={{
           opacity: shouldReveal ? 1 : 0,
-          transition: `opacity ${durationMs}ms cubic-bezier(0.22,1,0.36,1)`,
           pointerEvents: shouldReveal ? "auto" : "none",
         }}
       >
