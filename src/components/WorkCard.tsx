@@ -206,7 +206,7 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       initialOpacity={0.1}
       animateOpacity
       threshold={useLightProfile ? 0.08 : 0.05}
-      delay={Math.min(clampedAnimationIndex, 10) * (useLightProfile ? 0.12 : 0.16)}
+      delay={Math.min(clampedAnimationIndex, 10) * (useLightProfile ? 0.28 : 0.36)}
     >
       <article
         ref={cardRef as React.RefObject<HTMLElement>}

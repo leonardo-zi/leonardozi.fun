@@ -181,7 +181,7 @@ export default function WorkDetailPage({
                       initialOpacity={0.1}
                       animateOpacity
                       threshold={useLightProfile ? 0.08 : 0.05}
-                      delay={Math.min(i, 10) * (useLightProfile ? 0.12 : 0.16)}
+                      delay={Math.min(i, 10) * (useLightProfile ? 0.28 : 0.36)}
                     >
                       {imageBlock}
                     </AnimatedContent>
