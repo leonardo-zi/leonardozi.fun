@@ -62,8 +62,9 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       },
       {
         root: null,
-        rootMargin: "180px 0px",
-        threshold: 0.02,
+        // 更激进：接近视口前就触发，进一步减少“空白等待”。
+        rootMargin: "0px 0px 1000px 0px",
+        threshold: 0,
       }
     );
 
@@ -205,8 +206,8 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
       ease="power3.out"
       initialOpacity={0}
       animateOpacity
-      threshold={useLightProfile ? 0.08 : 0.05}
-      delay={Math.min(clampedAnimationIndex, 10) * (useLightProfile ? 0.28 : 0.36)}
+      threshold={0}
+      delay={Math.min(clampedAnimationIndex, 10) * (useLightProfile ? 0.03 : 0.04)}
     >
       <article
         ref={cardRef as React.RefObject<HTMLElement>}
