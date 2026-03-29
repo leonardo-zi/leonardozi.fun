@@ -174,14 +174,14 @@ export default function WorkDetailPage({
                   return (
                     <AnimatedContent
                       key={i}
-                      distance={useLightProfile ? 60 : 80}
+                      distance={useLightProfile ? 70 : 92}
                       direction="vertical"
-                      duration={useLightProfile ? 0.58 : 0.72}
+                      duration={useLightProfile ? 0.8 : 0.95}
                       ease="power3.out"
-                      initialOpacity={0.18}
+                      initialOpacity={0.1}
                       animateOpacity
-                      threshold={useLightProfile ? 0.2 : 0.14}
-                      delay={Math.min(i, 8) * (useLightProfile ? 0.035 : 0.05)}
+                      threshold={useLightProfile ? 0.08 : 0.05}
+                      delay={Math.min(i, 10) * (useLightProfile ? 0.12 : 0.16)}
                     >
                       {imageBlock}
                     </AnimatedContent>
