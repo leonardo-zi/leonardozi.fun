@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 import ModalLazyImage from "../components/ModalLazyImage";
+import { publicAssetUrl } from "../utils/publicAssetUrl";
 
 export default function WorkDetailPage({
   work,
@@ -13,7 +14,6 @@ export default function WorkDetailPage({
   lang: "cn" | "en";
   onBack: () => void;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,6 @@ export default function WorkDetailPage({
   return (
     <div className="min-h-screen w-full bg-[#ffffff]">
       <div
-        ref={scrollRef}
         className="w-full"
         style={{
           WebkitOverflowScrolling: "touch",
@@ -153,13 +152,14 @@ export default function WorkDetailPage({
               <div className="flex flex-col gap-4">
                 {(work.detailImages ?? [work.image]).map((src, i) => {
                   const useLightProfile = isMobileViewport || isLikelySafari;
+                  const resolvedSrc = publicAssetUrl(src);
                   const imageBlock = (
                     <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
                       <ModalLazyImage
-                        src={src}
+                        src={resolvedSrc}
                         alt={`${work.title} - ${i + 1}`}
                         eager
-                        scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                        scrollRoot={undefined}
                         placeholderMinHeight={240}
                       />
                     </div>

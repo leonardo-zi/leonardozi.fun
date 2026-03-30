@@ -68,7 +68,7 @@ export default function AlbumCard({
               muted
               playsInline
               loop
-              preload="auto"
+              preload="metadata"
               aria-label={item.album}
               onLoadedData={reportSlotReady}
               onError={reportSlotReady}

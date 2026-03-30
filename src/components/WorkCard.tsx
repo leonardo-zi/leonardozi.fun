@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Work } from "../works/types";
+import { publicAssetUrl } from "../utils/publicAssetUrl";
 
 interface WorkCardProps {
   work: Work;
@@ -147,7 +148,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
           <div className="relative z-1">
             <img
               ref={imageRef}
-              src={work.image}
+              src={publicAssetUrl(work.image)}
               alt={work.title}
               className="block w-full object-cover"
               style={{ height: cardImageHeightPx, ...imageRevealStyle }}
@@ -160,7 +161,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
             <div className="pointer-events-none absolute inset-0 bg-white" style={imageVeilStyle} />
             {work.overlayIcon && (
               <img
-                src={work.overlayIcon}
+                src={publicAssetUrl(work.overlayIcon)}
                 alt=""
                 aria-hidden
                 className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
