@@ -1,5 +1,7 @@
 export type WorkLayout = "full" | "half";
 
+export type WorkDetailMedia = { type: "image" | "video"; src: string };
+
 export interface Work {
   id: string;
   title: string;
@@ -7,6 +9,8 @@ export interface Work {
   /** 卡片主图固定高度（px），不填默认 509 */
   cardImageHeightPx?: number;
   detailImages?: string[]; // 弹窗内图片列表，不填则用 [image]
+  /** 详情媒体（支持图片/视频混排），优先于 detailImages */
+  detailMedia?: WorkDetailMedia[];
   /** 卡片叠加图标（可选，用于“背景图 + icon”样式） */
   overlayIcon?: string;
   tags: string[];

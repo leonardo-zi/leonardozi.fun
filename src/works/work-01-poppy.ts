@@ -5,11 +5,12 @@ export const work01Poppy: Work = {
   title: "Poppy",
   image: "./works/bg/苏崇铭2.webp",
   overlayIcon: "./works/poppy/Poppy-icon.svg",
-  detailImages: [
-    "./works/poppy/poppy-1.webp",
-    "./works/poppy/poppy-2.webp",
-    "./works/poppy/poppy-3.webp",
-    "./works/poppy/poppy-4.webp",
+  detailMedia: [
+    { type: "image", src: "./works/poppy/poppy-1.webp" },
+    { type: "image", src: "./works/poppy/poppy-2.webp" },
+    { type: "image", src: "./works/poppy/poppy-3.webp" },
+    { type: "video", src: "./works/poppy/poppy-4.webm" },
+    { type: "image", src: "./works/poppy/poppy-5.webp" },
   ],
   tags: ["界面", "原型"],
   tagsEn: ["Interface", "Prototype"],

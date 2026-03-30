@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import SmartImage from "./SmartImage";
 
 type NativeLoading = "eager" | "lazy";
 
@@ -66,15 +67,20 @@ export default function ModalLazyImage({
   const loading: NativeLoading = useMemo(() => (eager ? "eager" : "lazy"), [eager]);
 
   return (
-    <div ref={hostRef} className={`relative overflow-hidden ${className ?? ""}`} style={{ minHeight: placeholderMinHeight }}>
-      <div className="img-skeleton" data-active={!loaded} aria-hidden />
+    <div
+      ref={hostRef}
+      className={`relative overflow-hidden ${className ?? ""}`}
+      style={{ minHeight: placeholderMinHeight, background: "rgba(162,157,150,0.12)" }}
+    >
+      {shouldLoad && !loaded ? <div className="smart-image-skeleton" data-active="true" aria-hidden /> : null}
       {shouldLoad ? (
-        <img
+        <SmartImage
           src={src}
           alt={alt}
-          className={`w-full h-auto block object-cover transition-opacity duration-[520ms] ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
+          className="w-full h-auto block object-cover"
           loading={loading}
           decoding="async"
+          showSkeleton={false}
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}
         />

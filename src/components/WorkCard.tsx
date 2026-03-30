@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Work } from "../works/types";
 import { publicAssetUrl } from "../utils/publicAssetUrl";
+import SmartImage from "./SmartImage";
 
 interface WorkCardProps {
   work: Work;
@@ -100,6 +101,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const isPriorityImage = Boolean(isFirst);
 
   const settled = isInView && imageLoaded;
+  const metaVisible = reducedMotion ? true : settled;
 
   const imageRevealStyle = reducedMotion
     ? undefined
@@ -146,7 +148,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
         <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#E6E6E6]">
           <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
           <div className="relative z-1">
-            <img
+            <SmartImage
               ref={imageRef}
               src={publicAssetUrl(work.image)}
               alt={work.title}
@@ -155,6 +157,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
               loading={isPriorityImage ? "eager" : "lazy"}
               fetchPriority={isPriorityImage ? "high" : "low"}
               decoding="async"
+              showSkeleton={isInView}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
             />
@@ -164,13 +167,25 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
                 src={publicAssetUrl(work.overlayIcon)}
                 alt=""
                 aria-hidden
-                className="pointer-events-none absolute left-1/2 top-1/2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
+                className="pointer-events-none absolute left-1/2 top-1/2 z-2 max-h-[88%] max-w-[88%] -translate-x-1/2 -translate-y-1/2 object-contain"
                 decoding="async"
               />
             )}
           </div>
         </div>
-        <div className="mt-2 flex flex-col gap-0.5 leading-[16px]">
+        <div
+          className="mt-2 flex flex-col gap-0.5 leading-[16px]"
+          style={
+            reducedMotion
+              ? undefined
+              : ({
+                  opacity: metaVisible ? 1 : 0,
+                  transitionProperty: "opacity",
+                  transitionDuration: `${imageSettleDurationMs}ms`,
+                  transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+                } as const)
+          }
+        >
           <div className="flex items-baseline justify-between gap-3">
             <h3 className="min-w-0 text-[12px] font-normal text-[#000000] truncate">{work.title}</h3>
             <div className="shrink-0 text-[12px] text-[#000000] tabular-nums">{year}</div>

@@ -43,7 +43,6 @@ export default function FadeImage({
         }`}
       style={{ backgroundColor: bgColor }}
     >
-      <div className="img-skeleton" data-active={!loaded} aria-hidden />
       <img
         ref={imgRef}
         src={src}
@@ -59,7 +58,7 @@ export default function FadeImage({
           setLoaded(true);
           onError?.(e);
         }}
-        className={`w-full transition-opacity duration-[600ms] ease-in-out ${fill ? "h-full object-cover absolute inset-0" : "h-auto relative"
+        className={`w-full transition-opacity duration-600 ease-in-out ${fill ? "h-full object-cover absolute inset-0" : "h-auto relative"
           } ${loaded ? "opacity-100" : "opacity-0"} ${imgClassName}`}
       />
     </div>

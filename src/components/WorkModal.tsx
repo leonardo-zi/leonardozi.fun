@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { Work } from "../works/types";
 import ModalLazyImage from "./ModalLazyImage";
+import { publicAssetUrl } from "../utils/publicAssetUrl";
 
 interface WorkModalProps {
   work: Work;
@@ -102,17 +103,40 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
               {hasTopCopy && <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />}
 
               <div className="flex flex-col gap-4">
-                {(work.detailImages ?? [work.image]).map((src, i) => (
-                  <div key={i} className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
-                    <ModalLazyImage
-                      src={src}
-                      alt={`${work.title} - ${i + 1}`}
-                      eager={i < EAGER_IMAGES_COUNT}
-                      scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
-                      placeholderMinHeight={240}
-                    />
-                  </div>
-                ))}
+                {(work.detailMedia ?? (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))).map(
+                  (media, i) => {
+                    const resolvedSrc = publicAssetUrl(media.src);
+                    if (media.type === "video") {
+                      return (
+                        <div key={i} className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
+                          <video
+                            src={resolvedSrc}
+                            className="block w-full h-auto object-cover"
+                            autoPlay
+                            muted
+                            playsInline
+                            loop
+                            controls={false}
+                            preload="metadata"
+                            onContextMenu={(e) => e.preventDefault()}
+                          />
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={i} className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
+                        <ModalLazyImage
+                          src={resolvedSrc}
+                          alt={`${work.title} - ${i + 1}`}
+                          eager={i < EAGER_IMAGES_COUNT}
+                          scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                          placeholderMinHeight={240}
+                        />
+                      </div>
+                    );
+                  }
+                )}
               </div>
               <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />
               <div className="h-[60px]" aria-hidden />

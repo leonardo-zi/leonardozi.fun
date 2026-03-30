@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, type SyntheticEvent } from "react";
 import type { AlbumItem } from "../../../data/albumCatalog";
+import SmartImage from "../../../components/SmartImage";
 
 export default function AlbumCard({
   item,
@@ -44,17 +45,6 @@ export default function AlbumCard({
 
   const shouldAttachMedia = index <= loadCursor;
 
-  useEffect(() => {
-    if (index !== loadCursor || !shouldAttachMedia) return;
-    if (item.mediaType === "video") {
-      const v = videoRef.current;
-      if (v && v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) reportSlotReady();
-      return;
-    }
-    const img = imgRef.current;
-    if (img && img.complete && img.naturalWidth > 0) reportSlotReady();
-  }, [index, loadCursor, shouldAttachMedia, item.mediaType, item.image, reportSlotReady]);
-
   return (
     <article className="min-w-0 rounded-[8px]">
       <div className="aspect-square w-full rounded-superellipse border-[0.8px] border-[#E6E6E6] bg-[rgba(162,157,150,0.12)] contain-layout">
@@ -77,10 +67,11 @@ export default function AlbumCard({
                 onContextMenu={(e) => e.preventDefault()}
               />
             ) : (
-              <img
+              <SmartImage
                 ref={imgRef}
                 src={item.image}
                 alt={item.album}
+                containerClassName="h-full w-full"
                 className="block h-full w-full object-cover"
                 decoding="async"
                 fetchPriority={index === loadCursor ? "high" : "low"}
@@ -89,6 +80,13 @@ export default function AlbumCard({
               />
             )
           ) : null}
+
+          {/* 未 attach 媒体前：也显示“该卡片自己的”扫光骨架 */}
+          {!shouldAttachMedia && (
+            <div className="smart-image h-full w-full">
+              <div className="smart-image-skeleton" data-active="true" aria-hidden />
+            </div>
+          )}
         </div>
       </div>
       <div className="mt-2 flex flex-col gap-0.5 leading-[16px]">

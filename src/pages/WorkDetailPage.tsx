@@ -150,23 +150,39 @@ export default function WorkDetailPage({
               {hasTopCopy && <div className="my-16 min-[801px]:my-[100px]" aria-hidden />}
 
               <div className="flex flex-col gap-4">
-                {(work.detailImages ?? [work.image]).map((src, i) => {
+                {(work.detailMedia ?? (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))).map(
+                  (media, i) => {
                   const useLightProfile = isMobileViewport || isLikelySafari;
-                  const resolvedSrc = publicAssetUrl(src);
-                  const imageBlock = (
-                    <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
-                      <ModalLazyImage
-                        src={resolvedSrc}
-                        alt={`${work.title} - ${i + 1}`}
-                        eager
-                        scrollRoot={undefined}
-                        placeholderMinHeight={240}
-                      />
-                    </div>
-                  );
+                  const resolvedSrc = publicAssetUrl(media.src);
+                  const block =
+                    media.type === "video" ? (
+                      <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
+                        <video
+                          src={resolvedSrc}
+                          className="block w-full h-auto object-cover"
+                          autoPlay
+                          muted
+                          playsInline
+                          loop
+                          controls={false}
+                          preload="metadata"
+                          onContextMenu={(e) => e.preventDefault()}
+                        />
+                      </div>
+                    ) : (
+                      <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
+                        <ModalLazyImage
+                          src={resolvedSrc}
+                          alt={`${work.title} - ${i + 1}`}
+                          eager
+                          scrollRoot={undefined}
+                          placeholderMinHeight={240}
+                        />
+                      </div>
+                    );
 
                   if (reducedMotion) {
-                    return <div key={i}>{imageBlock}</div>;
+                    return <div key={i}>{block}</div>;
                   }
 
                   return (
@@ -181,10 +197,11 @@ export default function WorkDetailPage({
                       threshold={useLightProfile ? 0.08 : 0.05}
                       delay={Math.min(i, 10) * (useLightProfile ? 0.28 : 0.36)}
                     >
-                      {imageBlock}
+                      {block}
                     </AnimatedContent>
                   );
-                })}
+                }
+                )}
               </div>
 
               <div className="my-16 min-[801px]:my-[100px]" aria-hidden />
