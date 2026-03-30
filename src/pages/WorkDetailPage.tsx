@@ -154,7 +154,7 @@ export default function WorkDetailPage({
                   const useLightProfile = isMobileViewport || isLikelySafari;
                   const resolvedSrc = publicAssetUrl(src);
                   const imageBlock = (
-                    <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)]">
+                    <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
                       <ModalLazyImage
                         src={resolvedSrc}
                         alt={`${work.title} - ${i + 1}`}
@@ -176,7 +176,7 @@ export default function WorkDetailPage({
                       direction="vertical"
                       duration={useLightProfile ? 0.8 : 0.95}
                       ease="power3.out"
-                      initialOpacity={0.1}
+                      initialOpacity={0}
                       animateOpacity
                       threshold={useLightProfile ? 0.08 : 0.05}
                       delay={Math.min(i, 10) * (useLightProfile ? 0.28 : 0.36)}

@@ -143,7 +143,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
         onKeyDown={handleKeyDown}
         className="rounded-[8px] border-[0.5px] border-transparent cursor-pointer"
       >
-        <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#e0e0e0]">
+        <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#E6E6E6]">
           <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
           <div className="relative z-1">
             <img

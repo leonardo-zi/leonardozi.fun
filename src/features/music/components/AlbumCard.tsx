@@ -56,38 +56,40 @@ export default function AlbumCard({
   }, [index, loadCursor, shouldAttachMedia, item.mediaType, item.image, reportSlotReady]);
 
   return (
-    <article className="min-w-0 overflow-hidden rounded-[8px]">
-      <div className="aspect-square w-full rounded-superellipse border-[0.5px] border-[#e0e0e0] overflow-hidden bg-[rgba(162,157,150,0.12)] contain-layout">
-        {shouldAttachMedia ? (
-          item.mediaType === "video" ? (
-            <video
-              ref={videoRef}
-              src={item.image}
-              className="pointer-events-none block h-full w-full object-cover"
-              autoPlay
-              muted
-              playsInline
-              loop
-              preload="metadata"
-              aria-label={item.album}
-              onLoadedData={reportSlotReady}
-              onError={reportSlotReady}
-              onPause={resumeIfNotEnded}
-              onContextMenu={(e) => e.preventDefault()}
-            />
-          ) : (
-            <img
-              ref={imgRef}
-              src={item.image}
-              alt={item.album}
-              className="block h-full w-full object-cover"
-              decoding="async"
-              fetchPriority={index === loadCursor ? "high" : "low"}
-              onLoad={reportSlotReady}
-              onError={reportSlotReady}
-            />
-          )
-        ) : null}
+    <article className="min-w-0 rounded-[8px]">
+      <div className="aspect-square w-full rounded-superellipse border-[0.5px] border-[#E6E6E6] bg-[rgba(162,157,150,0.12)] contain-layout">
+        <div className="h-full w-full overflow-hidden rounded-superellipse">
+          {shouldAttachMedia ? (
+            item.mediaType === "video" ? (
+              <video
+                ref={videoRef}
+                src={item.image}
+                className="pointer-events-none block h-full w-full object-cover"
+                autoPlay
+                muted
+                playsInline
+                loop
+                preload="metadata"
+                aria-label={item.album}
+                onLoadedData={reportSlotReady}
+                onError={reportSlotReady}
+                onPause={resumeIfNotEnded}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+            ) : (
+              <img
+                ref={imgRef}
+                src={item.image}
+                alt={item.album}
+                className="block h-full w-full object-cover"
+                decoding="async"
+                fetchPriority={index === loadCursor ? "high" : "low"}
+                onLoad={reportSlotReady}
+                onError={reportSlotReady}
+              />
+            )
+          ) : null}
+        </div>
       </div>
       <div className="mt-2 flex flex-col gap-0.5 leading-[16px]">
         <div className="flex items-baseline justify-between gap-3">

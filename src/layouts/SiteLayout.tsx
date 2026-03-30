@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { Icon, addCollection } from "@iconify/react";
 import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
 import { NavLink, Outlet } from "react-router-dom";
@@ -47,7 +48,6 @@ function navSectionClassName({ isActive }: { isActive: boolean }) {
   return [
     TOC_BUTTON_CLASS,
     isActive ? "opacity-100" : "",
-    isActive ? "font-medium" : "",
   ].join(" ");
 }
 
@@ -90,7 +90,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const wechatTooltipRef = useRef<HTMLDivElement | null>(null);
 
   const emailAddress = "ml44142@163.com";
-  const emailCaption = "复制邮箱，与我联络";
+  const emailCaption = lang === "en" ? "Copy email, contact me" : "复制邮箱，与我联络";
 
   const [emailPopupPlacement, setEmailPopupPlacement] = useState<"below" | "above">("above");
   const [emailOpenByClick, setEmailOpenByClick] = useState(false);
@@ -145,6 +145,55 @@ function SidebarToc({ lang }: { lang: Lang }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [emailOpenByClick]);
+
+  useEffect(() => {
+    if (!wechatOpenByClick && !emailOpenByClick) return;
+
+    const onPointerDown = (e: MouseEvent | PointerEvent) => {
+      const target = e.target;
+      if (!(target instanceof Node)) return;
+
+      const insideWechat =
+        wechatAnchorRef.current?.contains(target) || wechatTooltipRef.current?.contains(target);
+      const insideEmail =
+        emailAnchorRef.current?.contains(target) || emailTooltipRef.current?.contains(target);
+
+      if (insideWechat || insideEmail) return;
+
+      setWechatOpenByClick(false);
+      setWechatDismissed(true);
+      setWechatHovered(false);
+      setWechatFocused(false);
+
+      setEmailOpenByClick(false);
+      setEmailDismissed(true);
+      setEmailCopied(false);
+    };
+
+    window.addEventListener("pointerdown", onPointerDown, true);
+    window.addEventListener("mousedown", onPointerDown, true);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown, true);
+      window.removeEventListener("mousedown", onPointerDown, true);
+    };
+  }, [wechatOpenByClick, emailOpenByClick]);
+
+  const reduceMotion = useReducedMotion();
+
+  // 联系卡片 tooltip 滑入动画：与首页/音乐页一致（y 位移减半为 8px）
+  const contactTooltipVariants: Variants = reduceMotion
+    ? {
+        hidden: { opacity: 0, y: 0 },
+        show: { opacity: 1, y: 0, transition: { duration: 0 } },
+      }
+    : {
+        hidden: { opacity: 0, y: 8 },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.42, ease: [0.16, 1, 0.3, 1] as const },
+        },
+      };
 
   const computeWechatPlacement = useCallback(() => {
     const anchor = wechatAnchorRef.current;
@@ -241,7 +290,15 @@ function SidebarToc({ lang }: { lang: Lang }) {
                       setEmailDismissed(false);
                       setEmailCopied(false);
                       setEmailWrapperHovered(true);
+                      // 互斥：打开 Email 时关闭 WeChat（并设置 dismissed 防止 hover 立刻重开）
+                      setWechatOpenByClick(false);
+                      setWechatDismissed(true);
+                      setWechatHovered(false);
+                      setWechatFocused(false);
                       requestAnimationFrame(() => computeEmailPlacement());
+                    } else {
+                      setEmailDismissed(true);
+                      setEmailCopied(false);
                     }
                     return next;
                   });
@@ -254,17 +311,19 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
               </button>
 
-              <div
+              <motion.div
                 ref={emailTooltipRef}
                 role="tooltip"
                 aria-label={emailCaption}
+                variants={contactTooltipVariants}
+                initial="hidden"
+                animate={emailTooltipVisible ? "show" : "hidden"}
+                style={{ pointerEvents: emailTooltipVisible ? "auto" : "none" }}
                 className={[
                   "absolute left-0 z-50 w-[240px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                   emailPopupPlacement === "below"
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
-                  emailTooltipVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none",
-                  "transition-[opacity,transform] duration-150 ease-out",
                 ].join(" ")}
                 onClick={(e) => {
                   // tooltip 内点击不影响外部按钮状态
@@ -275,7 +334,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                   <button
                     type="button"
                     aria-label={lang === "en" ? "Close" : "关闭"}
-                    className="absolute right-0 top-0 inline-flex h-[22px] w-[22px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#A9A9A9] opacity-20 transition-opacity duration-150 ease-out hover:opacity-40 active:opacity-40"
+                    className="absolute right-0 top-0 inline-flex h-[22px] w-[22px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#A9A9A9] opacity-50 transition-opacity duration-150 ease-out hover:opacity-70 active:opacity-70"
                     onClick={(e) => {
                       e.stopPropagation();
                       setEmailOpenByClick(false);
@@ -297,7 +356,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 )}
 
                 <div className="flex flex-col items-center gap-[12px]">
-                  <div className="flex w-full items-center justify-between rounded-[6px] bg-[#F3F3F3] px-[8px] py-[6px]">
+                  <div className="flex w-full items-center justify-between rounded-[6px] bg-[#F3F3F3] px-[8px] py-[6px] border-[0.5px] border-[#E6E6E6]">
                     <div
                       style={{ fontFamily: "'Andale Mono', monospace" }}
                     className="min-w-0 truncate text-[14px] leading-[20px] font-normal text-[#6B6B6B]"
@@ -356,7 +415,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
 
                   <div className="text-center text-[11px] leading-[16px] font-normal text-[#000000]">{emailCaption}</div>
                 </div>
-              </div>
+              </motion.div>
             </div>
             <div
               className="relative"
@@ -382,7 +441,15 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 onClick={() => {
                   setWechatOpenByClick((v) => {
                     const next = !v;
-                    if (next) setWechatDismissed(false);
+                    if (next) {
+                      setWechatDismissed(false);
+                      // 互斥：打开 WeChat 时关闭 Email（并设置 dismissed 防止 hover 立刻又弹回）
+                      setEmailOpenByClick(false);
+                      setEmailDismissed(true);
+                      setEmailCopied(false);
+                    } else {
+                      setWechatDismissed(true);
+                    }
                     // 打开时立即计算 placement，确保弹层出现在光标/触发项上方。
                     if (next) requestAnimationFrame(() => computeWechatPlacement());
                     return next;
@@ -396,17 +463,19 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
               </button>
 
-              <div
+              <motion.div
                 ref={wechatTooltipRef}
                 role="tooltip"
                 aria-label={wechatCaption}
+                variants={contactTooltipVariants}
+                initial="hidden"
+                animate={wechatTooltipVisible ? "show" : "hidden"}
+                style={{ pointerEvents: wechatTooltipVisible ? "auto" : "none" }}
                 className={[
                   "absolute left-0 z-50 w-[174px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                   wechatPopupPlacement === "below"
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
-                  wechatTooltipVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none",
-                  "transition-[opacity,transform] duration-150 ease-out",
                 ].join(" ")}
                 onClick={(e) => {
                   // Tooltip 内点击不应关闭。
@@ -417,7 +486,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                   <button
                     type="button"
                     aria-label={lang === "en" ? "Close" : "关闭"}
-                    className="absolute right-0 top-0 inline-flex h-[22px] w-[22px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#A9A9A9] opacity-20 transition-opacity duration-150 ease-out hover:opacity-40 active:opacity-40"
+                    className="absolute right-0 top-0 inline-flex h-[22px] w-[22px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#A9A9A9] opacity-50 transition-opacity duration-150 ease-out hover:opacity-70 active:opacity-70"
                     onClick={(e) => {
                       e.stopPropagation();
                       setWechatOpenByClick(false);
@@ -449,7 +518,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     {wechatCaption}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
