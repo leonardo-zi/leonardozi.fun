@@ -51,25 +51,31 @@ export default function WorkCard({ work, onClick, isFirst, lang, animationIndex 
     const el = cardRef.current;
     if (!el || isInView) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          setIsInView(true);
-          observer.unobserve(entry.target);
-          break;
+    let observer: IntersectionObserver | null = null;
+    const raf = requestAnimationFrame(() => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            setIsInView(true);
+            observer?.unobserve(entry.target);
+            break;
+          }
+        },
+        {
+          root: null,
+          // 更激进：接近视口前就触发，进一步减少“空白等待”。
+          rootMargin: "0px 0px 1000px 0px",
+          threshold: 0,
         }
-      },
-      {
-        root: null,
-        // 更激进：接近视口前就触发，进一步减少“空白等待”。
-        rootMargin: "0px 0px 1000px 0px",
-        threshold: 0,
-      }
-    );
+      );
+      observer.observe(el);
+    });
 
-    observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      cancelAnimationFrame(raf);
+      observer?.disconnect();
+    };
   }, [isInView]);
 
   const isLikelySafari = useMemo(() => {

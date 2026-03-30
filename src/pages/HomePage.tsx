@@ -6,6 +6,7 @@ import LenisPreventScrollArea from "../components/LenisPreventScrollArea";
 import WorkDetailPage from "./WorkDetailPage";
 import { works } from "../works";
 import type { Work } from "../works/types";
+import { ALBUM_RELEASE_ISO } from "../data/albumReleases";
 import albumExistingFiles from "virtual:album-existing";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -24,61 +25,60 @@ function formatEditedDate(date: Date): string {
 /** 桌面端右栏作品：与 `works` 数组顺序无关，固定左列为 Poppy / Bob Music / Wisdom Horse，右列为 Aro / Others */
 const WORK_IDS_LEFT_COLUMN = ["1", "3", "5"] as const;
 const WORK_IDS_RIGHT_COLUMN = ["2", "4"] as const;
-/** 与 `public/album` 中现有 PNG 保持一致（已删的封面勿再列入） */
-const ALBUM_PNG_FILES = [
-  "IMG_2455.png",
-  "IMG_2456.png",
-  "IMG_2647.png",
-  "IMG_2649.png",
-  "IMG_2650.png",
-  "IMG_2654.png",
-  "IMG_2655.png",
-  "IMG_2656.png",
-  "IMG_2687.png",
-  "IMG_2690.png",
-] as const;
+const ALBUM_MEDIA_EXT = /\.(webp|webm|mp4|png|jpe?g)$/i;
 
-/** 与 `public/album` 中现有 MP4 保持一致 */
-const ALBUM_MP4_FILES = [
-  "P1032482461_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P1183202445_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P471843041_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P552796074_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P628705458_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P628709109_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P647088244_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P948560511_Anull_video_gr280_sdr_1080x1080-.mp4",
-] as const;
+function isAlbumMediaFilename(name: string): boolean {
+  return ALBUM_MEDIA_EXT.test(name);
+}
 
-type AlbumMediaRow = { file: string; year: number };
+/** `public/album` 资源 URL：带上 `import.meta.env.BASE_URL`，文件名编码以兼容空格与中文 */
+function albumPublicUrl(file: string): string {
+  const rawBase = import.meta.env.BASE_URL;
+  const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+  return `${base}album/${encodeURIComponent(file)}`;
+}
 
-const ALBUM_MEDIA_ROWS_ALL: AlbumMediaRow[] = [
-  { file: "万能青年旅店-万能青年旅店.jpg", year: 2010 },
-  { file: "崔健-新长征路上的摇滚.jpg", year: 1989 },
-  ...ALBUM_PNG_FILES.map((file) => ({ file, year: 2024 })),
-  ...ALBUM_MP4_FILES.map((file) => ({ file, year: 2025 })),
-];
+function releaseIsoForFile(file: string): string {
+  return ALBUM_RELEASE_ISO[file] ?? ALBUM_RELEASE_ISO[file.trim()] ?? "1900-01-01";
+}
 
-const albumExistingSet = new Set(albumExistingFiles);
-/** 仅保留 public/album 中实际存在的文件，避免出现无图/裂图占位卡片 */
-const ALBUM_MEDIA_ROWS: AlbumMediaRow[] = ALBUM_MEDIA_ROWS_ALL.filter((row) => albumExistingSet.has(row.file));
+function isoToSortKey(iso: string): number {
+  const [y, m, d] = iso.split("-").map((x) => parseInt(x, 10));
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return 0;
+  return y * 10000 + m * 100 + d;
+}
+
+function formatReleaseLabel(iso: string): string {
+  const y = iso.split("-")[0];
+  return y && /^\d{4}$/.test(y) ? y : iso.slice(0, 4);
+}
+
+type AlbumMediaRow = { file: string; releaseIso: string };
+
+/** 音乐页素材：扫描 `public/album`，文件名建议为「艺人-专辑名」 */
+const ALBUM_MEDIA_ROWS: AlbumMediaRow[] = albumExistingFiles
+  .filter((f) => isAlbumMediaFilename(f))
+  .map((file) => ({ file, releaseIso: releaseIsoForFile(file) }));
 
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"] as const;
+const STEM_EXTENSIONS = [...IMAGE_EXTENSIONS, ".webm", ".mp4"] as const;
 
 function albumMediaType(file: string): "image" | "video" {
-  return file.toLowerCase().endsWith(".mp4") ? "video" : "image";
+  const l = file.toLowerCase();
+  return l.endsWith(".mp4") || l.endsWith(".webm") ? "video" : "image";
 }
 
 function parseArtistAlbumFromFile(file: string): { artist: string; album: string } | null {
-  if (!file.includes("-")) return null;
-  const lower = file.toLowerCase();
-  const ext = IMAGE_EXTENSIONS.find((e) => lower.endsWith(e));
+  const trimmed = file.trim();
+  if (!trimmed.includes("-")) return null;
+  const lower = trimmed.toLowerCase();
+  const ext = STEM_EXTENSIONS.find((e) => lower.endsWith(e));
   if (!ext) return null;
-  const base = file.slice(0, -ext.length);
+  const base = trimmed.slice(0, -ext.length);
   const dash = base.indexOf("-");
   if (dash <= 0) return null;
-  const artist = base.slice(0, dash);
-  const album = base.slice(dash + 1);
+  const artist = base.slice(0, dash).trim();
+  const album = base.slice(dash + 1).trim();
   if (!artist || !album) return null;
   return { artist, album };
 }
@@ -90,15 +90,16 @@ type AlbumItem = {
   album: string;
   artist: string;
   year: string;
-  yearNum: number;
 };
 
 function buildAlbumItems(rows: readonly AlbumMediaRow[]): AlbumItem[] {
+  const collator = "zh-Hans-CN";
   const staged = rows.map((row, sortIndex) => {
-    const image = `/album/${row.file}`;
+    const image = albumPublicUrl(row.file);
     const mediaType = albumMediaType(row.file);
     const parsed = parseArtistAlbumFromFile(row.file);
-    const year = String(row.year);
+    const year = formatReleaseLabel(row.releaseIso);
+    const releaseSortKey = isoToSortKey(row.releaseIso);
     if (parsed) {
       return {
         sortIndex,
@@ -107,7 +108,7 @@ function buildAlbumItems(rows: readonly AlbumMediaRow[]): AlbumItem[] {
         album: parsed.album,
         artist: parsed.artist,
         year,
-        yearNum: row.year,
+        releaseSortKey,
       };
     }
     const stem = row.file.replace(/\.[^.]+$/, "");
@@ -118,11 +119,16 @@ function buildAlbumItems(rows: readonly AlbumMediaRow[]): AlbumItem[] {
       album: stem,
       artist: "Unknown Artist",
       year,
-      yearNum: row.year,
+      releaseSortKey,
     };
   });
+  /** 艺人名倒序 → 发行日倒序（新在前）→ 专辑名倒序 */
   staged.sort((a, b) => {
-    if (b.yearNum !== a.yearNum) return b.yearNum - a.yearNum;
+    const cmpArtist = b.artist.localeCompare(a.artist, collator, { sensitivity: "base" });
+    if (cmpArtist !== 0) return cmpArtist;
+    if (b.releaseSortKey !== a.releaseSortKey) return b.releaseSortKey - a.releaseSortKey;
+    const cmpAlbum = b.album.localeCompare(a.album, collator, { sensitivity: "base" });
+    if (cmpAlbum !== 0) return cmpAlbum;
     return a.sortIndex - b.sortIndex;
   });
   return staged.map((item, i) => ({
@@ -132,7 +138,6 @@ function buildAlbumItems(rows: readonly AlbumMediaRow[]): AlbumItem[] {
     album: item.album,
     artist: item.artist,
     year: item.year,
-    yearNum: item.yearNum,
   }));
 }
 
@@ -369,10 +374,12 @@ function AlbumCard({
   }, []);
 
   const reportedRef = useRef(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     reportedRef.current = false;
-  }, [loadCursor, index]);
+  }, [loadCursor, index, item.image]);
 
   useEffect(() => {
     if (index !== loadCursor) return;
@@ -393,13 +400,26 @@ function AlbumCard({
 
   const shouldAttachMedia = index <= loadCursor;
 
+  /** 缓存命中时可能不会触发 onLoad / onLoadedData，与 WorkCard 的 img.complete 兜底一致 */
+  useEffect(() => {
+    if (index !== loadCursor || !shouldAttachMedia) return;
+    if (item.mediaType === "video") {
+      const v = videoRef.current;
+      if (v && v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) reportSlotReady();
+      return;
+    }
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) reportSlotReady();
+  }, [index, loadCursor, shouldAttachMedia, item.mediaType, item.image, reportSlotReady]);
+
   return (
     <article className="min-w-0 overflow-hidden rounded-[8px]">
       <div className="aspect-square w-full rounded-superellipse border-[0.5px] border-[#e0e0e0] overflow-hidden bg-[rgba(162,157,150,0.12)] contain-layout">
         {shouldAttachMedia ? (
           item.mediaType === "video" ? (
             <video
-              src={encodeURI(item.image)}
+              ref={videoRef}
+              src={item.image}
               className="pointer-events-none block h-full w-full object-cover"
               autoPlay
               muted
@@ -414,7 +434,8 @@ function AlbumCard({
             />
           ) : (
             <img
-              src={encodeURI(item.image)}
+              ref={imgRef}
+              src={item.image}
               alt={item.album}
               className="block h-full w-full object-cover"
               decoding="async"
@@ -548,6 +569,9 @@ export default function HomePage() {
   const [pageLoadNonce] = useState(() => Date.now());
   const [cardsReadyForReveal, setCardsReadyForReveal] = useState(false);
   const [mainView, setMainView] = useState<MainView>("works");
+  /** 从音乐切回作品时递增，强制 WorkCard 重新挂载，避免 IntersectionObserver 在错误滚动/布局时机下永远不解锁 */
+  const [worksRemountKey, setWorksRemountKey] = useState(0);
+  const prevMainViewRef = useRef<MainView>("works");
   /** 音乐网格：仅加载 index ≤ cursor 的媒体；从左到右、自上而下即 albumItems 顺序，逐个就绪后再加载下一格，避免首屏带宽与解码挤爆 */
   const [musicLoadCursor, setMusicLoadCursor] = useState(0);
 
@@ -649,6 +673,14 @@ export default function HomePage() {
 
   useEffect(() => {
     if (mainView === "music") setMusicLoadCursor(0);
+    const prev = prevMainViewRef.current;
+    if (mainView === "works" && prev === "music") {
+      setWorksRemountKey((k) => k + 1);
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      });
+    }
+    prevMainViewRef.current = mainView;
   }, [mainView]);
 
   const advanceMusicSlot = useCallback(() => {
@@ -841,7 +873,7 @@ export default function HomePage() {
                   <div className="grid grid-cols-1 gap-4">
                     {worksInterleaved.map((work, i) => (
                       <WorkCard
-                        key={`${work.id}-${pageLoadNonce}`}
+                        key={`${work.id}-${pageLoadNonce}-${worksRemountKey}`}
                         work={work}
                         onClick={(w) => openWorkDetails(w)}
                         isFirst={i === 0}
@@ -853,11 +885,11 @@ export default function HomePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 items-start gap-4">
+                  <div className="grid grid-cols-2 items-start gap-4" style={{ gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)" }}>
                     <div className="flex min-w-0 flex-col gap-4">
                       {worksLeftColumn.map((work, i) => (
                         <WorkCard
-                          key={`${work.id}-${pageLoadNonce}`}
+                          key={`${work.id}-${pageLoadNonce}-${worksRemountKey}`}
                           work={work}
                           onClick={(w) => openWorkDetails(w)}
                           isFirst={i === 0}
@@ -872,7 +904,7 @@ export default function HomePage() {
                     <div className="flex min-w-0 flex-col gap-4">
                       {worksRightColumn.map((work, i) => (
                         <WorkCard
-                          key={`${work.id}-${pageLoadNonce}`}
+                          key={`${work.id}-${pageLoadNonce}-${worksRemountKey}`}
                           work={work}
                           onClick={(w) => openWorkDetails(w)}
                           isFirst={false}
