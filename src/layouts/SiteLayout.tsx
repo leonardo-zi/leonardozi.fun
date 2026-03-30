@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon, addCollection } from "@iconify/react";
 import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
 import { NavLink, Outlet } from "react-router-dom";
@@ -6,6 +6,7 @@ import LenisPreventScrollArea from "../components/LenisPreventScrollArea";
 import { SIDEBAR_SECTION_NAV } from "../config/sidebarNav";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { useSitePreferences, type Lang } from "./SitePreferencesContext";
+import { publicAssetUrl } from "../utils/publicAssetUrl";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const SITE_ICON_SRC = "/works/icon/leonardozi_icon.png";
@@ -76,6 +77,51 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const tocTitle = lang === "en" ? "Sections" : "分区";
   const tocContact = lang === "en" ? "Contact" : "联络";
   const tocResume = lang === "en" ? "Resume" : "简历";
+  const wechatCaption =
+    lang === "en" ? "Scan the QR code to add me on WeChat" : "扫描二维码，添加我的微信";
+
+  const [wechatPopupPlacement, setWechatPopupPlacement] = useState<"below" | "above">("above");
+  const [wechatOpenByClick, setWechatOpenByClick] = useState(false);
+  const [wechatHovered, setWechatHovered] = useState(false);
+  const [wechatFocused, setWechatFocused] = useState(false);
+  // 点击关闭后：在鼠标离开前，忽略 hover/focus 触发，确保“点关闭立刻消失”
+  const [wechatDismissed, setWechatDismissed] = useState(false);
+  const wechatAnchorRef = useRef<HTMLButtonElement | null>(null);
+  const wechatTooltipRef = useRef<HTMLDivElement | null>(null);
+
+  const computeWechatPlacement = useCallback(() => {
+    const anchor = wechatAnchorRef.current;
+    const tooltip = wechatTooltipRef.current;
+    if (!anchor || !tooltip) return;
+    if (typeof window === "undefined") return;
+
+    const margin = 12;
+    const rect = anchor.getBoundingClientRect();
+    const tooltipHeight = tooltip.offsetHeight ?? 0;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // 默认尽量在上方；只有上方空间不够时才翻到下方。
+    const shouldShowBelow = spaceAbove < tooltipHeight + margin && spaceBelow >= tooltipHeight + margin;
+    setWechatPopupPlacement(shouldShowBelow ? "below" : "above");
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => computeWechatPlacement();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [computeWechatPlacement]);
+
+  useEffect(() => {
+    if (!wechatOpenByClick) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setWechatOpenByClick(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [wechatOpenByClick]);
+
+  const wechatTooltipVisible = wechatOpenByClick || (!wechatDismissed && (wechatHovered || wechatFocused));
 
   return (
     <>
@@ -105,13 +151,99 @@ function SidebarToc({ lang }: { lang: Lang }) {
               </span>
               <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
             </button>
-            <button type="button" className={TOC_BUTTON_CLASS}>
-              <span className="relative inline-block">
-                WeChat
-                <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
-              </span>
-              <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </button>
+            <div
+              className="relative"
+              onMouseLeave={() => {
+                setWechatHovered(false);
+                setWechatDismissed(false);
+              }}
+            >
+              <button
+                ref={wechatAnchorRef}
+                type="button"
+                className={TOC_BUTTON_CLASS}
+                onMouseEnter={() => {
+                  setWechatHovered(true);
+                  computeWechatPlacement();
+                }}
+                onFocus={() => {
+                  setWechatFocused(true);
+                  computeWechatPlacement();
+                }}
+                onBlur={() => setWechatFocused(false)}
+                aria-expanded={wechatOpenByClick}
+                onClick={() => {
+                  setWechatOpenByClick((v) => {
+                    const next = !v;
+                    if (next) setWechatDismissed(false);
+                    // 打开时立即计算 placement，确保弹层出现在光标/触发项上方。
+                    if (next) requestAnimationFrame(() => computeWechatPlacement());
+                    return next;
+                  });
+                }}
+              >
+                <span className="relative inline-block">
+                  WeChat
+                  <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                </span>
+                <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
+              </button>
+
+              <div
+                ref={wechatTooltipRef}
+                role="tooltip"
+                aria-label={wechatCaption}
+                className={[
+                  "absolute left-0 z-50 w-[174px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+                  wechatPopupPlacement === "below"
+                    ? "top-[calc(100%+12px)]"
+                    : "bottom-[calc(100%+12px)]",
+                  wechatTooltipVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none",
+                  "transition-[opacity,transform] duration-150 ease-out",
+                ].join(" ")}
+                onClick={(e) => {
+                  // Tooltip 内点击不应关闭。
+                  e.stopPropagation();
+                }}
+              >
+                {wechatOpenByClick && (
+                  <button
+                    type="button"
+                    aria-label={lang === "en" ? "Close" : "关闭"}
+                    className="absolute right-0 top-0 inline-flex h-[24px] w-[24px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#000000] opacity-20 transition-opacity duration-150 ease-out hover:opacity-40 active:opacity-40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setWechatOpenByClick(false);
+                      setWechatDismissed(true);
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 512 512"
+                      fill="currentColor"
+                      aria-hidden
+                    >
+                      <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208s208-93.31 208-208S370.69 48 256 48m75.31 260.69a16 16 0 1 1-22.62 22.62L256 278.63l-52.69 52.68a16 16 0 0 1-22.62-22.62L233.37 256l-52.68-52.69a16 16 0 0 1 22.62-22.62L256 233.37l52.69-52.68a16 16 0 0 1 22.62 22.62L278.63 256Z" />
+                    </svg>
+                  </button>
+                )}
+                <div className="flex flex-col items-center gap-[12px]">
+                  <img
+                    src={publicAssetUrl("./contact/wechat_qr.jpg")}
+                    alt=""
+                    aria-hidden
+                    className="h-[150px] w-[150px] rounded-[6px] object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="text-center text-[11px] leading-[16px] font-normal text-[#000000]">
+                    {wechatCaption}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
