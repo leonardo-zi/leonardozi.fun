@@ -57,7 +57,7 @@ export default function AlbumCard({
 
   return (
     <article className="min-w-0 rounded-[8px]">
-      <div className="aspect-square w-full rounded-superellipse border-[0.5px] border-[#E6E6E6] bg-[rgba(162,157,150,0.12)] contain-layout">
+      <div className="aspect-square w-full rounded-superellipse border-[0.8px] border-[#E6E6E6] bg-[rgba(162,157,150,0.12)] contain-layout">
         <div className="h-full w-full overflow-hidden rounded-superellipse">
           {shouldAttachMedia ? (
             item.mediaType === "video" ? (
