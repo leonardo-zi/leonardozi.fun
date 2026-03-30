@@ -89,13 +89,70 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const wechatAnchorRef = useRef<HTMLButtonElement | null>(null);
   const wechatTooltipRef = useRef<HTMLDivElement | null>(null);
 
+  const emailAddress = "ml44142@163.com";
+  const emailCaption = "复制邮箱，与我联络";
+
+  const [emailPopupPlacement, setEmailPopupPlacement] = useState<"below" | "above">("above");
+  const [emailOpenByClick, setEmailOpenByClick] = useState(false);
+  const [emailWrapperHovered, setEmailWrapperHovered] = useState(false);
+  // 点击关闭后：在鼠标离开前，忽略 hover/focus 触发，确保“点关闭立刻消失”
+  const [emailDismissed, setEmailDismissed] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
+
+  const emailAnchorRef = useRef<HTMLButtonElement | null>(null);
+  const emailTooltipRef = useRef<HTMLDivElement | null>(null);
+
+  const computeEmailPlacement = useCallback(() => {
+    const anchor = emailAnchorRef.current;
+    const tooltip = emailTooltipRef.current;
+    if (!anchor || !tooltip) return;
+    if (typeof window === "undefined") return;
+
+    const margin = 2;
+    const rect = anchor.getBoundingClientRect();
+    const tooltipHeight = tooltip.offsetHeight ?? 0;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // 默认尽量显示在上方；只有上方空间不够时才翻到下方。
+    const canShowBelow = spaceBelow >= tooltipHeight + margin;
+    const canShowAbove = spaceAbove >= tooltipHeight + margin;
+    if (canShowAbove) {
+      setEmailPopupPlacement("above");
+    } else if (canShowBelow) {
+      setEmailPopupPlacement("below");
+    } else {
+      // 都不够时，选择上方以保持与 WeChat 一致
+      setEmailPopupPlacement("above");
+    }
+  }, []);
+
+  useEffect(() => {
+    const onResize = () => computeEmailPlacement();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [computeEmailPlacement]);
+
+  useEffect(() => {
+    if (!emailOpenByClick) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setEmailOpenByClick(false);
+        setEmailDismissed(true);
+        setEmailCopied(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [emailOpenByClick]);
+
   const computeWechatPlacement = useCallback(() => {
     const anchor = wechatAnchorRef.current;
     const tooltip = wechatTooltipRef.current;
     if (!anchor || !tooltip) return;
     if (typeof window === "undefined") return;
 
-    const margin = 12;
+    const margin = 2;
     const rect = anchor.getBoundingClientRect();
     const tooltipHeight = tooltip.offsetHeight ?? 0;
     const spaceBelow = window.innerHeight - rect.bottom;
@@ -122,6 +179,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
   }, [wechatOpenByClick]);
 
   const wechatTooltipVisible = wechatOpenByClick || (!wechatDismissed && (wechatHovered || wechatFocused));
+  const emailTooltipVisible = emailOpenByClick || (!emailDismissed && emailWrapperHovered);
 
   return (
     <>
@@ -144,13 +202,162 @@ function SidebarToc({ lang }: { lang: Lang }) {
               </span>
               <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
             </button>
-            <button type="button" className={TOC_BUTTON_CLASS}>
-              <span className="relative inline-block">
-                Email
-                <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
-              </span>
-              <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
-            </button>
+            <div
+              className="relative"
+              onMouseEnter={() => {
+                setEmailWrapperHovered(true);
+                setEmailDismissed(false);
+              }}
+              onMouseLeave={() => {
+                setEmailWrapperHovered(false);
+                if (!emailOpenByClick) {
+                  setEmailCopied(false);
+                  setEmailDismissed(false);
+                }
+              }}
+            >
+              <button
+                ref={emailAnchorRef}
+                type="button"
+                className={TOC_BUTTON_CLASS}
+                onMouseEnter={() => {
+                  setEmailWrapperHovered(true);
+                  setEmailDismissed(false);
+                  computeEmailPlacement();
+                }}
+                onFocus={() => {
+                  setEmailWrapperHovered(true);
+                  setEmailDismissed(false);
+                  computeEmailPlacement();
+                }}
+                onBlur={() => {
+                  setEmailWrapperHovered(false);
+                }}
+                aria-expanded={emailOpenByClick}
+                onClick={() => {
+                  setEmailOpenByClick((v) => {
+                    const next = !v;
+                    if (next) {
+                      setEmailDismissed(false);
+                      setEmailCopied(false);
+                      setEmailWrapperHovered(true);
+                      requestAnimationFrame(() => computeEmailPlacement());
+                    }
+                    return next;
+                  });
+                }}
+              >
+                <span className="relative inline-block">
+                  Email
+                  <span className="pointer-events-none absolute left-0 bottom-[-2px] h-[0.5px] w-full origin-left scale-x-0 bg-[#000000] transition-transform duration-150 ease-in-out group-hover:scale-x-100" />
+                </span>
+                <Icon icon="material-symbols-light:arrow-outward-rounded" width={18} height={18} color="#000000" aria-hidden />
+              </button>
+
+              <div
+                ref={emailTooltipRef}
+                role="tooltip"
+                aria-label={emailCaption}
+                className={[
+                  "absolute left-0 z-50 w-[240px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+                  emailPopupPlacement === "below"
+                    ? "top-[calc(100%+2px)]"
+                    : "bottom-[calc(100%+2px)]",
+                  emailTooltipVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none",
+                  "transition-[opacity,transform] duration-150 ease-out",
+                ].join(" ")}
+                onClick={(e) => {
+                  // tooltip 内点击不影响外部按钮状态
+                  e.stopPropagation();
+                }}
+              >
+                {emailOpenByClick && (
+                  <button
+                    type="button"
+                    aria-label={lang === "en" ? "Close" : "关闭"}
+                    className="absolute right-0 top-0 inline-flex h-[22px] w-[22px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#A9A9A9] opacity-20 transition-opacity duration-150 ease-out hover:opacity-40 active:opacity-40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEmailOpenByClick(false);
+                      setEmailDismissed(true);
+                      setEmailCopied(false);
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 512 512"
+                      fill="currentColor"
+                      aria-hidden
+                    >
+                      <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208s208-93.31 208-208S370.69 48 256 48m75.31 260.69a16 16 0 1 1-22.62 22.62L256 278.63l-52.69 52.68a16 16 0 0 1-22.62-22.62L233.37 256l-52.68-52.69a16 16 0 0 1 22.62-22.62L256 233.37l52.69-52.68a16 16 0 0 1 22.62 22.62L278.63 256Z" />
+                    </svg>
+                  </button>
+                )}
+
+                <div className="flex flex-col items-center gap-[12px]">
+                  <div className="flex w-full items-center justify-between rounded-[6px] bg-[#F3F3F3] px-[8px] py-[6px]">
+                    <div
+                      style={{ fontFamily: "'Andale Mono', monospace" }}
+                    className="min-w-0 truncate text-[14px] leading-[20px] font-normal text-[#6B6B6B]"
+                    >
+                      {emailAddress}
+                    </div>
+
+                    <div className="group shrink-0">
+                      <button
+                        type="button"
+                        aria-label={emailCopied ? "Copied" : "Copy email"}
+                        className="flex h-[20px] w-[20px] items-center justify-center rounded-[3px] bg-transparent transition-colors group-hover:bg-black/5 text-[#A9A9A9]"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await navigator.clipboard.writeText(emailAddress);
+                          } catch {
+                            // 忽略写入失败，仍展示完成态（避免交互卡住）
+                          }
+                          setEmailCopied(true);
+                        }}
+                      >
+                    {emailCopied ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                        className="h-[16px] w-[16px]"
+                      >
+                        <path d="m9 16.2l-3.5-3.5a.984.984 0 0 0-1.4 0a.984.984 0 0 0 0 1.4l4.19 4.19c.39.39 1.02.39 1.41 0L20.3 7.7a.984.984 0 0 0 0-1.4a.984.984 0 0 0-1.4 0z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        aria-hidden
+                        className="h-[16px] w-[16px]"
+                      >
+                        <g fill="none" fillRule="evenodd">
+                          <path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+                          <path
+                            fill="currentColor"
+                            d="M9 2a2 2 0 0 0-2 2v2h2V4h11v11h-2v2h2a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM4 7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm0 2h11v11H4z"
+                          />
+                        </g>
+                      </svg>
+                    )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-center text-[11px] leading-[16px] font-normal text-[#000000]">{emailCaption}</div>
+                </div>
+              </div>
+            </div>
             <div
               className="relative"
               onMouseLeave={() => {
@@ -196,8 +403,8 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 className={[
                   "absolute left-0 z-50 w-[174px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                   wechatPopupPlacement === "below"
-                    ? "top-[calc(100%+12px)]"
-                    : "bottom-[calc(100%+12px)]",
+                    ? "top-[calc(100%+2px)]"
+                    : "bottom-[calc(100%+2px)]",
                   wechatTooltipVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-1 pointer-events-none",
                   "transition-[opacity,transform] duration-150 ease-out",
                 ].join(" ")}
@@ -210,7 +417,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                   <button
                     type="button"
                     aria-label={lang === "en" ? "Close" : "关闭"}
-                    className="absolute right-0 top-0 inline-flex h-[24px] w-[24px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#000000] opacity-20 transition-opacity duration-150 ease-out hover:opacity-40 active:opacity-40"
+                    className="absolute right-0 top-0 inline-flex h-[22px] w-[22px] translate-x-[calc(50%-2px)] translate-y-[calc(4px-50%)] items-center justify-center text-[#A9A9A9] opacity-20 transition-opacity duration-150 ease-out hover:opacity-40 active:opacity-40"
                     onClick={(e) => {
                       e.stopPropagation();
                       setWechatOpenByClick(false);
@@ -219,8 +426,8 @@ function SidebarToc({ lang }: { lang: Lang }) {
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
+                      width="22"
+                      height="22"
                       viewBox="0 0 512 512"
                       fill="currentColor"
                       aria-hidden
