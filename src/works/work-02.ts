@@ -4,7 +4,7 @@ export const work02: Work = {
   id: "2",
   title: "Aro",
   image: "./works/bg/苏崇铭5.webp",
-  cardImageHeightPx: 650,
+  cardImageHeightPx: 680,
   overlayIcon: "./works/aro/aro-icon.svg",
   tags: ["品牌", "视觉"],
   tagsEn: ["Brand", "Visuals"],

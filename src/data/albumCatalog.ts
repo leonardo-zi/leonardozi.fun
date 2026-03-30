@@ -1,3 +1,4 @@
+import { albumDisplayForFile } from "./albumDisplayOverrides";
 import { ALBUM_RELEASE_ISO } from "./albumReleases";
 import albumExistingFiles from "virtual:album-existing";
 
@@ -76,12 +77,13 @@ export function buildAlbumItems(rows: readonly AlbumMediaRow[]): AlbumItem[] {
     const year = formatReleaseLabel(row.releaseIso);
     const releaseSortKey = isoToSortKey(row.releaseIso);
     if (parsed) {
+      const { artist, album } = albumDisplayForFile(row.file, parsed);
       return {
         sortIndex,
         image,
         mediaType,
-        album: parsed.album,
-        artist: parsed.artist,
+        album,
+        artist,
         year,
         releaseSortKey,
       };

@@ -1,10 +1,17 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect } from "react";
+import type { Variants } from "framer-motion";
+import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import WorkCard from "../../components/WorkCard";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import type { Work } from "../../works/types";
-import { worksStaggerContainer, worksStaggerItem, worksStaggerItemMobile } from "../../motion/presets";
+import {
+  WORKS_STAGGER_TIMING,
+  worksStaggerContainer,
+  worksStaggerContainerWide,
+  worksStaggerItem,
+  worksStaggerItemMobile,
+} from "../../motion/presets";
 import { useSitePreferences } from "../../layouts/SitePreferencesContext";
 import { useWorksColumns } from "./hooks/useWorksColumns";
 import { useWorksImagePreload } from "./hooks/useWorksImagePreload";
@@ -27,6 +34,36 @@ export default function WorksPage() {
     : isMobileViewport
       ? worksStaggerItemMobile
       : worksStaggerItem;
+
+  const workRowIndex = useMemo(() => {
+    const m = new Map<string, number>();
+    worksInterleaved.forEach((w, i) => m.set(w.id, i));
+    return m;
+  }, [worksInterleaved]);
+
+  const wideItemVariants: Variants = useMemo(() => {
+    if (reduceMotion) {
+      return {
+        hidden: { opacity: 1, y: 0 },
+        show: { opacity: 1, y: 0, transition: { duration: 0 } },
+      };
+    }
+    const { delayChildren, staggerChildren } = WORKS_STAGGER_TIMING;
+    const duration = isMobileViewport ? 0.58 : 0.72;
+    const yHidden = isMobileViewport ? 56 : 72;
+    return {
+      hidden: { opacity: 0, y: yHidden },
+      show: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: {
+          duration,
+          ease: [0.16, 1, 0.3, 1] as const,
+          delay: delayChildren + (typeof i === "number" ? i : 0) * staggerChildren,
+        },
+      }),
+    };
+  }, [reduceMotion, isMobileViewport]);
 
   useEffect(() => {
     const id = searchParams.get(LEGACY_WORK_QUERY);
@@ -85,22 +122,31 @@ export default function WorksPage() {
 
   return (
     <motion.div
-      className="grid grid-cols-2 items-start gap-4"
-      style={{ gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)" }}
-      variants={worksStaggerContainer}
+      className="grid grid-cols-2 items-start gap-4 [grid-template-columns:minmax(0,1fr)_minmax(0,1fr)]"
+      variants={worksStaggerContainerWide}
       initial="hidden"
       animate={gridAnimate}
     >
       <div className="flex min-w-0 flex-col gap-4">
         {worksLeftColumn.map((work, i) => (
-          <motion.div key={`${work.id}-${pageLoadNonce}`} variants={worksItemVariants} className="min-w-0">
+          <motion.div
+            key={`${work.id}-${pageLoadNonce}`}
+            custom={workRowIndex.get(work.id) ?? 0}
+            variants={wideItemVariants}
+            className="min-w-0"
+          >
             <WorkCard work={work} onClick={openWorkDetails} isFirst={i === 0} lang={lang} />
           </motion.div>
         ))}
       </div>
       <div className="flex min-w-0 flex-col gap-4">
         {worksRightColumn.map((work) => (
-          <motion.div key={`${work.id}-${pageLoadNonce}`} variants={worksItemVariants} className="min-w-0">
+          <motion.div
+            key={`${work.id}-${pageLoadNonce}`}
+            custom={workRowIndex.get(work.id) ?? 0}
+            variants={wideItemVariants}
+            className="min-w-0"
+          >
             <WorkCard work={work} onClick={openWorkDetails} isFirst={false} lang={lang} />
           </motion.div>
         ))}
