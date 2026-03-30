@@ -24,45 +24,29 @@ function formatEditedDate(date: Date): string {
 /** 桌面端右栏作品：与 `works` 数组顺序无关，固定左列为 Poppy / Bob Music / Wisdom Horse，右列为 Aro / Others */
 const WORK_IDS_LEFT_COLUMN = ["1", "3", "5"] as const;
 const WORK_IDS_RIGHT_COLUMN = ["2", "4"] as const;
+/** 与 `public/album` 中现有 PNG 保持一致（已删的封面勿再列入） */
 const ALBUM_PNG_FILES = [
   "IMG_2455.png",
   "IMG_2456.png",
-  "IMG_2635.png",
   "IMG_2647.png",
-  "IMG_2648.png",
   "IMG_2649.png",
   "IMG_2650.png",
-  "IMG_2651.png",
-  "IMG_2653.png",
   "IMG_2654.png",
   "IMG_2655.png",
   "IMG_2656.png",
-  "IMG_2657.png",
-  "IMG_2658.png",
+  "IMG_2687.png",
+  "IMG_2690.png",
 ] as const;
 
+/** 与 `public/album` 中现有 MP4 保持一致 */
 const ALBUM_MP4_FILES = [
   "P1032482461_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P1180431545_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P1181218312_Anull_video_gr280_sdr_1080x1080-.mp4",
   "P1183202445_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P1186986834_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P359497182_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P380938669_Anull_video_gr290_sdr_1080x1080_-.mp4",
   "P471843041_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P471938121_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P540553833_Anull_video_gr290_sdr_1080x1080-.mp4",
   "P552796074_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P603710951_Anull_video_gr290_sdr_1080x1080-.mp4",
   "P628705458_Anull_video_gr280_sdr_1080x1080-.mp4",
   "P628709109_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P628709289_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P628723730_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P629593601_Anull_video_gr280_sdr_1080x1080-.mp4",
   "P647088244_Anull_video_gr290_sdr_1080x1080-.mp4",
-  "P798682411_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P858389691_Anull_video_gr280_sdr_1080x1080-.mp4",
-  "P915447347_Anull_video_gr280_sdr_1080x1080-.mp4",
   "P948560511_Anull_video_gr280_sdr_1080x1080-.mp4",
 ] as const;
 
@@ -71,7 +55,6 @@ type AlbumMediaRow = { file: string; year: number };
 const ALBUM_MEDIA_ROWS_ALL: AlbumMediaRow[] = [
   { file: "万能青年旅店-万能青年旅店.jpg", year: 2010 },
   { file: "崔健-新长征路上的摇滚.jpg", year: 1989 },
-  { file: "周华健-水浒传.jpg", year: 1998 },
   ...ALBUM_PNG_FILES.map((file) => ({ file, year: 2024 })),
   ...ALBUM_MP4_FILES.map((file) => ({ file, year: 2025 })),
 ];
