@@ -146,10 +146,61 @@ body {
   animation: none;
 }
 
-/* 全站禁用动画/过渡：只保留内容与交互逻辑 */
-*,
-*::before,
-*::after {
-  animation: none !important;
-  transition: none !important;
+/* 图片骨架扫光：仅作用于图片位置（加载完成前显示） */
+.img-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(162, 157, 150, 0.12);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+
+.img-skeleton[data-active="true"] {
+  opacity: 1;
+}
+
+.img-skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-60%);
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 42%,
+    rgba(255, 255, 255, 0) 78%
+  );
+  animation: img-skeleton-shimmer 1.15s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes img-skeleton-shimmer {
+  0% {
+    transform: translateX(-60%);
+  }
+  100% {
+    transform: translateX(60%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img-skeleton {
+    transition: none;
+  }
+  .img-skeleton::before {
+    animation: none;
+    transform: none;
+  }
+
+  /* 减少动态效果时，尽量禁用全站动效（但不强制 !important 误伤局部控制） */
+  *,
+  *::before,
+  *::after {
+    animation: none;
+    transition: none;
+    scroll-behavior: auto;
+  }
 }

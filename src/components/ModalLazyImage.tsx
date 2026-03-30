@@ -23,6 +23,7 @@ export default function ModalLazyImage({
   eager = false,
 }: ModalLazyImageProps) {
   const [shouldLoad, setShouldLoad] = useState(eager);
+  const [loaded, setLoaded] = useState(false);
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,6 +31,10 @@ export default function ModalLazyImage({
       setShouldLoad(true);
     }
   }, [eager, src]);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
 
   useEffect(() => {
     if (shouldLoad) return;
@@ -61,8 +66,19 @@ export default function ModalLazyImage({
   const loading: NativeLoading = useMemo(() => (eager ? "eager" : "lazy"), [eager]);
 
   return (
-    <div ref={hostRef} className={className} style={{ minHeight: placeholderMinHeight }}>
-      {shouldLoad ? <img src={src} alt={alt} className="w-full h-auto block object-cover" loading={loading} decoding="async" /> : null}
+    <div ref={hostRef} className={`relative overflow-hidden ${className ?? ""}`} style={{ minHeight: placeholderMinHeight }}>
+      <div className="img-skeleton" data-active={!loaded} aria-hidden />
+      {shouldLoad ? (
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-auto block object-cover transition-opacity duration-[520ms] ease-out ${loaded ? "opacity-100" : "opacity-0"}`}
+          loading={loading}
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => setLoaded(true)}
+        />
+      ) : null}
     </div>
   );
 }
