@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
-import HomePage from "./pages/HomePage";
+import { Navigate, Route, Routes } from "react-router-dom";
+import MusicPage from "./features/music/MusicPage";
+import WorksPage from "./features/works/WorksPage";
+import SiteLayout from "./layouts/SiteLayout";
+import { SitePreferencesProvider } from "./layouts/SitePreferencesContext";
+import PageTransition from "./motion/PageTransition";
+import WorkDetailRoute from "./pages/WorkDetailRoute";
 
 export default function App() {
   useEffect(() => {
@@ -10,9 +16,6 @@ export default function App() {
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      // 允许嵌套滚动：弹窗/侧栏内部的 `overflow-y-auto` 容器在某些触摸路径下
-      // 可能无法被 `data-lenis-prevent` 完全命中，从而导致 Lenis 锁定时触摸滑动看起来失效。
-      // 这里启用 Lenis 的嵌套滚动检测兜底，消除“概率失效”。
       allowNestedScroll: true,
       wheelMultiplier: 1,
       touchMultiplier: 2,
@@ -33,5 +36,18 @@ export default function App() {
     };
   }, []);
 
-  return <HomePage />;
+  return (
+    <SitePreferencesProvider>
+      <Routes>
+        <Route path="/work/:workId" element={<WorkDetailRoute />} />
+        <Route element={<SiteLayout />}>
+          <Route element={<PageTransition />}>
+            <Route index element={<WorksPage />} />
+            <Route path="music" element={<MusicPage />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </SitePreferencesProvider>
+  );
 }
