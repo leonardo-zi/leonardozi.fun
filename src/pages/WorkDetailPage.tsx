@@ -156,7 +156,7 @@ export default function WorkDetailPage({
                   const resolvedSrc = publicAssetUrl(media.src);
                   const block =
                     media.type === "video" ? (
-                      <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
+                      <div className="rounded-[4px] overflow-hidden bg-[#F4F4F4] border-[0.5px] border-[#E6E6E6]">
                         <video
                           src={resolvedSrc}
                           className="block w-full h-auto object-cover"
@@ -170,7 +170,7 @@ export default function WorkDetailPage({
                         />
                       </div>
                     ) : (
-                      <div className="rounded-[4px] overflow-hidden bg-[rgba(162,157,150,0.12)] border-[0.5px] border-[#E6E6E6]">
+                      <div className="rounded-[4px] overflow-hidden bg-[#F4F4F4] border-[0.5px] border-[#E6E6E6]">
                         <ModalLazyImage
                           src={resolvedSrc}
                           alt={`${work.title} - ${i + 1}`}

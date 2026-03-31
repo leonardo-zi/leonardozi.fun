@@ -19,7 +19,12 @@ const BG_PLACEHOLDER_IMAGES = [
   "./works/bg/苏崇铭10.webp",
 ];
 
-export const works: Work[] = [work01Poppy, work02, work03, work04, work05].map((w, i) => {
+// 交换 Bob Music / Wisdom Horse 的“内容与链接”，并保持各自原始卡片尺寸（cardImageHeightPx）
+// 例如：Bob Music 在 `work-03.ts` 里配置为 350px，这里不应被 swap 成 650px
+const work03Swapped: Work = { ...work03 };
+const work05Swapped: Work = { ...work05 };
+
+export const works: Work[] = [work01Poppy, work02, work05Swapped, work04, work03Swapped].map((w, i) => {
   const defaultImage = BG_PLACEHOLDER_IMAGES[i % BG_PLACEHOLDER_IMAGES.length];
   const defaultDetailImages = [
     BG_PLACEHOLDER_IMAGES[i % BG_PLACEHOLDER_IMAGES.length],

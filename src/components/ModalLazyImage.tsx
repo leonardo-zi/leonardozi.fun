@@ -70,9 +70,16 @@ export default function ModalLazyImage({
     <div
       ref={hostRef}
       className={`relative overflow-hidden ${className ?? ""}`}
-      style={{ minHeight: placeholderMinHeight, background: "rgba(162,157,150,0.12)" }}
+      style={{ minHeight: placeholderMinHeight, background: "#F4F4F4" }}
     >
-      {shouldLoad && !loaded ? <div className="smart-image-skeleton" data-active="true" aria-hidden /> : null}
+      {shouldLoad && !loaded ? (
+        <div
+          className="smart-image-skeleton"
+          data-active="true"
+          aria-hidden
+          style={{ ["--smart-image-skeleton-bg" as string]: "#F4F4F4" } as React.CSSProperties}
+        />
+      ) : null}
       {shouldLoad ? (
         <SmartImage
           src={src}
