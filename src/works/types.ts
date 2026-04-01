@@ -15,6 +15,12 @@ export type WorkCardCoverBackground =
       controls?: boolean;
       preload?: "none" | "metadata" | "auto";
       poster?: string;
+      crossfade?: {
+        /** 淡入淡出时长（毫秒） */
+        fadeDurationMs: number;
+        /** 提前多少毫秒启动下一段（默认 = fadeDurationMs + 120） */
+        preloadLeadMs?: number;
+      };
     }
   | {
       type: "reactbits";
@@ -55,6 +61,12 @@ export type WorkCardCoverForeground =
       src: string;
       placement: WorkCardCoverForegroundPlacement;
       playbackRate?: number;
+      crossfade?: {
+        /** 淡入淡出时长（毫秒） */
+        fadeDurationMs: number;
+        /** 提前多少毫秒启动下一段（默认 = fadeDurationMs + 120） */
+        preloadLeadMs?: number;
+      };
       loop?: boolean;
       muted?: boolean;
       playsInline?: boolean;

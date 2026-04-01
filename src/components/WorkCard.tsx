@@ -138,6 +138,125 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
   );
 }
 
+function CrossfadeVideo({
+  src,
+  playbackRate,
+  autoPlay,
+  muted,
+  playsInline,
+  controls,
+  preload,
+  crossfade,
+  fit = "contain",
+}: {
+  src: string;
+  playbackRate?: number;
+  autoPlay?: boolean;
+  muted?: boolean;
+  playsInline?: boolean;
+  controls?: boolean;
+  preload?: "none" | "metadata" | "auto";
+  crossfade: { fadeDurationMs: number; preloadLeadMs?: number };
+  fit?: "contain" | "cover";
+}) {
+  const aRef = useRef<HTMLVideoElement | null>(null);
+  const bRef = useRef<HTMLVideoElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState<0 | 1>(0);
+  const [fadingTo, setFadingTo] = useState<0 | 1 | null>(null);
+  const isFadingRef = useRef(false);
+  const fadeDurationMs = Math.max(0, crossfade.fadeDurationMs);
+  const preloadLeadMs = Math.max(0, crossfade.preloadLeadMs ?? fadeDurationMs + 120);
+
+  const getRef = (index: 0 | 1) => (index === 0 ? aRef : bRef);
+  const getVideo = (index: 0 | 1) => getRef(index).current;
+
+  const applyPlaybackRate = (el: HTMLVideoElement | null) => {
+    if (!el) return;
+    if (typeof playbackRate === "number" && Number.isFinite(playbackRate)) {
+      el.playbackRate = playbackRate;
+    }
+  };
+
+  const startFadeTo = (nextIndex: 0 | 1) => {
+    if (isFadingRef.current) return;
+    const nextVideo = getVideo(nextIndex);
+    if (!nextVideo) return;
+    isFadingRef.current = true;
+    nextVideo.currentTime = 0;
+    applyPlaybackRate(nextVideo);
+    nextVideo.play().catch(() => undefined);
+    setFadingTo(nextIndex);
+
+    window.setTimeout(() => {
+      const prevIndex = nextIndex === 0 ? 1 : 0;
+      const prevVideo = getVideo(prevIndex);
+      if (prevVideo) {
+        prevVideo.pause();
+        prevVideo.currentTime = 0;
+      }
+      setActiveIndex(nextIndex);
+      setFadingTo(null);
+      isFadingRef.current = false;
+    }, fadeDurationMs);
+  };
+
+  useEffect(() => {
+    if (!autoPlay) return;
+    const activeVideo = getVideo(activeIndex);
+    if (!activeVideo) return;
+    applyPlaybackRate(activeVideo);
+    activeVideo.play().catch(() => undefined);
+  }, [activeIndex, autoPlay]);
+
+  const handleTimeUpdate = (index: 0 | 1) => {
+    if (index !== activeIndex || isFadingRef.current) return;
+    const video = getVideo(index);
+    if (!video || !Number.isFinite(video.duration)) return;
+    const remainingMs = Math.max(0, (video.duration - video.currentTime) * 1000);
+    if (remainingMs <= preloadLeadMs) {
+      startFadeTo(index === 0 ? 1 : 0);
+    }
+  };
+
+  const videoStyle = (index: 0 | 1): CSSProperties => {
+    const isActive = index === activeIndex;
+    const isFadingTarget = fadingTo === index;
+    const visible = fadingTo ? isFadingTarget : isActive;
+    return {
+      opacity: visible ? 1 : 0,
+      transition: `opacity ${fadeDurationMs}ms ease`,
+    };
+  };
+
+  return (
+    <div className="relative h-full w-full">
+      {[0, 1].map((idx) => {
+        const index = idx as 0 | 1;
+        return (
+          <video
+            key={`xf-${index}`}
+            ref={index === 0 ? aRef : bRef}
+            src={publicAssetUrl(src)}
+            className={`absolute inset-0 block h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"}`}
+            style={videoStyle(index)}
+            autoPlay={autoPlay ?? true}
+            muted={muted ?? true}
+            playsInline={playsInline ?? true}
+            loop={false}
+            controls={controls ?? false}
+            preload={preload ?? "metadata"}
+            onContextMenu={(e) => e.preventDefault()}
+            onLoadedMetadata={(e) => applyPlaybackRate(e.currentTarget)}
+            onCanPlay={(e) => applyPlaybackRate(e.currentTarget)}
+            onPlay={(e) => applyPlaybackRate(e.currentTarget)}
+            onTimeUpdate={() => handleTimeUpdate(index)}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function renderForegroundNode(foreground: WorkCardCoverForeground) {
   if (foreground.type === "image") {
     return (
@@ -154,6 +273,20 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
 
   if (foreground.type === "video") {
     const playbackRate = foreground.playbackRate;
+    if (foreground.crossfade) {
+      return (
+        <CrossfadeVideo
+          src={foreground.src}
+          playbackRate={playbackRate}
+          autoPlay={foreground.autoPlay}
+          muted={foreground.muted}
+          playsInline={foreground.playsInline}
+          controls={foreground.controls}
+          preload={foreground.preload}
+          crossfade={foreground.crossfade}
+        />
+      );
+    }
     return (
       <video
         src={publicAssetUrl(foreground.src)}
@@ -389,7 +522,19 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
           loading={isPriorityImage ? "eager" : "lazy"}
         />
       )}
-      {work.cardCover?.background.type === "video" && (
+      {work.cardCover?.background.type === "video" && work.cardCover.background.crossfade && (
+        <CrossfadeVideo
+          src={work.cardCover.background.src}
+          autoPlay={work.cardCover.background.autoPlay}
+          muted={work.cardCover.background.muted}
+          playsInline={work.cardCover.background.playsInline}
+          controls={work.cardCover.background.controls}
+          preload={work.cardCover.background.preload}
+          crossfade={work.cardCover.background.crossfade}
+          fit="cover"
+        />
+      )}
+      {work.cardCover?.background.type === "video" && !work.cardCover.background.crossfade && (
         <video
           className="absolute inset-0 block h-full w-full object-cover"
           src={publicAssetUrl(work.cardCover.background.src)}

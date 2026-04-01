@@ -36,7 +36,7 @@ export const work00Tenet: Work = {
       type: "video",
       src: "./works/tenet/tenet.webm",
       placement: { mode: "centerRatio", widthRatio: 0.55 },
-      playbackRate: 1.5,
+      playbackRate: 1.2,
       autoPlay: true,
       muted: true,
       loop: true,
