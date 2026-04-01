@@ -446,7 +446,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                         >
                           Download resume
                         </a>
-                        , a modest snapshot.
+                        , a modest snapshot
                       </>
                     ) : (
                       <>
