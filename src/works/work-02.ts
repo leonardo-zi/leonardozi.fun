@@ -30,6 +30,31 @@ export const work02: Work = {
   overviewEn:
     "A quick exploration of a fictional brand direction: first define the vibe (light, calm, restrained), then translate it into reusable typography and graphic rules—so the identity stays consistent across sizes and media.",
   layout: "half",
+  cardCover: {
+    background: {
+      type: "reactbits",
+      effect: "aurora",
+      params: {
+        color1: "6a1f16",
+        color2: "7e2216",
+        color3: "a33c2e",
+        blend: 0.55,
+        speed: 1.5,
+      },
+      fallbackColor: "#000000",
+    },
+    foreground: {
+      type: "image",
+      src: "./works/aro/aro_up.webp",
+      placement: {
+        mode: "anchorPosition",
+        coordinate: { x: -9, y: -6 },
+        anchor: { x: 0, y: 1 },
+        widthRatio: 1.2,
+      },
+      preserveAspectRatio: true,
+    },
+  },
   detailImages: [
     "./works/aro/07-02.webp",
     "./works/aro/07-03.webp",

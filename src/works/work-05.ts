@@ -30,6 +30,23 @@ export const work05: Work = {
   overviewEn:
     "A narrative-leaning typography experiment: let images carry emotion while text carries information. Guide the eye through whitespace and alignment; keep the scroll process restrained and smooth.",
   layout: "half",
+  cardCover: {
+    background: {
+      type: "reactbits",
+      effect: "darkVeil",
+      params: { scanlineFrequency: 0.5, speed: 3 },
+      fallbackColor: "#050505",
+    },
+    foreground: {
+      type: "stack",
+      placement: { mode: "center" },
+      gapPx: 32,
+      items: [
+        { type: "image", src: "./works/wisdomhorse/wisdom_up.svg", widthPx: 180, preserveAspectRatio: true },
+        { type: "text", text: "Wisdom Horse", fontSizePx: 32, fontWeight: 500, color: "#FFFFFF" },
+      ],
+    },
+  },
   detailImages: [
     "./works/wisdomhorse/02-03.webp",
     "./works/wisdomhorse/02-04.webp",

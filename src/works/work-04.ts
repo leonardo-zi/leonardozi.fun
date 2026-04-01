@@ -29,6 +29,15 @@ export const work04: Work = {
   overviewEn:
     "Organize pages in a more \"systematic\" way: unify spacing, corner radii, and interaction states to reduce visual drift. Clearer hierarchy makes iteration faster and steadier.",
   layout: "half",
+  cardCover: {
+    background: { type: "image", src: "./works/leonardozi/others_bg.webp" },
+    foreground: {
+      type: "image",
+      src: "./works/leonardozi/others_up.svg",
+      placement: { mode: "centerFixedWidth", widthPx: 110 },
+      preserveAspectRatio: true,
+    },
+  },
   detailImages: [
     "./works/bobmusic/08-02.webp",
     "./works/bobmusic/08-03.webp",

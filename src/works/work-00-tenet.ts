@@ -29,5 +29,19 @@ export const work00Tenet: Work = {
   overviewEn:
     "Placeholder copy: Tenet currently serves as a container for visual and interaction experiments. It is integrated into Home and Detail pages with a minimal presentable version, and will later be replaced by final project copy and assets.",
   layout: "half",
+  cardCover: {
+    background: { type: "color", color: "#000000" },
+    foreground: {
+      type: "video",
+      src: "./works/tenet/tenet.webm",
+      placement: { mode: "centerRatio", widthRatio: 0.6 },
+      autoPlay: true,
+      muted: true,
+      loop: true,
+      playsInline: true,
+      controls: false,
+      preload: "metadata",
+    },
+  },
   detailImages: ["./works/tenet/1-1.png"],
 };

@@ -37,4 +37,13 @@ export const work01Poppy: Work = {
   overviewEn:
     "Poppy is a set of interface exercises focused on visual structure: using calmer color and clearer hierarchy to carry content, while keeping transitions light to ensure a smooth reading experience. The goal is to balance “understand at first glance” with “details that last.”",
   layout: "full",
+  cardCover: {
+    background: { type: "image", src: "./works/poppy/poppy_bg.webp" },
+    foreground: {
+      type: "image",
+      src: "./works/poppy/poppy_up.webp",
+      placement: { mode: "centerRatio", widthRatio: 0.4 },
+      preserveAspectRatio: true,
+    },
+  },
 };
