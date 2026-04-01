@@ -92,6 +92,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const [resumeDismissed, setResumeDismissed] = useState(false);
   const resumeAnchorRef = useRef<HTMLButtonElement | null>(null);
   const resumeTooltipRef = useRef<HTMLDivElement | null>(null);
+  const resumeCloseTimerRef = useRef<number | null>(null);
 
   const [wechatPopupPlacement, setWechatPopupPlacement] = useState<"below" | "above">("above");
   const [wechatOpenByClick, setWechatOpenByClick] = useState(false);
@@ -101,6 +102,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const [wechatDismissed, setWechatDismissed] = useState(false);
   const wechatAnchorRef = useRef<HTMLButtonElement | null>(null);
   const wechatTooltipRef = useRef<HTMLDivElement | null>(null);
+  const wechatCloseTimerRef = useRef<number | null>(null);
 
   const emailAddress = "ml44142@163.com";
   const emailCaption = lang === "en" ? "Copy email, contact me" : "复制邮箱，与我联络";
@@ -114,6 +116,8 @@ function SidebarToc({ lang }: { lang: Lang }) {
 
   const emailAnchorRef = useRef<HTMLButtonElement | null>(null);
   const emailTooltipRef = useRef<HTMLDivElement | null>(null);
+  const emailCloseTimerRef = useRef<number | null>(null);
+  const HOVER_CLOSE_DELAY_MS = 100;
 
   const computeEmailPlacement = useCallback(() => {
     const anchor = emailAnchorRef.current;
@@ -203,17 +207,17 @@ function SidebarToc({ lang }: { lang: Lang }) {
   // 联系卡片 tooltip 滑入动画：与首页/音乐页一致（y 位移减半为 8px）
   const contactTooltipVariants: Variants = reduceMotion
     ? {
-        hidden: { opacity: 0, y: 0 },
-        show: { opacity: 1, y: 0, transition: { duration: 0 } },
-      }
+      hidden: { opacity: 0, y: 0 },
+      show: { opacity: 1, y: 0, transition: { duration: 0 } },
+    }
     : {
-        hidden: { opacity: 0, y: 8 },
-        show: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.42, ease: [0.16, 1, 0.3, 1] as const },
-        },
-      };
+      hidden: { opacity: 0, y: 8 },
+      show: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.42, ease: [0.16, 1, 0.3, 1] as const },
+      },
+    };
 
   const computeWechatPlacement = useCallback(() => {
     const anchor = wechatAnchorRef.current;
@@ -302,9 +306,23 @@ function SidebarToc({ lang }: { lang: Lang }) {
           <div className="mt-[12px] flex flex-col gap-[6px]">
             <div
               className="relative"
-              onMouseLeave={() => {
-                setResumeHovered(false);
+              onMouseEnter={() => {
+                if (resumeCloseTimerRef.current) {
+                  window.clearTimeout(resumeCloseTimerRef.current);
+                  resumeCloseTimerRef.current = null;
+                }
+                setResumeHovered(true);
                 setResumeDismissed(false);
+              }}
+              onMouseLeave={(e) => {
+                const nextTarget = e.relatedTarget as Node | null;
+                if (resumeTooltipRef.current?.contains(nextTarget)) return;
+                if (resumeCloseTimerRef.current) window.clearTimeout(resumeCloseTimerRef.current);
+                resumeCloseTimerRef.current = window.setTimeout(() => {
+                  setResumeHovered(false);
+                  setResumeDismissed(false);
+                  resumeCloseTimerRef.current = null;
+                }, HOVER_CLOSE_DELAY_MS);
               }}
             >
               <button
@@ -312,6 +330,10 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 type="button"
                 className={TOC_BUTTON_CLASS}
                 onMouseEnter={() => {
+                  if (resumeCloseTimerRef.current) {
+                    window.clearTimeout(resumeCloseTimerRef.current);
+                    resumeCloseTimerRef.current = null;
+                  }
                   setResumeHovered(true);
                   computeResumePlacement();
                 }}
@@ -363,12 +385,20 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     : "bottom-[calc(100%+2px)]",
                 ].join(" ")}
                 onMouseEnter={() => {
+                  if (resumeCloseTimerRef.current) {
+                    window.clearTimeout(resumeCloseTimerRef.current);
+                    resumeCloseTimerRef.current = null;
+                  }
                   setResumeHovered(true);
                   setResumeDismissed(false);
                 }}
                 onMouseLeave={() => {
-                  setResumeHovered(false);
-                  if (!resumeOpenByClick) setResumeDismissed(false);
+                  if (resumeCloseTimerRef.current) window.clearTimeout(resumeCloseTimerRef.current);
+                  resumeCloseTimerRef.current = window.setTimeout(() => {
+                    setResumeHovered(false);
+                    if (!resumeOpenByClick) setResumeDismissed(false);
+                    resumeCloseTimerRef.current = null;
+                  }, HOVER_CLOSE_DELAY_MS);
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -436,9 +466,23 @@ function SidebarToc({ lang }: { lang: Lang }) {
             </div>
             <div
               className="relative"
-              onMouseLeave={() => {
-                setWechatHovered(false);
+              onMouseEnter={() => {
+                if (wechatCloseTimerRef.current) {
+                  window.clearTimeout(wechatCloseTimerRef.current);
+                  wechatCloseTimerRef.current = null;
+                }
+                setWechatHovered(true);
                 setWechatDismissed(false);
+              }}
+              onMouseLeave={(e) => {
+                const nextTarget = e.relatedTarget as Node | null;
+                if (wechatTooltipRef.current?.contains(nextTarget)) return;
+                if (wechatCloseTimerRef.current) window.clearTimeout(wechatCloseTimerRef.current);
+                wechatCloseTimerRef.current = window.setTimeout(() => {
+                  setWechatHovered(false);
+                  setWechatDismissed(false);
+                  wechatCloseTimerRef.current = null;
+                }, HOVER_CLOSE_DELAY_MS);
               }}
             >
               <button
@@ -446,6 +490,10 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 type="button"
                 className={TOC_BUTTON_CLASS}
                 onMouseEnter={() => {
+                  if (wechatCloseTimerRef.current) {
+                    window.clearTimeout(wechatCloseTimerRef.current);
+                    wechatCloseTimerRef.current = null;
+                  }
                   setWechatHovered(true);
                   computeWechatPlacement();
                 }}
@@ -498,6 +546,22 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
                 ].join(" ")}
+                onMouseEnter={() => {
+                  if (wechatCloseTimerRef.current) {
+                    window.clearTimeout(wechatCloseTimerRef.current);
+                    wechatCloseTimerRef.current = null;
+                  }
+                  setWechatHovered(true);
+                  setWechatDismissed(false);
+                }}
+                onMouseLeave={() => {
+                  if (wechatCloseTimerRef.current) window.clearTimeout(wechatCloseTimerRef.current);
+                  wechatCloseTimerRef.current = window.setTimeout(() => {
+                    setWechatHovered(false);
+                    if (!wechatOpenByClick) setWechatDismissed(false);
+                    wechatCloseTimerRef.current = null;
+                  }, HOVER_CLOSE_DELAY_MS);
+                }}
                 onClick={(e) => {
                   // Tooltip 内点击不应关闭。
                   e.stopPropagation();
@@ -544,15 +608,25 @@ function SidebarToc({ lang }: { lang: Lang }) {
             <div
               className="relative"
               onMouseEnter={() => {
+                if (emailCloseTimerRef.current) {
+                  window.clearTimeout(emailCloseTimerRef.current);
+                  emailCloseTimerRef.current = null;
+                }
                 setEmailWrapperHovered(true);
                 setEmailDismissed(false);
               }}
-              onMouseLeave={() => {
-                setEmailWrapperHovered(false);
-                if (!emailOpenByClick) {
-                  setEmailCopied(false);
-                  setEmailDismissed(false);
-                }
+              onMouseLeave={(e) => {
+                const nextTarget = e.relatedTarget as Node | null;
+                if (emailTooltipRef.current?.contains(nextTarget)) return;
+                if (emailCloseTimerRef.current) window.clearTimeout(emailCloseTimerRef.current);
+                emailCloseTimerRef.current = window.setTimeout(() => {
+                  setEmailWrapperHovered(false);
+                  if (!emailOpenByClick) {
+                    setEmailCopied(false);
+                    setEmailDismissed(false);
+                  }
+                  emailCloseTimerRef.current = null;
+                }, HOVER_CLOSE_DELAY_MS);
               }}
             >
               <button
@@ -560,6 +634,10 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 type="button"
                 className={TOC_BUTTON_CLASS}
                 onMouseEnter={() => {
+                  if (emailCloseTimerRef.current) {
+                    window.clearTimeout(emailCloseTimerRef.current);
+                    emailCloseTimerRef.current = null;
+                  }
                   setEmailWrapperHovered(true);
                   setEmailDismissed(false);
                   computeEmailPlacement();
@@ -619,6 +697,25 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
                 ].join(" ")}
+                onMouseEnter={() => {
+                  if (emailCloseTimerRef.current) {
+                    window.clearTimeout(emailCloseTimerRef.current);
+                    emailCloseTimerRef.current = null;
+                  }
+                  setEmailWrapperHovered(true);
+                  setEmailDismissed(false);
+                }}
+                onMouseLeave={() => {
+                  if (emailCloseTimerRef.current) window.clearTimeout(emailCloseTimerRef.current);
+                  emailCloseTimerRef.current = window.setTimeout(() => {
+                    setEmailWrapperHovered(false);
+                    if (!emailOpenByClick) {
+                      setEmailCopied(false);
+                      setEmailDismissed(false);
+                    }
+                    emailCloseTimerRef.current = null;
+                  }, HOVER_CLOSE_DELAY_MS);
+                }}
                 onClick={(e) => {
                   // tooltip 内点击不影响外部按钮状态
                   e.stopPropagation();
