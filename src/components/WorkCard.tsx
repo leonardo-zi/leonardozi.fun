@@ -17,6 +17,150 @@ interface WorkCardProps {
   lang: "cn" | "en";
 }
 
+function DarkVeilCanvas({ scanlineFrequency = 0.5, speed = 3 }: { scanlineFrequency?: number; speed?: number }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext("webgl", { alpha: false, antialias: true, premultipliedAlpha: false });
+    if (!gl) return;
+
+    const vertex = `
+      attribute vec2 aPosition;
+      varying vec2 vUv;
+      void main() {
+        vUv = (aPosition + 1.0) * 0.5;
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+      }
+    `;
+    const fragment = `
+      precision mediump float;
+      varying vec2 vUv;
+      uniform vec2 uResolution;
+      uniform float uTime;
+      uniform float uScanFreq;
+      uniform float uSpeed;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+      }
+
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        float a = hash(i);
+        float b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0));
+        float d = hash(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / uResolution.xy;
+        vec2 p = uv * 2.0 - 1.0;
+        p.x *= uResolution.x / max(1.0, uResolution.y);
+        float t = uTime * max(0.1, uSpeed) * 0.26;
+
+        float warpA = sin((p.y + t) * 3.1) * 0.16;
+        float warpB = sin((p.x * 1.9 - t * 1.2) * 2.2) * 0.12;
+        float warpC = sin((p.x * 2.7 + p.y * 1.3 + t * 0.9) * 1.7) * 0.06;
+        vec2 q = vec2(p.x + warpA + warpB + warpC, p.y + warpB * 0.65);
+
+        float n1 = noise(q * 2.8 + vec2(0.0, -t * 0.8));
+        float n2 = noise(q * 6.5 + vec2(t * 0.3, t * 0.1));
+        float veil = smoothstep(0.22, 0.92, n1 * 0.72 + n2 * 0.28);
+
+        float vignette = smoothstep(1.22, 0.22, length(p));
+        float scan = 0.5 + 0.5 * sin((uv.y + t * 0.14) * (220.0 * max(0.1, uScanFreq)));
+
+        vec3 base = vec3(0.005, 0.000, 0.020);
+        vec3 glow = vec3(0.35, 0.12, 1.00) * veil * vignette;
+        vec3 scanline = vec3(0.09, 0.04, 0.28) * scan * vignette;
+        vec3 color = base + glow + scanline;
+
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+
+    const compile = (type: number, source: string) => {
+      const shader = gl.createShader(type);
+      if (!shader) return null;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null;
+    };
+
+    const vertexShader = compile(gl.VERTEX_SHADER, vertex);
+    const fragmentShader = compile(gl.FRAGMENT_SHADER, fragment);
+    if (!vertexShader || !fragmentShader) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+
+    gl.useProgram(program);
+    const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+    const buffer = gl.createBuffer();
+    if (!buffer) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    const position = gl.getAttribLocation(program, "aPosition");
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+    const uResolution = gl.getUniformLocation(program, "uResolution");
+    const uTime = gl.getUniformLocation(program, "uTime");
+    const uScanFreq = gl.getUniformLocation(program, "uScanFreq");
+    const uSpeed = gl.getUniformLocation(program, "uSpeed");
+
+    let raf = 0;
+    const start = performance.now();
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+      const height = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uResolution, canvas.width, canvas.height);
+    };
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    resize();
+
+    const loop = () => {
+      const elapsed = (performance.now() - start) / 1000;
+      gl.uniform1f(uTime, elapsed);
+      gl.uniform1f(uScanFreq, Math.max(0.1, scanlineFrequency));
+      gl.uniform1f(uSpeed, Math.max(0.1, speed));
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+    };
+  }, [scanlineFrequency, speed]);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />;
+}
+
 function getPlacementStyle(placement: WorkCardCoverForegroundPlacement): CSSProperties {
   if (placement.mode === "center") {
     return { position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" };
@@ -82,10 +226,17 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
   }
 
   if (!reducedMotion && cover.background.effect === "darkVeil") {
+    const scanlineFrequency = Number(params.scanlineFrequency ?? 0.5);
+    const speed = Number(params.speed ?? 3);
     const DarkVeil = maybeExports.DarkVeil as ComponentType<Record<string, unknown>> | undefined;
     if (DarkVeil) {
       return <DarkVeil {...params} />;
     }
+    return (
+      <div className="absolute inset-0 overflow-hidden" style={{ background: fallbackColor }}>
+        <DarkVeilCanvas scanlineFrequency={scanlineFrequency} speed={speed} />
+      </div>
+    );
   }
 
   if (cover.background.effect === "aurora") {
@@ -103,45 +254,11 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
     );
   }
 
-  const frequency = Number(params.scanlineFrequency ?? 0.5);
-  const lineGapPx = Math.max(2, Math.round(8 / Math.max(0.2, frequency)));
-  const speed = Math.max(0.4, Number(params.speed ?? 3));
+  const scanlineFrequency = Number(params.scanlineFrequency ?? 0.5);
+  const speed = Number(params.speed ?? 3);
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ background: fallbackColor }}>
-      <style>{`
-        @keyframes darkVeilGlowShift {
-          0% { transform: translate3d(-2%, -1%, 0) scale(1.03); opacity: 0.65; }
-          50% { transform: translate3d(2%, 1.5%, 0) scale(1.06); opacity: 0.85; }
-          100% { transform: translate3d(-2%, -1%, 0) scale(1.03); opacity: 0.65; }
-        }
-        @keyframes darkVeilScanMove {
-          0% { background-position: 0 0; }
-          100% { background-position: 0 ${lineGapPx * 2}px; }
-        }
-      `}</style>
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(140% 80% at 50% 10%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 26%, rgba(0,0,0,0) 55%), radial-gradient(90% 60% at 50% 75%, rgba(15,15,15,0.55) 0%, rgba(0,0,0,0) 70%)",
-          animation: `darkVeilGlowShift ${Math.max(2, 7 / speed)}s ease-in-out infinite`,
-        }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `repeating-linear-gradient(
-            to bottom,
-            rgba(255,255,255,0.04) 0px,
-            rgba(255,255,255,0.04) 1px,
-            rgba(0,0,0,0) 1px,
-            rgba(0,0,0,0) ${lineGapPx}px
-          )`,
-          mixBlendMode: "screen",
-          opacity: 0.6,
-          animation: `darkVeilScanMove ${Math.max(0.8, 2.6 / speed)}s linear infinite`,
-        }}
-      />
+      <DarkVeilCanvas scanlineFrequency={scanlineFrequency} speed={speed} />
     </div>
   );
 }

@@ -39,6 +39,11 @@ function albumExistingPlugin(): Plugin {
 export default defineConfig({
   base: "./",
   plugins: [react(), tailwindcss(), albumExistingPlugin()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
+  },
   server: {
     port: 4414,
   },

@@ -42,7 +42,7 @@ export const work01Poppy: Work = {
     foreground: {
       type: "image",
       src: "./works/poppy/poppy_up.webp",
-      placement: { mode: "centerRatio", widthRatio: 0.4 },
+      placement: { mode: "centerRatio", widthRatio: 0.6 },
       preserveAspectRatio: true,
     },
   },

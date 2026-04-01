@@ -34,7 +34,7 @@ export const work00Tenet: Work = {
     foreground: {
       type: "video",
       src: "./works/tenet/tenet.webm",
-      placement: { mode: "centerRatio", widthRatio: 0.6 },
+      placement: { mode: "centerRatio", widthRatio: 0.55 },
       autoPlay: true,
       muted: true,
       loop: true,
