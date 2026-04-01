@@ -3,8 +3,8 @@ import { works } from "../../../works";
 import type { Work } from "../../../works/types";
 
 /** 桌面端右栏作品：与 `works` 数组顺序无关 */
-const WORK_IDS_LEFT_COLUMN = ["1", "3", "5"] as const;
-const WORK_IDS_RIGHT_COLUMN = ["2", "4"] as const;
+const WORK_IDS_LEFT_COLUMN = ["0", "2", "4"] as const;
+const WORK_IDS_RIGHT_COLUMN = ["1", "5"] as const;
 
 function worksInIdsOrder(all: Work[], ids: readonly string[]): Work[] {
   return ids.map((id) => all.find((w) => w.id === id)).filter((w): w is Work => Boolean(w));

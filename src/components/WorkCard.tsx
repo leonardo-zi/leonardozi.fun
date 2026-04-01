@@ -11,6 +11,7 @@ interface WorkCardProps {
 }
 
 export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps) {
+  const isTenetCard = work.id === "0";
   const [reducedMotion, setReducedMotion] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isInView, setIsInView] = useState(Boolean(isFirst));
@@ -100,7 +101,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const imageSettleDurationMs = durationMs + (useLightProfile ? 260 : 320);
   const isPriorityImage = Boolean(isFirst);
 
-  const settled = isInView && imageLoaded;
+  const settled = isTenetCard ? true : isInView && imageLoaded;
   const metaVisible = reducedMotion ? true : settled;
 
   const imageRevealStyle = reducedMotion
@@ -125,7 +126,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
         transitionDelay: "0ms",
       } as const);
 
-  const cardImageHeightPx = work.cardImageHeightPx ?? 509;
+  const cardImageHeightPx = work.cardImageHeightPx ?? 581;
   const year = (() => {
     const m = String(work.date ?? "").match(/\b(\d{4})\b/);
     return m?.[1] ?? String(work.date ?? "").slice(0, 4);
@@ -146,23 +147,27 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
         className="rounded-[8px] border-[0.5px] border-transparent cursor-pointer"
       >
         <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#E6E6E6]">
-          <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
+          <div className={`pointer-events-none absolute inset-0 ${isTenetCard ? "bg-[#F4F4F4]" : "bg-[#e7ecee]"}`} />
           <div className="relative z-1">
-            <SmartImage
-              ref={imageRef}
-              src={publicAssetUrl(work.image)}
-              alt={work.title}
-              className="block w-full object-cover"
-              style={{ height: cardImageHeightPx, ...imageRevealStyle }}
-              loading={isPriorityImage ? "eager" : "lazy"}
-              fetchPriority={isPriorityImage ? "high" : "low"}
-              decoding="async"
-              showSkeleton={isInView}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageLoaded(true)}
-            />
-            <div className="pointer-events-none absolute inset-0 bg-white" style={imageVeilStyle} />
-            {work.overlayIcon && (
+            {isTenetCard ? (
+              <div className="block w-full" style={{ height: cardImageHeightPx }} aria-hidden />
+            ) : (
+              <SmartImage
+                ref={imageRef}
+                src={publicAssetUrl(work.image)}
+                alt={work.title}
+                className="block w-full object-cover"
+                style={{ height: cardImageHeightPx, ...imageRevealStyle }}
+                loading={isPriorityImage ? "eager" : "lazy"}
+                fetchPriority={isPriorityImage ? "high" : "low"}
+                decoding="async"
+                showSkeleton={isInView}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+              />
+            )}
+            {!isTenetCard && <div className="pointer-events-none absolute inset-0 bg-white" style={imageVeilStyle} />}
+            {!isTenetCard && work.overlayIcon && (
               <img
                 src={publicAssetUrl(work.overlayIcon)}
                 alt=""

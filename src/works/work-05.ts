@@ -4,7 +4,7 @@ export const work05: Work = {
   id: "5",
   title: "Wisdom Horse",
   image: "./works/bg/苏崇铭7.webp",
-  cardImageHeightPx: 650,
+  cardImageHeightPx: 581,
   overlayIcon: "./works/wisdomhorse/wisdomhorse-icon.svg",
   tags: ["网页"],
   tagsEn: ["Webpage"],

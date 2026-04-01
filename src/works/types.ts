@@ -6,7 +6,7 @@ export interface Work {
   id: string;
   title: string;
   image: string; // 卡片缩略图（相对于 public）
-  /** 卡片主图固定高度（px），不填默认 509 */
+  /** 卡片主图固定高度（px），不填默认 581 */
   cardImageHeightPx?: number;
   detailImages?: string[]; // 弹窗内图片列表，不填则用 [image]
   /** 详情媒体（支持图片/视频混排），优先于 detailImages */
