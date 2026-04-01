@@ -4,6 +4,7 @@ export const work01Poppy: Work = {
   id: "1",
   title: "Poppy",
   image: "./works/bg/苏崇铭2.webp",
+  cardImageAspectRatio: 1 / 1.3,
   cardImageHeightPx: 710,
   overlayIcon: "./works/poppy/Poppy-icon.svg",
   detailMedia: [

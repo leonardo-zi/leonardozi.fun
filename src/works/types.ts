@@ -6,6 +6,17 @@ export type WorkCardCoverBackground =
   | { type: "color"; color: string }
   | { type: "image"; src: string }
   | {
+      type: "video";
+      src: string;
+      loop?: boolean;
+      muted?: boolean;
+      playsInline?: boolean;
+      autoPlay?: boolean;
+      controls?: boolean;
+      preload?: "none" | "metadata" | "auto";
+      poster?: string;
+    }
+  | {
       type: "reactbits";
       effect: "aurora" | "darkVeil";
       params?: Record<string, number | string | boolean | undefined>;
@@ -43,6 +54,7 @@ export type WorkCardCoverForeground =
       type: "video";
       src: string;
       placement: WorkCardCoverForegroundPlacement;
+      playbackRate?: number;
       loop?: boolean;
       muted?: boolean;
       playsInline?: boolean;
@@ -54,6 +66,8 @@ export type WorkCardCoverForeground =
       type: "stack";
       placement: WorkCardCoverForegroundPlacement;
       gapPx: number;
+      /** 将内容按 placement.widthRatio 相对基准比例缩放（仅 centerRatio 生效） */
+      scaleWithPlacement?: { baseWidthRatio: number };
       items: Array<
         | {
             type: "image";
@@ -83,6 +97,8 @@ export interface Work {
   image: string; // 卡片缩略图（相对于 public）
   /** 卡片主图固定高度（px），不填默认 581 */
   cardImageHeightPx?: number;
+  /** 卡片主图宽高比（width / height），优先于固定高度 */
+  cardImageAspectRatio?: number;
   /** 新版封面协议（优先于 image + overlayIcon） */
   cardCover?: WorkCardCover;
   detailImages?: string[]; // 弹窗内图片列表，不填则用 [image]
@@ -110,4 +126,3 @@ export interface Work {
   overviewEn?: string;
   layout: WorkLayout;
 }
-

@@ -5,6 +5,7 @@ export const work00Tenet: Work = {
   title: "Tenet",
   // Tenet 卡片不展示背景图（用纯色封面渲染），但 Work.image 目前为必填字段，这里给一个可用兜底
   image: "./works/tenet/1-1.png",
+  cardImageAspectRatio: 1,
   tags: ["产品"],
   tagsEn: ["Product"],
   date: "2026/03/31",
@@ -35,6 +36,7 @@ export const work00Tenet: Work = {
       type: "video",
       src: "./works/tenet/tenet.webm",
       placement: { mode: "centerRatio", widthRatio: 0.55 },
+      playbackRate: 1.5,
       autoPlay: true,
       muted: true,
       loop: true,

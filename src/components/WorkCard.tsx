@@ -8,6 +8,7 @@ import type {
   WorkCardCoverForegroundPlacement,
 } from "../works/types";
 import { publicAssetUrl } from "../utils/publicAssetUrl";
+import OfficialDarkVeil from "./DarkVeilWrapper";
 import SmartImage from "./SmartImage";
 
 interface WorkCardProps {
@@ -15,150 +16,6 @@ interface WorkCardProps {
   onClick?: (work: Work, origin: { x: number; y: number }) => void;
   isFirst?: boolean;
   lang: "cn" | "en";
-}
-
-function DarkVeilCanvas({ scanlineFrequency = 0.5, speed = 3 }: { scanlineFrequency?: number; speed?: number }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const gl = canvas.getContext("webgl", { alpha: false, antialias: true, premultipliedAlpha: false });
-    if (!gl) return;
-
-    const vertex = `
-      attribute vec2 aPosition;
-      varying vec2 vUv;
-      void main() {
-        vUv = (aPosition + 1.0) * 0.5;
-        gl_Position = vec4(aPosition, 0.0, 1.0);
-      }
-    `;
-    const fragment = `
-      precision mediump float;
-      varying vec2 vUv;
-      uniform vec2 uResolution;
-      uniform float uTime;
-      uniform float uScanFreq;
-      uniform float uSpeed;
-
-      float hash(vec2 p) {
-        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-      }
-
-      float noise(vec2 p) {
-        vec2 i = floor(p);
-        vec2 f = fract(p);
-        float a = hash(i);
-        float b = hash(i + vec2(1.0, 0.0));
-        float c = hash(i + vec2(0.0, 1.0));
-        float d = hash(i + vec2(1.0, 1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-      }
-
-      void main() {
-        vec2 uv = gl_FragCoord.xy / uResolution.xy;
-        vec2 p = uv * 2.0 - 1.0;
-        p.x *= uResolution.x / max(1.0, uResolution.y);
-        float t = uTime * max(0.1, uSpeed) * 0.26;
-
-        float warpA = sin((p.y + t) * 3.1) * 0.16;
-        float warpB = sin((p.x * 1.9 - t * 1.2) * 2.2) * 0.12;
-        float warpC = sin((p.x * 2.7 + p.y * 1.3 + t * 0.9) * 1.7) * 0.06;
-        vec2 q = vec2(p.x + warpA + warpB + warpC, p.y + warpB * 0.65);
-
-        float n1 = noise(q * 2.8 + vec2(0.0, -t * 0.8));
-        float n2 = noise(q * 6.5 + vec2(t * 0.3, t * 0.1));
-        float veil = smoothstep(0.22, 0.92, n1 * 0.72 + n2 * 0.28);
-
-        float vignette = smoothstep(1.22, 0.22, length(p));
-        float scan = 0.5 + 0.5 * sin((uv.y + t * 0.14) * (220.0 * max(0.1, uScanFreq)));
-
-        vec3 base = vec3(0.005, 0.000, 0.020);
-        vec3 glow = vec3(0.35, 0.12, 1.00) * veil * vignette;
-        vec3 scanline = vec3(0.09, 0.04, 0.28) * scan * vignette;
-        vec3 color = base + glow + scanline;
-
-        gl_FragColor = vec4(color, 1.0);
-      }
-    `;
-
-    const compile = (type: number, source: string) => {
-      const shader = gl.createShader(type);
-      if (!shader) return null;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null;
-    };
-
-    const vertexShader = compile(gl.VERTEX_SHADER, vertex);
-    const fragmentShader = compile(gl.FRAGMENT_SHADER, fragment);
-    if (!vertexShader || !fragmentShader) return;
-
-    const program = gl.createProgram();
-    if (!program) return;
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
-
-    gl.useProgram(program);
-    const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
-    const buffer = gl.createBuffer();
-    if (!buffer) return;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-    const position = gl.getAttribLocation(program, "aPosition");
-    gl.enableVertexAttribArray(position);
-    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-
-    const uResolution = gl.getUniformLocation(program, "uResolution");
-    const uTime = gl.getUniformLocation(program, "uTime");
-    const uScanFreq = gl.getUniformLocation(program, "uScanFreq");
-    const uSpeed = gl.getUniformLocation(program, "uSpeed");
-
-    let raf = 0;
-    const start = performance.now();
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const width = Math.max(1, Math.floor(canvas.clientWidth * dpr));
-      const height = Math.max(1, Math.floor(canvas.clientHeight * dpr));
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(uResolution, canvas.width, canvas.height);
-    };
-
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    resize();
-
-    const loop = () => {
-      const elapsed = (performance.now() - start) / 1000;
-      gl.uniform1f(uTime, elapsed);
-      gl.uniform1f(uScanFreq, Math.max(0.1, scanlineFrequency));
-      gl.uniform1f(uSpeed, Math.max(0.1, speed));
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      raf = requestAnimationFrame(loop);
-    };
-    loop();
-
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      gl.deleteBuffer(buffer);
-      gl.deleteProgram(program);
-      gl.deleteShader(vertexShader);
-      gl.deleteShader(fragmentShader);
-    };
-  }, [scanlineFrequency, speed]);
-
-  return <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />;
 }
 
 function getPlacementStyle(placement: WorkCardCoverForegroundPlacement): CSSProperties {
@@ -213,6 +70,12 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
   const color2 = `#${String(params.color2 ?? "7e2216").replace("#", "")}`;
   const color3 = `#${String(params.color3 ?? "a33c2e").replace("#", "")}`;
   const blend = Number(params.blend ?? 0.55);
+  const darkVeilOffsetY = Number(params.offsetY ?? 0);
+  const darkVeilScale = Number(params.scale ?? 1 + Math.abs(darkVeilOffsetY) * 1.2);
+  const darkVeilStyle: CSSProperties = {
+    transform: `translateY(${darkVeilOffsetY * 100}%) scale(${darkVeilScale})`,
+    transformOrigin: "center",
+  };
 
   if (!reducedMotion && cover.background.effect === "aurora") {
     const Aurora = maybeExports.Aurora as ComponentType<Record<string, unknown>> | undefined;
@@ -226,15 +89,19 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
   }
 
   if (!reducedMotion && cover.background.effect === "darkVeil") {
-    const scanlineFrequency = Number(params.scanlineFrequency ?? 0.5);
-    const speed = Number(params.speed ?? 3);
-    const DarkVeil = maybeExports.DarkVeil as ComponentType<Record<string, unknown>> | undefined;
-    if (DarkVeil) {
-      return <DarkVeil {...params} />;
-    }
     return (
       <div className="absolute inset-0 overflow-hidden" style={{ background: fallbackColor }}>
-        <DarkVeilCanvas scanlineFrequency={scanlineFrequency} speed={speed} />
+        <div className="absolute inset-0" style={darkVeilStyle}>
+          <OfficialDarkVeil
+            hueShift={Number(params.hueShift ?? 0)}
+            noiseIntensity={Number(params.noiseIntensity ?? 0)}
+            scanlineIntensity={Number(params.scanlineIntensity ?? 0)}
+            speed={Number(params.speed ?? 3)}
+            scanlineFrequency={Number(params.scanlineFrequency ?? 0.5)}
+            warpAmount={Number(params.warpAmount ?? 0)}
+            resolutionScale={Number(params.resolutionScale ?? 1)}
+          />
+        </div>
       </div>
     );
   }
@@ -254,11 +121,19 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
     );
   }
 
-  const scanlineFrequency = Number(params.scanlineFrequency ?? 0.5);
-  const speed = Number(params.speed ?? 3);
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ background: fallbackColor }}>
-      <DarkVeilCanvas scanlineFrequency={scanlineFrequency} speed={speed} />
+      <div className="absolute inset-0" style={darkVeilStyle}>
+        <OfficialDarkVeil
+          hueShift={Number(params.hueShift ?? 0)}
+          noiseIntensity={Number(params.noiseIntensity ?? 0)}
+          scanlineIntensity={Number(params.scanlineIntensity ?? 0)}
+          speed={Number(params.speed ?? 3)}
+          scanlineFrequency={Number(params.scanlineFrequency ?? 0.5)}
+          warpAmount={Number(params.warpAmount ?? 0)}
+          resolutionScale={Number(params.resolutionScale ?? 1)}
+        />
+      </div>
     </div>
   );
 }
@@ -278,10 +153,16 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
   }
 
   if (foreground.type === "video") {
+    const playbackRate = foreground.playbackRate;
     return (
       <video
         src={publicAssetUrl(foreground.src)}
         className="block h-auto w-full object-contain"
+        ref={(el) => {
+          if (el && typeof playbackRate === "number") {
+            el.playbackRate = playbackRate;
+          }
+        }}
         autoPlay={foreground.autoPlay ?? true}
         muted={foreground.muted ?? true}
         playsInline={foreground.playsInline ?? true}
@@ -289,6 +170,21 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
         controls={foreground.controls ?? false}
         preload={foreground.preload ?? "metadata"}
         onContextMenu={(e) => e.preventDefault()}
+        onCanPlay={(e) => {
+          if (typeof playbackRate === "number") {
+            e.currentTarget.playbackRate = playbackRate;
+          }
+        }}
+        onLoadedMetadata={(e) => {
+          if (typeof playbackRate === "number") {
+            e.currentTarget.playbackRate = playbackRate;
+          }
+        }}
+        onPlay={(e) => {
+          if (typeof playbackRate === "number") {
+            e.currentTarget.playbackRate = playbackRate;
+          }
+        }}
       />
     );
   }
@@ -442,6 +338,10 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
       } as const);
 
   const cardImageHeightPx = work.cardImageHeightPx ?? 581;
+  const cardImageAspectRatio = work.cardImageAspectRatio;
+  const cardImageContainerStyle = cardImageAspectRatio
+    ? ({ aspectRatio: cardImageAspectRatio, height: "auto" } as const)
+    : ({ height: cardImageHeightPx } as const);
   const year = (() => {
     const m = String(work.date ?? "").match(/\b(\d{4})\b/);
     return m?.[1] ?? String(work.date ?? "").slice(0, 4);
@@ -462,8 +362,20 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
         transitionDelay: "0ms",
       } as const);
 
+  const foregroundScale = (() => {
+    if (!work.cardCover?.foreground) return 1;
+    const fg = work.cardCover.foreground;
+    if (fg.type !== "stack") return 1;
+    if (!fg.scaleWithPlacement) return 1;
+    if (fg.placement.mode !== "centerRatio") return 1;
+    const base = fg.scaleWithPlacement.baseWidthRatio;
+    const current = fg.placement.widthRatio;
+    if (!Number.isFinite(base) || !Number.isFinite(current) || base <= 0 || current <= 0) return 1;
+    return current / base;
+  })();
+
   const coverContent = hasNewCardCover ? (
-    <div className="relative block w-full overflow-hidden" style={{ height: cardImageHeightPx, ...imageRevealStyle }}>
+    <div className="relative block h-full w-full overflow-hidden" style={imageRevealStyle}>
       {work.cardCover?.background.type === "color" && (
         <div className="absolute inset-0" style={{ background: work.cardCover.background.color }} />
       )}
@@ -475,6 +387,19 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
           className="absolute inset-0 block h-full w-full object-cover"
           decoding="async"
           loading={isPriorityImage ? "eager" : "lazy"}
+        />
+      )}
+      {work.cardCover?.background.type === "video" && (
+        <video
+          className="absolute inset-0 block h-full w-full object-cover"
+          src={publicAssetUrl(work.cardCover.background.src)}
+          autoPlay={work.cardCover.background.autoPlay ?? true}
+          muted={work.cardCover.background.muted ?? true}
+          loop={work.cardCover.background.loop ?? true}
+          playsInline={work.cardCover.background.playsInline ?? true}
+          controls={work.cardCover.background.controls ?? false}
+          preload={work.cardCover.background.preload ?? "metadata"}
+          poster={work.cardCover.background.poster ? publicAssetUrl(work.cardCover.background.poster) : undefined}
         />
       )}
       {work.cardCover?.background.type === "reactbits" &&
@@ -489,20 +414,30 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
 
       {work.cardCover?.foreground && (
         <div className="pointer-events-none absolute inset-0 z-2">
-          <div style={getPlacementStyle(work.cardCover.foreground.placement)}>{renderForegroundNode(work.cardCover.foreground)}</div>
+          <div style={getPlacementStyle(work.cardCover.foreground.placement)}>
+            <div
+              style={
+                foregroundScale === 1
+                  ? undefined
+                  : ({ transform: `scale(${foregroundScale})`, transformOrigin: "center" } as const)
+              }
+            >
+              {renderForegroundNode(work.cardCover.foreground)}
+            </div>
+          </div>
         </div>
       )}
     </div>
   ) : (
     <>
       <div className="pointer-events-none absolute inset-0 bg-[#e7ecee]" />
-      <div className="relative z-1">
+      <div className="relative z-1 h-full">
         <SmartImage
           ref={imageRef}
           src={publicAssetUrl(work.image)}
           alt={work.title}
-          className="block w-full object-cover"
-          style={{ height: cardImageHeightPx, ...imageRevealStyle }}
+          className="block h-full w-full object-cover"
+          style={imageRevealStyle}
           loading={isPriorityImage ? "eager" : "lazy"}
           fetchPriority={isPriorityImage ? "high" : "low"}
           decoding="async"
@@ -533,7 +468,10 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
         onKeyDown={handleKeyDown}
         className="rounded-[8px] border-[0.5px] border-transparent cursor-pointer"
       >
-        <div className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#E6E6E6]">
+        <div
+          className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#E6E6E6]"
+          style={cardImageContainerStyle}
+        >
           {coverContent}
         </div>
         <div

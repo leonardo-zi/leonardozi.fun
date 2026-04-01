@@ -1,9 +1,9 @@
 import type { Work } from "./types";
 import { work00Tenet } from "./work-00-tenet";
 import { work01Poppy } from "./work-01-poppy";
-import { work02 } from "./work-02";
-import { work04 } from "./work-04";
-import { work05 } from "./work-05";
+import { work02 } from "./work-02-aro";
+import { work04 } from "./work-04-others";
+import { work05 } from "./work-05-wisdom-horse";
 
 /** 弹窗多图 / 未单独配置封面时的占位（均在 public/works/bg） */
 const BG_PLACEHOLDER_IMAGES = [
@@ -32,4 +32,3 @@ export const works: Work[] = [work00Tenet, work01Poppy, work02, work05, work04].
     detailImages: w.detailImages ?? defaultDetailImages,
   };
 });
-
