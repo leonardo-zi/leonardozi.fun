@@ -1,6 +1,18 @@
 export type WorkLayout = "full" | "half";
 
-export type WorkDetailMedia = { type: "image" | "video"; src: string };
+export type WorkDetailMedia =
+  | { type: "image" | "video"; src: string }
+  | {
+      /**
+       * 组合图片块：上方两张并排（间距 gapPx），下方一张通栏
+       * 用于 Tenet 的 9-1/9-2/9-3 这种排版。
+       */
+      type: "imageTwoUpThenOne";
+      topLeftSrc: string;
+      topRightSrc: string;
+      bottomSrc: string;
+      gapPx: number;
+    };
 
 export type WorkCardCoverBackground =
   | { type: "color"; color: string }

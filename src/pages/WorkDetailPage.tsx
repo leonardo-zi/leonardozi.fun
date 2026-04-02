@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
@@ -15,7 +15,8 @@ export default function WorkDetailPage({
   onBack: () => void;
 }) {
   const [reducedMotion, setReducedMotion] = useState(false);
-  const detailMediaBorderRadiusPx = work.id === "0" ? 16 : 4;
+  const isTenetWork = work.id === "0";
+  const detailMediaBorderRadiusPx = 4;
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -37,9 +38,20 @@ export default function WorkDetailPage({
     return window.matchMedia("(max-width: 800px)").matches;
   }, []);
 
-  useEffect(() => {
-    // 进入详情页时滚动到顶部，保持“页面切换”直觉
+  useLayoutEffect(() => {
+    // 进入详情页时滚动到顶部，避免刷新/恢复滚动后又被“还原回来”
+    if (typeof window === "undefined") return;
+
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const raf1 = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(raf1);
+    };
   }, [work.id]);
 
   const details = useMemo(
@@ -150,30 +162,75 @@ export default function WorkDetailPage({
 
               {hasTopCopy && <div className="my-16 min-[801px]:my-[100px]" aria-hidden />}
 
-              <div className="flex flex-col gap-4">
-                {(work.detailMedia ?? (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))).map(
+              <div className="flex flex-col gap-8">
+                {(
+                  work.detailMedia ??
+                  (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))
+                ).map(
                   (media, i) => {
                   const useLightProfile = isMobileViewport || isLikelySafari;
-                  const resolvedSrc = publicAssetUrl(media.src);
-                  const block =
-                    media.type === "video" ? (
-                      <div
-                        className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
-                        style={{ borderRadius: detailMediaBorderRadiusPx }}
-                      >
-                        <video
-                          src={resolvedSrc}
-                          className="block w-full h-auto object-cover"
-                          autoPlay
-                          muted
-                          playsInline
-                          loop
-                          controls={false}
-                          preload="metadata"
-                          onContextMenu={(e) => e.preventDefault()}
-                        />
-                      </div>
-                    ) : (
+                  const block = (() => {
+                    if (media.type === "imageTwoUpThenOne") {
+                      const frameClassName =
+                        "overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]";
+                      return (
+                        <div className="flex flex-col" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
+                          <div className="grid grid-cols-2" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
+                            <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
+                              <ModalLazyImage
+                                src={publicAssetUrl(media.topLeftSrc)}
+                                alt={`${work.title} - ${i + 1}-a`}
+                                eager
+                                scrollRoot={undefined}
+                                placeholderMinHeight={240}
+                              />
+                            </div>
+                            <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
+                              <ModalLazyImage
+                                src={publicAssetUrl(media.topRightSrc)}
+                                alt={`${work.title} - ${i + 1}-b`}
+                                eager
+                                scrollRoot={undefined}
+                                placeholderMinHeight={240}
+                              />
+                            </div>
+                          </div>
+                          <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
+                            <ModalLazyImage
+                              src={publicAssetUrl(media.bottomSrc)}
+                              alt={`${work.title} - ${i + 1}-c`}
+                              eager
+                              scrollRoot={undefined}
+                              placeholderMinHeight={240}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    const resolvedSrc = publicAssetUrl(media.src);
+                    if (media.type === "video") {
+                      return (
+                        <div
+                          className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
+                          style={{ borderRadius: detailMediaBorderRadiusPx }}
+                        >
+                          <video
+                            src={resolvedSrc}
+                            className="block w-full h-auto object-cover"
+                            autoPlay
+                            muted
+                            playsInline
+                            loop
+                            controls={false}
+                            preload="metadata"
+                            onContextMenu={(e) => e.preventDefault()}
+                          />
+                        </div>
+                      );
+                    }
+
+                    return (
                       <div
                         className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
                         style={{ borderRadius: detailMediaBorderRadiusPx }}
@@ -187,6 +244,7 @@ export default function WorkDetailPage({
                         />
                       </div>
                     );
+                  })();
 
                   if (reducedMotion) {
                     return <div key={i}>{block}</div>;
@@ -195,14 +253,20 @@ export default function WorkDetailPage({
                   return (
                     <AnimatedContent
                       key={i}
-                      distance={useLightProfile ? 70 : 92}
+                      distance={
+                        isTenetWork ? (useLightProfile ? 120 : 150) : useLightProfile ? 70 : 92
+                      }
                       direction="vertical"
                       duration={useLightProfile ? 0.8 : 0.95}
                       ease="power3.out"
                       initialOpacity={0}
                       animateOpacity
-                      threshold={useLightProfile ? 0.08 : 0.05}
-                      delay={Math.min(i, 10) * (useLightProfile ? 0.28 : 0.36)}
+                      threshold={isTenetWork ? (useLightProfile ? 0.06 : 0.04) : useLightProfile ? 0.08 : 0.05}
+                      delay={
+                        isTenetWork
+                          ? Math.min(i, 10) * (useLightProfile ? 0.14 : 0.18)
+                          : Math.min(i, 10) * (useLightProfile ? 0.28 : 0.36)
+                      }
                     >
                       {block}
                     </AnimatedContent>

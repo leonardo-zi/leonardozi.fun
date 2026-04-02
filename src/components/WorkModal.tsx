@@ -14,7 +14,7 @@ const EAGER_IMAGES_COUNT = 1;
 
 export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const detailMediaBorderRadiusPx = work.id === "0" ? 16 : 4;
+  const detailMediaBorderRadiusPx = 4;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -103,9 +103,50 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
 
               {hasTopCopy && <div className="my-16 min-[801px]:my-[100px] border-b-[0.5px] border-[#e0e0e0]" aria-hidden />}
 
-              <div className="flex flex-col gap-4">
-                {(work.detailMedia ?? (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))).map(
+              <div className="flex flex-col gap-8">
+                {(
+                  work.detailMedia ??
+                  (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))
+                ).map(
                   (media, i) => {
+                    if (media.type === "imageTwoUpThenOne") {
+                      const frameClassName =
+                        "overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]";
+                      return (
+                        <div key={i} className="flex flex-col" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
+                          <div className="grid grid-cols-2" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
+                            <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
+                              <ModalLazyImage
+                                src={publicAssetUrl(media.topLeftSrc)}
+                                alt={`${work.title} - ${i + 1}-a`}
+                                eager={i < EAGER_IMAGES_COUNT}
+                                scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                                placeholderMinHeight={240}
+                              />
+                            </div>
+                            <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
+                              <ModalLazyImage
+                                src={publicAssetUrl(media.topRightSrc)}
+                                alt={`${work.title} - ${i + 1}-b`}
+                                eager={i < EAGER_IMAGES_COUNT}
+                                scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                                placeholderMinHeight={240}
+                              />
+                            </div>
+                          </div>
+                          <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
+                            <ModalLazyImage
+                              src={publicAssetUrl(media.bottomSrc)}
+                              alt={`${work.title} - ${i + 1}-c`}
+                              eager={i < EAGER_IMAGES_COUNT}
+                              scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
+                              placeholderMinHeight={240}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+
                     const resolvedSrc = publicAssetUrl(media.src);
                     if (media.type === "video") {
                       return (
