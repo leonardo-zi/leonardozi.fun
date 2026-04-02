@@ -148,6 +148,7 @@ function CrossfadeVideo({
   preload,
   crossfade,
   fit = "contain",
+  onReady,
 }: {
   src: string;
   playbackRate?: number;
@@ -158,6 +159,7 @@ function CrossfadeVideo({
   preload?: "none" | "metadata" | "auto";
   crossfade: { fadeDurationMs: number; preloadLeadMs?: number };
   fit?: "contain" | "cover";
+  onReady?: () => void;
 }) {
   const aRef = useRef<HTMLVideoElement | null>(null);
   const bRef = useRef<HTMLVideoElement | null>(null);
@@ -175,6 +177,12 @@ function CrossfadeVideo({
     if (typeof playbackRate === "number" && Number.isFinite(playbackRate)) {
       el.playbackRate = playbackRate;
     }
+  };
+  const readyOnceRef = useRef(false);
+  const reportReady = () => {
+    if (readyOnceRef.current) return;
+    readyOnceRef.current = true;
+    onReady?.();
   };
 
   const startFadeTo = (nextIndex: 0 | 1) => {
@@ -246,8 +254,14 @@ function CrossfadeVideo({
             controls={controls ?? false}
             preload={preload ?? "metadata"}
             onContextMenu={(e) => e.preventDefault()}
-            onLoadedMetadata={(e) => applyPlaybackRate(e.currentTarget)}
-            onCanPlay={(e) => applyPlaybackRate(e.currentTarget)}
+            onLoadedMetadata={(e) => {
+              applyPlaybackRate(e.currentTarget);
+              reportReady();
+            }}
+            onCanPlay={(e) => {
+              applyPlaybackRate(e.currentTarget);
+              reportReady();
+            }}
             onPlay={(e) => applyPlaybackRate(e.currentTarget)}
             onTimeUpdate={() => handleTimeUpdate(index)}
           />
@@ -257,7 +271,10 @@ function CrossfadeVideo({
   );
 }
 
-function renderForegroundNode(foreground: WorkCardCoverForeground) {
+function renderForegroundNode(
+  foreground: WorkCardCoverForeground,
+  onMediaLoaded?: () => void
+) {
   if (foreground.type === "image") {
     return (
       <img
@@ -267,6 +284,8 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
         className="block h-auto w-full object-contain"
         loading="lazy"
         decoding="async"
+        onLoad={onMediaLoaded}
+        onError={onMediaLoaded}
       />
     );
   }
@@ -284,6 +303,7 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
           controls={foreground.controls}
           preload={foreground.preload}
           crossfade={foreground.crossfade}
+          onReady={onMediaLoaded}
         />
       );
     }
@@ -307,17 +327,20 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
           if (typeof playbackRate === "number") {
             e.currentTarget.playbackRate = playbackRate;
           }
+          onMediaLoaded?.();
         }}
         onLoadedMetadata={(e) => {
           if (typeof playbackRate === "number") {
             e.currentTarget.playbackRate = playbackRate;
           }
+          onMediaLoaded?.();
         }}
         onPlay={(e) => {
           if (typeof playbackRate === "number") {
             e.currentTarget.playbackRate = playbackRate;
           }
         }}
+        onError={onMediaLoaded}
       />
     );
   }
@@ -357,6 +380,8 @@ function renderForegroundNode(foreground: WorkCardCoverForeground) {
             }}
             loading="lazy"
             decoding="async"
+            onLoad={onMediaLoaded}
+            onError={onMediaLoaded}
           />
         );
       })}
@@ -368,6 +393,8 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const [reducedMotion, setReducedMotion] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isInView, setIsInView] = useState(Boolean(isFirst));
+  const [coverBgLoaded, setCoverBgLoaded] = useState(false);
+  const [coverFgLoadedCount, setCoverFgLoadedCount] = useState(0);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const cardRef = useRef<HTMLElement | null>(null);
 
@@ -383,6 +410,8 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   useEffect(() => {
     setImageLoaded(false);
     setIsInView(Boolean(isFirst));
+    setCoverBgLoaded(false);
+    setCoverFgLoadedCount(0);
   }, [work.image, work.id, isFirst]);
 
   useEffect(() => {
@@ -390,6 +419,24 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
     if (!img) return;
     if (img.complete && img.naturalWidth > 0) setImageLoaded(true);
   }, [work.image, work.id]);
+
+  const coverFgExpected = useMemo(() => {
+    if (!work.cardCover?.foreground) return 0;
+    const fg = work.cardCover.foreground;
+    if (fg.type === "image" || fg.type === "video") return 1;
+    return fg.items.filter((item) => item.type === "image").length;
+  }, [work.cardCover?.foreground]);
+
+  useEffect(() => {
+    if (!work.cardCover) return;
+    const bg = work.cardCover.background;
+    if (bg.type === "color" || bg.type === "reactbits") {
+      setCoverBgLoaded(true);
+    }
+    if (coverFgExpected === 0) {
+      setCoverFgLoadedCount(0);
+    }
+  }, [work.cardCover, coverFgExpected]);
 
   useEffect(() => {
     if (isInView) return;
@@ -454,8 +501,8 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const imageSettleDurationMs = durationMs + (useLightProfile ? 260 : 320);
   const isPriorityImage = Boolean(isFirst);
   const hasNewCardCover = Boolean(work.cardCover);
-
-  const settled = hasNewCardCover ? isInView : isInView && imageLoaded;
+  const coverFgLoaded = coverFgExpected === 0 ? true : coverFgLoadedCount >= coverFgExpected;
+  const settled = hasNewCardCover ? isInView && coverBgLoaded && coverFgLoaded : isInView && imageLoaded;
   const metaVisible = reducedMotion ? true : settled;
 
   const imageRevealStyle = reducedMotion
@@ -520,6 +567,8 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
           className="absolute inset-0 block h-full w-full object-cover"
           decoding="async"
           loading={isPriorityImage ? "eager" : "lazy"}
+          onLoad={() => setCoverBgLoaded(true)}
+          onError={() => setCoverBgLoaded(true)}
         />
       )}
       {work.cardCover?.background.type === "video" && work.cardCover.background.crossfade && (
@@ -532,6 +581,7 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
           preload={work.cardCover.background.preload}
           crossfade={work.cardCover.background.crossfade}
           fit="cover"
+          onReady={() => setCoverBgLoaded(true)}
         />
       )}
       {work.cardCover?.background.type === "video" && !work.cardCover.background.crossfade && (
@@ -545,6 +595,8 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
           controls={work.cardCover.background.controls ?? false}
           preload={work.cardCover.background.preload ?? "metadata"}
           poster={work.cardCover.background.poster ? publicAssetUrl(work.cardCover.background.poster) : undefined}
+          onLoadedData={() => setCoverBgLoaded(true)}
+          onError={() => setCoverBgLoaded(true)}
         />
       )}
       {work.cardCover?.background.type === "reactbits" &&
@@ -567,7 +619,9 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
                   : ({ transform: `scale(${foregroundScale})`, transformOrigin: "center" } as const)
               }
             >
-              {renderForegroundNode(work.cardCover.foreground)}
+              {renderForegroundNode(work.cardCover.foreground, () => {
+                setCoverFgLoadedCount((count) => Math.min(coverFgExpected, count + 1));
+              })}
             </div>
           </div>
         </div>

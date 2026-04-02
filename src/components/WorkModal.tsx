@@ -14,6 +14,7 @@ const EAGER_IMAGES_COUNT = 1;
 
 export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const detailMediaBorderRadiusPx = work.id === "0" ? 16 : 4;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -108,7 +109,11 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                     const resolvedSrc = publicAssetUrl(media.src);
                     if (media.type === "video") {
                       return (
-                        <div key={i} className="rounded-[4px] overflow-hidden bg-[#F4F4F4] border-[0.5px] border-[#E6E6E6]">
+                        <div
+                          key={i}
+                          className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
+                          style={{ borderRadius: detailMediaBorderRadiusPx }}
+                        >
                           <video
                             src={resolvedSrc}
                             className="block w-full h-auto object-cover"
@@ -125,7 +130,11 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                     }
 
                     return (
-                      <div key={i} className="rounded-[4px] overflow-hidden bg-[#F4F4F4] border-[0.5px] border-[#E6E6E6]">
+                      <div
+                        key={i}
+                        className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
+                        style={{ borderRadius: detailMediaBorderRadiusPx }}
+                      >
                         <ModalLazyImage
                           src={resolvedSrc}
                           alt={`${work.title} - ${i + 1}`}

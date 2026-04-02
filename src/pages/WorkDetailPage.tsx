@@ -15,6 +15,7 @@ export default function WorkDetailPage({
   onBack: () => void;
 }) {
   const [reducedMotion, setReducedMotion] = useState(false);
+  const detailMediaBorderRadiusPx = work.id === "0" ? 16 : 4;
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
@@ -156,7 +157,10 @@ export default function WorkDetailPage({
                   const resolvedSrc = publicAssetUrl(media.src);
                   const block =
                     media.type === "video" ? (
-                      <div className="rounded-[4px] overflow-hidden bg-[#F4F4F4] border-[0.5px] border-[#E6E6E6]">
+                      <div
+                        className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
+                        style={{ borderRadius: detailMediaBorderRadiusPx }}
+                      >
                         <video
                           src={resolvedSrc}
                           className="block w-full h-auto object-cover"
@@ -170,7 +174,10 @@ export default function WorkDetailPage({
                         />
                       </div>
                     ) : (
-                      <div className="rounded-[4px] overflow-hidden bg-[#F4F4F4] border-[0.5px] border-[#E6E6E6]">
+                      <div
+                        className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
+                        style={{ borderRadius: detailMediaBorderRadiusPx }}
+                      >
                         <ModalLazyImage
                           src={resolvedSrc}
                           alt={`${work.title} - ${i + 1}`}

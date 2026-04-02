@@ -4,7 +4,7 @@ export const work00Tenet: Work = {
   id: "0",
   title: "Tenet",
   // Tenet 卡片不展示背景图（用纯色封面渲染），但 Work.image 目前为必填字段，这里给一个可用兜底
-  image: "./works/tenet/1-1.png",
+  image: "./works/tenet/01.webp",
   cardImageAspectRatio: 1,
   tags: ["产品"],
   tagsEn: ["Product"],
@@ -45,5 +45,17 @@ export const work00Tenet: Work = {
       preload: "metadata",
     },
   },
-  detailImages: ["./works/tenet/1-1.png"],
+  detailImages: [
+    "./works/tenet/01.webp",
+    "./works/tenet/02.webp",
+    "./works/tenet/03.webp",
+    "./works/tenet/04.webp",
+    "./works/tenet/05.webp",
+    "./works/tenet/06.webp",
+    "./works/tenet/07.webp",
+    "./works/tenet/08.webp",
+    "./works/tenet/09.webp",
+    "./works/tenet/10.webp",
+    "./works/tenet/11.webp",
+  ],
 };

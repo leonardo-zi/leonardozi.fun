@@ -428,13 +428,16 @@ function SidebarToc({ lang }: { lang: Lang }) {
                   </button>
                 )}
                 <div className="flex flex-col items-center gap-[12px]">
-                  <img
-                    src={resumeBgUrl}
-                    alt=""
-                    aria-hidden
+                  <video
                     className="h-[150px] w-[150px] rounded-[6px] object-cover"
-                    loading="lazy"
-                    decoding="async"
+                    src={publicAssetUrl("./contact/resume/resume_bg.webm")}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls={false}
+                    preload="metadata"
+                    aria-hidden
                   />
                   <div className="text-center text-[11px] leading-[16px] font-normal text-[#000000]">
                     {lang === "en" ? (
