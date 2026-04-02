@@ -81,7 +81,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
     lang === "en" ? "Scan the QR code to add me on WeChat" : "扫描二维码，添加我的微信";
 
   const resumePdfUrl = publicAssetUrl("./contact/resume/简历_李智_2026.pdf");
-  const resumeBgUrl = publicAssetUrl("./contact/resume/resume_bg.png");
   const resumeTooltipAriaLabel =
     lang === "en" ? "Download resume, a modest snapshot" : "获取简历，一览薄才";
 
