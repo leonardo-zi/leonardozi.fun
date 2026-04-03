@@ -1,6 +1,5 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { Icon } from "@iconify/react";
-import { AnimatedContent } from "reactbits-animation";
 import type { Work } from "../works/types";
 import ModalLazyImage from "../components/ModalLazyImage";
 import { publicAssetUrl } from "../utils/publicAssetUrl";
@@ -14,29 +13,7 @@ export default function WorkDetailPage({
   lang: "cn" | "en";
   onBack: () => void;
 }) {
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const isTenetWork = work.id === "0";
   const detailMediaBorderRadiusPx = 4;
-
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
-  }, []);
-
-  const isLikelySafari = useMemo(() => {
-    if (typeof navigator === "undefined") return false;
-    const ua = navigator.userAgent;
-    return /Safari/i.test(ua) && !/Chrome|Chromium|CriOS|Android/i.test(ua);
-  }, []);
-
-  const isMobileViewport = useMemo(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-    return window.matchMedia("(max-width: 800px)").matches;
-  }, []);
 
   useLayoutEffect(() => {
     // 进入详情页时滚动到顶部，避免刷新/恢复滚动后又被“还原回来”
@@ -168,7 +145,6 @@ export default function WorkDetailPage({
                   (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))
                 ).map(
                   (media, i) => {
-                  const useLightProfile = isMobileViewport || isLikelySafari;
                   const block = (() => {
                     if (media.type === "imageTwoUpThenOne") {
                       const frameClassName =
@@ -242,31 +218,7 @@ export default function WorkDetailPage({
                     );
                   })();
 
-                  if (reducedMotion) {
-                    return <div key={i}>{block}</div>;
-                  }
-
-                  return (
-                    <AnimatedContent
-                      key={i}
-                      distance={
-                        isTenetWork ? (useLightProfile ? 120 : 150) : useLightProfile ? 70 : 92
-                      }
-                      direction="vertical"
-                      duration={useLightProfile ? 0.8 : 0.95}
-                      ease="power3.out"
-                      initialOpacity={0}
-                      animateOpacity
-                      threshold={isTenetWork ? (useLightProfile ? 0.06 : 0.04) : useLightProfile ? 0.08 : 0.05}
-                      delay={
-                        isTenetWork
-                          ? Math.min(i, 10) * (useLightProfile ? 0.14 : 0.18)
-                          : Math.min(i, 10) * (useLightProfile ? 0.28 : 0.36)
-                      }
-                    >
-                      {block}
-                    </AnimatedContent>
-                  );
+                  return <div key={i}>{block}</div>;
                 }
                 )}
               </div>
