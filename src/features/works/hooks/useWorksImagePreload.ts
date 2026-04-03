@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Work } from "../../../works/types";
+import { publicAssetUrl } from "../../../utils/publicAssetUrl";
 
 function preloadAsset(src: string) {
   return new Promise<void>((resolve) => {
@@ -14,7 +15,7 @@ function preloadAsset(src: string) {
       done();
     };
     img.onerror = done;
-    img.src = src;
+    img.src = publicAssetUrl(src);
     if (img.complete) {
       if (typeof img.decode === "function") {
         img.decode().then(done).catch(done);

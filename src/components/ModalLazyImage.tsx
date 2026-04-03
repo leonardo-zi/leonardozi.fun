@@ -13,6 +13,8 @@ interface ModalLazyImageProps {
   scrollRoot?: React.RefObject<HTMLElement | null>;
   /** true 时立即加载；否则滚入弹窗可视区再开始加载 */
   eager?: boolean;
+  /** 解码完成或失败时 true；换 src 时先 false（供外层控制边框等） */
+  onLoadedChange?: (loaded: boolean) => void;
 }
 
 export default function ModalLazyImage({
@@ -22,10 +24,13 @@ export default function ModalLazyImage({
   placeholderMinHeight = 0,
   scrollRoot,
   eager = false,
+  onLoadedChange,
 }: ModalLazyImageProps) {
   const [shouldLoad, setShouldLoad] = useState(eager);
   const [loaded, setLoaded] = useState(false);
   const hostRef = useRef<HTMLDivElement>(null);
+  const onLoadedChangeRef = useRef(onLoadedChange);
+  onLoadedChangeRef.current = onLoadedChange;
 
   useEffect(() => {
     if (eager) {
@@ -35,6 +40,7 @@ export default function ModalLazyImage({
 
   useEffect(() => {
     setLoaded(false);
+    onLoadedChangeRef.current?.(false);
   }, [src]);
 
   useEffect(() => {
@@ -96,8 +102,14 @@ export default function ModalLazyImage({
           loading={loading}
           decoding="async"
           showSkeleton={false}
-          onLoad={() => setLoaded(true)}
-          onError={() => setLoaded(true)}
+          onLoad={() => {
+            setLoaded(true);
+            onLoadedChangeRef.current?.(true);
+          }}
+          onError={() => {
+            setLoaded(true);
+            onLoadedChangeRef.current?.(true);
+          }}
         />
       ) : null}
     </div>

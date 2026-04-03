@@ -557,7 +557,10 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const coverContent = hasNewCardCover ? (
     <div className="relative block h-full w-full overflow-hidden" style={imageRevealStyle}>
       {work.cardCover?.background.type === "color" && (
-        <div className="absolute inset-0" style={{ background: work.cardCover.background.color }} />
+        <div
+          className="absolute bottom-0 right-0 h-full w-full"
+          style={{ background: work.cardCover.background.color }}
+        />
       )}
       {work.cardCover?.background.type === "image" && (
         <img

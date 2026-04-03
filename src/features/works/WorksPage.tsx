@@ -111,9 +111,10 @@ export default function WorksPage() {
         initial="hidden"
         animate={gridAnimate}
       >
-        {worksInterleaved.map((work, i) => (
+        {worksInterleaved.map((work) => (
           <motion.div key={`${work.id}-${pageLoadNonce}`} variants={worksItemVariants} className="min-w-0">
-            <WorkCard work={work} onClick={openWorkDetails} isFirst={i === 0} lang={lang} />
+            {/* 网格在 reveal 前整体 opacity:0，若首屏仍用 lazy，浏览器会推迟解码 → 白框；本站作品数少，全部优先加载 */}
+            <WorkCard work={work} onClick={openWorkDetails} isFirst lang={lang} />
           </motion.div>
         ))}
       </motion.div>
@@ -128,14 +129,14 @@ export default function WorksPage() {
       animate={gridAnimate}
     >
       <div className="flex min-w-0 flex-col gap-4">
-        {worksLeftColumn.map((work, i) => (
+        {worksLeftColumn.map((work) => (
           <motion.div
             key={`${work.id}-${pageLoadNonce}`}
             custom={workRowIndex.get(work.id) ?? 0}
             variants={wideItemVariants}
             className="min-w-0"
           >
-            <WorkCard work={work} onClick={openWorkDetails} isFirst={i === 0} lang={lang} />
+            <WorkCard work={work} onClick={openWorkDetails} isFirst lang={lang} />
           </motion.div>
         ))}
       </div>
@@ -147,7 +148,7 @@ export default function WorksPage() {
             variants={wideItemVariants}
             className="min-w-0"
           >
-            <WorkCard work={work} onClick={openWorkDetails} isFirst={false} lang={lang} />
+            <WorkCard work={work} onClick={openWorkDetails} isFirst lang={lang} />
           </motion.div>
         ))}
       </div>

@@ -1,8 +1,44 @@
-import { useLayoutEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import type { Work } from "../works/types";
 import ModalLazyImage from "../components/ModalLazyImage";
 import { publicAssetUrl } from "../utils/publicAssetUrl";
+
+function frameShellClass(borderVisible: boolean) {
+  return `overflow-hidden bg-transparent box-border border-[0.5px] ${
+    borderVisible ? "border-[#E6E6E6]" : "border-transparent"
+  }`;
+}
+
+function DetailMediaImageFrame({ src, alt, borderRadiusPx }: { src: string; alt: string; borderRadiusPx: number }) {
+  const [borderVisible, setBorderVisible] = useState(false);
+  return (
+    <div className={frameShellClass(borderVisible)} style={{ borderRadius: borderRadiusPx }}>
+      <ModalLazyImage src={src} alt={alt} eager scrollRoot={undefined} onLoadedChange={setBorderVisible} />
+    </div>
+  );
+}
+
+function DetailVideoFrame({ src, borderRadiusPx }: { src: string; borderRadiusPx: number }) {
+  const [borderVisible, setBorderVisible] = useState(false);
+  return (
+    <div className={frameShellClass(borderVisible)} style={{ borderRadius: borderRadiusPx }}>
+      <video
+        src={src}
+        className="block w-full h-auto object-cover"
+        autoPlay
+        muted
+        playsInline
+        loop
+        controls={false}
+        preload="metadata"
+        onLoadedData={() => setBorderVisible(true)}
+        onError={() => setBorderVisible(true)}
+        onContextMenu={(e) => e.preventDefault()}
+      />
+    </div>
+  );
+}
 
 export default function WorkDetailPage({
   work,
@@ -40,6 +76,24 @@ export default function WorkDetailPage({
     [lang, work.overview, work.overviewEn]
   );
   const hasTopCopy = Boolean(work.title || overview || details.length > 0);
+  const showDetailsColumn = details.length > 0;
+  const showOverviewColumn = Boolean(overview || work.title);
+  const overviewBody =
+    overview ??
+    (lang === "en"
+      ? "You can place a project description here and update it as needed."
+      : "可在此填写项目说明，并按需更新。");
+
+  const detailsBody = useMemo(
+    () =>
+      details
+        .map((item) => {
+          const label = item.label.trim().replace(/[:：]\s*$/, "");
+          return `${label}: ${item.value}`;
+        })
+        .join("\n"),
+    [details]
+  );
 
   return (
     <div className="min-h-screen w-full bg-[#ffffff]">
@@ -107,39 +161,38 @@ export default function WorkDetailPage({
               </div>
 
               {hasTopCopy && (
-                <div className="pt-8 pb-6 min-[801px]:pb-8">
+                <div className="pt-8 pb-4 min-[801px]:pb-5 mb-6 min-[801px]:mb-10">
                   <h2 className="text-[24px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)]">
                     {work.title}
                   </h2>
 
-                  <div className="mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 min-[801px]:grid-cols-2">
-                    {details.length > 0 && (
-                      <section>
-                        <dl className="space-y-2 text-[11px] text-[#000000]">
-                          {details.map((item) => (
-                            <div key={`${item.label}-${item.value}`} className="grid grid-cols-[96px_1fr] gap-4">
-                              <dt className="font-medium text-[#aaaaaa]">{item.label}:</dt>
-                              <dd className="min-w-0 text-[#000000]">{item.value}</dd>
-                            </div>
-                          ))}
-                        </dl>
+                  <div
+                    className={`mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 ${
+                      showDetailsColumn && showOverviewColumn ? "min-[801px]:grid-cols-2" : ""
+                    }`}
+                  >
+                    {showDetailsColumn && (
+                      <section className="min-w-0">
+                        <h3 className="mb-4 text-[11px] font-normal text-[#b0b0b0]">
+                          {lang === "en" ? "Details" : "细节"}
+                        </h3>
+                        <p className="whitespace-pre-line text-[11px] leading-relaxed text-[#000000]">{detailsBody}</p>
                       </section>
                     )}
 
-                    {(overview || work.title) && (
-                      <section>
-                        <p className="text-[11px] leading-relaxed text-[#000000]">
-                          {overview ?? "You can place a project description here and update it as needed."}
-                        </p>
+                    {showOverviewColumn && (
+                      <section className="min-w-0">
+                        <h3 className="mb-4 text-[11px] font-normal text-[#b0b0b0]">
+                          {lang === "en" ? "Overview" : "简介"}
+                        </h3>
+                        <p className="text-[11px] leading-relaxed text-[#000000]">{overviewBody}</p>
                       </section>
                     )}
                   </div>
                 </div>
               )}
 
-              {hasTopCopy && <div className="my-16 min-[801px]:my-[100px]" aria-hidden />}
-
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-[50px]">
                 {(
                   work.detailMedia ??
                   (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))
@@ -147,74 +200,40 @@ export default function WorkDetailPage({
                   (media, i) => {
                   const block = (() => {
                     if (media.type === "imageTwoUpThenOne") {
-                      const frameClassName =
-                        "overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]";
                       return (
                         <div className="flex flex-col" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
                           <div className="grid grid-cols-2" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
-                            <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
-                              <ModalLazyImage
-                                src={publicAssetUrl(media.topLeftSrc)}
-                                alt={`${work.title} - ${i + 1}-a`}
-                                eager
-                                scrollRoot={undefined}
-                              />
-                            </div>
-                            <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
-                              <ModalLazyImage
-                                src={publicAssetUrl(media.topRightSrc)}
-                                alt={`${work.title} - ${i + 1}-b`}
-                                eager
-                                scrollRoot={undefined}
-                              />
-                            </div>
-                          </div>
-                          <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
-                            <ModalLazyImage
-                              src={publicAssetUrl(media.bottomSrc)}
-                              alt={`${work.title} - ${i + 1}-c`}
-                              eager
-                              scrollRoot={undefined}
+                            <DetailMediaImageFrame
+                              src={publicAssetUrl(media.topLeftSrc)}
+                              alt={`${work.title} - ${i + 1}-a`}
+                              borderRadiusPx={detailMediaBorderRadiusPx}
+                            />
+                            <DetailMediaImageFrame
+                              src={publicAssetUrl(media.topRightSrc)}
+                              alt={`${work.title} - ${i + 1}-b`}
+                              borderRadiusPx={detailMediaBorderRadiusPx}
                             />
                           </div>
+                          <DetailMediaImageFrame
+                            src={publicAssetUrl(media.bottomSrc)}
+                            alt={`${work.title} - ${i + 1}-c`}
+                            borderRadiusPx={detailMediaBorderRadiusPx}
+                          />
                         </div>
                       );
                     }
 
                     const resolvedSrc = publicAssetUrl(media.src);
                     if (media.type === "video") {
-                      return (
-                        <div
-                          className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
-                          style={{ borderRadius: detailMediaBorderRadiusPx }}
-                        >
-                          <video
-                            src={resolvedSrc}
-                            className="block w-full h-auto object-cover"
-                            autoPlay
-                            muted
-                            playsInline
-                            loop
-                            controls={false}
-                            preload="metadata"
-                            onContextMenu={(e) => e.preventDefault()}
-                          />
-                        </div>
-                      );
+                      return <DetailVideoFrame src={resolvedSrc} borderRadiusPx={detailMediaBorderRadiusPx} />;
                     }
 
                     return (
-                      <div
-                        className="overflow-hidden bg-transparent border-[0.5px] border-[#E6E6E6]"
-                        style={{ borderRadius: detailMediaBorderRadiusPx }}
-                      >
-                        <ModalLazyImage
-                          src={resolvedSrc}
-                          alt={`${work.title} - ${i + 1}`}
-                          eager
-                          scrollRoot={undefined}
-                        />
-                      </div>
+                      <DetailMediaImageFrame
+                        src={resolvedSrc}
+                        alt={`${work.title} - ${i + 1}`}
+                        borderRadiusPx={detailMediaBorderRadiusPx}
+                      />
                     );
                   })();
 
