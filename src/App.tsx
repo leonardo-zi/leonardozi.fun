@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import Lenis from "lenis";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import MusicPage from "./features/music/MusicPage";
 import WorksPage from "./features/works/WorksPage";
 import SiteLayout from "./layouts/SiteLayout";
@@ -9,6 +9,9 @@ import PageTransition from "./motion/PageTransition";
 import WorkDetailRoute from "./pages/WorkDetailRoute";
 
 export default function App() {
+  const lenisRef = useRef<Lenis | null>(null);
+  const location = useLocation();
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -19,7 +22,10 @@ export default function App() {
       allowNestedScroll: true,
       wheelMultiplier: 1,
       touchMultiplier: 2,
+      stopInertiaOnNavigate: true,
     });
+
+    lenisRef.current = lenis;
 
     let rafId: number;
 
@@ -33,8 +39,16 @@ export default function App() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const lenis = lenisRef.current;
+    if (!lenis) return;
+    lenis.stop();
+    lenis.start();
+  }, [location.pathname]);
 
   return (
     <SitePreferencesProvider>
