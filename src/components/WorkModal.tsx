@@ -121,7 +121,6 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                                 alt={`${work.title} - ${i + 1}-a`}
                                 eager={i < EAGER_IMAGES_COUNT}
                                 scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
-                                placeholderMinHeight={240}
                               />
                             </div>
                             <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
@@ -130,7 +129,6 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                                 alt={`${work.title} - ${i + 1}-b`}
                                 eager={i < EAGER_IMAGES_COUNT}
                                 scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
-                                placeholderMinHeight={240}
                               />
                             </div>
                           </div>
@@ -140,7 +138,6 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                               alt={`${work.title} - ${i + 1}-c`}
                               eager={i < EAGER_IMAGES_COUNT}
                               scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
-                              placeholderMinHeight={240}
                             />
                           </div>
                         </div>
@@ -181,7 +178,6 @@ export default function WorkModal({ work, onClose, lang }: WorkModalProps) {
                           alt={`${work.title} - ${i + 1}`}
                           eager={i < EAGER_IMAGES_COUNT}
                           scrollRoot={scrollRef as React.RefObject<HTMLElement | null>}
-                          placeholderMinHeight={240}
                         />
                       </div>
                     );

@@ -37,7 +37,8 @@ function albumExistingPlugin(): Plugin {
 }
 
 export default defineConfig({
-  base: "./",
+  // 使用绝对路径，保证在 /work/:id 等深链刷新时仍能正确加载 /assets/*
+  base: "/",
   plugins: [react(), tailwindcss(), albumExistingPlugin()],
   resolve: {
     alias: {

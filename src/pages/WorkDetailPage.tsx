@@ -182,7 +182,6 @@ export default function WorkDetailPage({
                                 alt={`${work.title} - ${i + 1}-a`}
                                 eager
                                 scrollRoot={undefined}
-                                placeholderMinHeight={240}
                               />
                             </div>
                             <div className={frameClassName} style={{ borderRadius: detailMediaBorderRadiusPx }}>
@@ -191,7 +190,6 @@ export default function WorkDetailPage({
                                 alt={`${work.title} - ${i + 1}-b`}
                                 eager
                                 scrollRoot={undefined}
-                                placeholderMinHeight={240}
                               />
                             </div>
                           </div>
@@ -201,7 +199,6 @@ export default function WorkDetailPage({
                               alt={`${work.title} - ${i + 1}-c`}
                               eager
                               scrollRoot={undefined}
-                              placeholderMinHeight={240}
                             />
                           </div>
                         </div>
@@ -240,7 +237,6 @@ export default function WorkDetailPage({
                           alt={`${work.title} - ${i + 1}`}
                           eager
                           scrollRoot={undefined}
-                          placeholderMinHeight={240}
                         />
                       </div>
                     );

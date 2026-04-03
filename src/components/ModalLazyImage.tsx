@@ -7,7 +7,7 @@ interface ModalLazyImageProps {
   src: string;
   alt: string;
   className?: string;
-  /** 仅用于占位，防止布局在图片出现前塌陷 */
+  /** 仅用于占位，防止布局在图片出现前塌陷（详情/弹窗默认 0，避免外框高于矮图） */
   placeholderMinHeight?: number;
   /** 弹窗滚动容器（IntersectionObserver root） */
   scrollRoot?: React.RefObject<HTMLElement | null>;
@@ -19,7 +19,7 @@ export default function ModalLazyImage({
   src,
   alt,
   className,
-  placeholderMinHeight = 240,
+  placeholderMinHeight = 0,
   scrollRoot,
   eager = false,
 }: ModalLazyImageProps) {
