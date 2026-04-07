@@ -71,7 +71,7 @@ function DetailTopCopy({
 
   return (
     <div className="pt-8 pb-4 min-[801px]:pb-5 mb-6 min-[801px]:mb-10">
-      <h2 className="text-[24px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)]">{title}</h2>
+      <h2 className="mt-[70px] text-[24px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)]">{title}</h2>
 
       <div
         className={`mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 ${
@@ -235,9 +235,9 @@ export default function WorkDetailPage({
                 <DetailTopCopy title={detailTitle} details={details} overview={overview} lang={lang} />
               )}
 
-              <div className="flex flex-col gap-[50px]">
+              <div className="flex flex-col gap-[30px]">
                 {mediaBlocks.map((section, sectionIndex) => (
-                  <div key={`section-${sectionIndex}`} className="flex flex-col gap-[50px]">
+                  <div key={`section-${sectionIndex}`} className="flex flex-col gap-[30px]">
                     {section.topCopy && (
                       <DetailTopCopy
                         title={section.topCopy.title}

@@ -1,8 +1,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/noto-sans-sc";
 
 @custom-variant dark (&:is(.dark *));
+
+html,
+body {
+  font-family: system-ui, sans-serif;
+}
+
+html:not([data-platform="apple"]),
+html:not([data-platform="apple"]) body {
+  font-family: "Noto Sans SC Variable", system-ui, sans-serif;
+}
 
 /* 样式：统一小圆角变量，用于按钮、卡片、图片容器 */
 :root {

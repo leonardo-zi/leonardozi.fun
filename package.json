@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/noto-sans-sc": "^5.2.10",
     "@iconify-json/material-symbols-light": "^1.2.63",
     "@iconify/react": "^6.0.2",
     "framer-motion": "^12.38.0",
