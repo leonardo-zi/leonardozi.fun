@@ -139,9 +139,10 @@ export default function WorkDetailPage({
   const detailSections = useMemo(() => {
     if (!work.detailSections?.length) return [];
     return work.detailSections.map((section) => {
+      const sectionTitle = lang === "en" ? section.titleEn ?? section.title : section.title;
       const sectionDetails = (lang === "en" ? section.detailsEn ?? section.details : section.details) ?? [];
       const sectionOverview = lang === "en" ? section.overviewEn ?? section.overview : section.overview;
-      return { ...section, details: sectionDetails, overview: sectionOverview };
+      return { ...section, title: sectionTitle, details: sectionDetails, overview: sectionOverview };
     });
   }, [lang, work.detailSections]);
 

@@ -117,6 +117,7 @@ export interface WorkCardCover {
 
 export interface WorkDetailTopCopy {
   title: string;
+  titleEn?: string;
   details?: Array<{ label: string; value: string }>;
   detailsEn?: Array<{ label: string; value: string }>;
   overview?: string;

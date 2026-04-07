@@ -53,13 +53,21 @@ export const work04: Work = {
   detailSections: [
     {
       title: "Other Works",
+      titleEn: "Other Works",
       details: [
         { label: "类别", value: "视觉传达 / 包装设计 / 插画艺术 / 手绘" },
         { label: "关键词", value: "传统文化重塑、信息可视化、商业插画、手绘基本功、跨媒介设计" },
         { label: "角色", value: "独立创作者 / 视觉设计师" },
       ],
+      detailsEn: [
+        { label: "Category", value: "Visual Communication / Packaging Design / Illustration / Sketching" },
+        { label: "Keywords", value: "Cultural Reframing, Infographics, Commercial Illustration, Fundamentals, Cross-media Design" },
+        { label: "Role", value: "Independent Creator / Visual Designer" },
+      ],
       overview:
         "本部分收录体系化 UI/UX 项目之外的跨媒介视觉探索与个人艺术创作，侧重美术功底与多元审美。内容包括：传统节日与现代图形结合的「传统节日红包」；以年轻化线框符号焕新老字号的「徐州八珍」包装；「大唐风韵」系列国风插画；以及将复杂流程转译为易读图解的「咽拭子检测示意图」「病毒结构科普图」等。另含素描、彩铅与创意手绘（如超现实头骨、人像与雕塑肌理等），体现对光影、解剖结构与色彩情绪的长期训练。",
+      overviewEn:
+        "This section collects cross-media visual explorations and personal art practice beyond structured UI/UX projects, emphasizing fundamentals and diverse aesthetics. It includes traditional-festival red envelope graphics, Xuzhou Bazhen packaging refresh, Datang-style illustrations, explanatory infographics, plus long-term sketching and colored-pencil studies.",
       detailMedia: [
         { type: "image", src: "./works/leonardozi/11-02.webp" },
         { type: "image", src: "./works/leonardozi/11-03.webp" },
@@ -69,13 +77,21 @@ export const work04: Work = {
     },
     {
       title: "简单打车（Easy Go）— 面向老年用户的适老化出行打车应用",
+      titleEn: "Easy Go - Senior-friendly Ride-hailing App",
       details: [
         { label: "类别", value: "适老化出行 / 社会服务" },
         { label: "关键词", value: "适老化设计、轻量化视觉、高可读性、核心功能精简" },
         { label: "角色", value: "UI 设计参赛作品" },
       ],
+      detailsEn: [
+        { label: "Category", value: "Senior-friendly Mobility / Social Service" },
+        { label: "Keywords", value: "Age-friendly Design, Lightweight Visuals, High Readability, Simplified Core Flows" },
+        { label: "Role", value: "UI Design Competition Project" },
+      ],
       overview:
         "针对老年用户群体定制的出行类应用，旨在缓解数字鸿沟下的打车门槛。设计遵循「精简、清晰、易操作」：大色块布局、高对比度文字与扁平化操作逻辑，提升出行场景下的安全感与使用便利。",
+      overviewEn:
+        "A ride-hailing app tailored for senior users, aimed at reducing mobility barriers caused by the digital divide. The design follows a simple, clear, and easy-to-operate approach with large color blocks, high-contrast text, and flattened interaction flow to improve confidence and convenience.",
       detailMedia: [
         { type: "image", src: "./works/bobmusic/08-02.webp" },
         { type: "image", src: "./works/bobmusic/08-03.webp" },
@@ -86,13 +102,21 @@ export const work04: Work = {
     },
     {
       title: "抱抱音乐（Bob Music）— 年轻群体低压力听歌社交与音乐陪伴产品",
+      titleEn: "Bob Music - Low-pressure Music Social Companion for Young Users",
       details: [
         { label: "类别", value: "情感社交 / 音乐播放器" },
         { label: "关键词", value: "低压力社交、围炉功能、音乐陪伴、情感化设计" },
         { label: "角色", value: "UI 设计练习作品" },
       ],
+      detailsEn: [
+        { label: "Category", value: "Emotional Social / Music Player" },
+        { label: "Keywords", value: "Low-pressure Social, Hearth Room Feature, Music Companionship, Emotional Design" },
+        { label: "Role", value: "UI Design Practice Project" },
+      ],
       overview:
         "面向年轻群体的低压力听歌社交产品。以「温暖、安全」为视觉核心，围绕「围炉」社交模式，在音乐陪伴下支持轻度社交。通过克制的交互与情感化界面，营造可放松聊天、缓解孤独的听乐空间。",
+      overviewEn:
+        "A low-pressure music social product for young users. Centered on a warm and safe visual tone, it uses the 'Hearth Room' interaction mode to enable lightweight socializing around music companionship, creating a relaxing space for conversation and emotional comfort.",
       detailMedia: [
         { type: "image", src: "./works/bobmusic/08-07.webp" },
         { type: "image", src: "./works/bobmusic/08-08.webp" },
