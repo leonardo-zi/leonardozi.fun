@@ -77,15 +77,9 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
     transformOrigin: "center",
   };
 
-  if (!reducedMotion && cover.background.effect === "aurora") {
-    const Aurora = maybeExports.Aurora as ComponentType<Record<string, unknown>> | undefined;
-    if (Aurora) {
-      return (
-        <div className="absolute inset-0 overflow-hidden" style={{ background: fallbackColor }}>
-          <Aurora colorStops={[color1, color2, color3]} blend={blend} amplitude={1} />
-        </div>
-      );
-    }
+  if (cover.background.effect === "aurora") {
+    // 临时屏蔽动态 Aurora（其内部会生成 canvas），改为纯色背景方便对比版式与信息层级
+    return <div className="absolute inset-0" style={{ background: "#F4F4F4" }} />;
   }
 
   if (!reducedMotion && cover.background.effect === "darkVeil") {
