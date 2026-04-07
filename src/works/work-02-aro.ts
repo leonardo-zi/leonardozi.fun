@@ -52,7 +52,7 @@ export const work02: Work = {
       src: "./works/aro/aro_up.webp",
       placement: {
         mode: "anchorPosition",
-        coordinate: { x: -9, y: -6 },
+        coordinate: { x: -10, y: -6 },
         anchor: { x: 0, y: 1 },
         widthRatio: 1.2,
       },

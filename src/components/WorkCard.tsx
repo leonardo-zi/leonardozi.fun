@@ -482,14 +482,14 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const imageRevealStyle = reducedMotion
     ? undefined
     : ({
-        opacity: settled ? 1 : 0,
-        transform: settled ? "scale(1)" : "scale(1.02)",
-        transitionProperty: "opacity, transform",
-        transitionDuration: `${imageSettleDurationMs}ms`,
-        transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-        transitionDelay: "0ms",
-        willChange: settled ? "auto" : "opacity, transform",
-      } as const);
+      opacity: settled ? 1 : 0,
+      transform: settled ? "scale(1)" : "scale(1.02)",
+      transitionProperty: "opacity, transform",
+      transitionDuration: `${imageSettleDurationMs}ms`,
+      transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+      transitionDelay: "0ms",
+      willChange: settled ? "auto" : "opacity, transform",
+    } as const);
 
   const cardImageHeightPx = work.cardImageHeightPx ?? 581;
   const cardImageAspectRatio = work.cardImageAspectRatio;
@@ -509,12 +509,12 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   const legacyImageVeilStyle = reducedMotion
     ? undefined
     : ({
-        opacity: isInView && !imageLoaded ? 0.14 : 0,
-        transitionProperty: "opacity",
-        transitionDuration: `${imageSettleDurationMs}ms`,
-        transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-        transitionDelay: "0ms",
-      } as const);
+      opacity: isInView && !imageLoaded ? 0.14 : 0,
+      transitionProperty: "opacity",
+      transitionDuration: `${imageSettleDurationMs}ms`,
+      transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+      transitionDelay: "0ms",
+    } as const);
 
   const foregroundScale = (() => {
     if (!work.cardCover?.foreground) return 1;
@@ -656,11 +656,11 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
             reducedMotion
               ? undefined
               : ({
-                  opacity: metaVisible ? 1 : 0,
-                  transitionProperty: "opacity",
-                  transitionDuration: `${imageSettleDurationMs}ms`,
-                  transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
-                } as const)
+                opacity: metaVisible ? 1 : 0,
+                transitionProperty: "opacity",
+                transitionDuration: `${imageSettleDurationMs}ms`,
+                transitionTimingFunction: "cubic-bezier(0.16,1,0.3,1)",
+              } as const)
           }
         >
           <div className="flex items-baseline justify-between gap-3">
