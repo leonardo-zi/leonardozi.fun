@@ -1,35 +1,38 @@
 import type { Work } from "./types";
+import { WORK_IMAGE_WHITE_FALLBACK } from "./placeholders";
 
 export const work05: Work = {
   id: "5",
   title: "Wisdom Horse",
-  image: "./works/bg/苏崇铭7.webp",
+  image: WORK_IMAGE_WHITE_FALLBACK,
   cardImageAspectRatio: 1,
   cardImageHeightPx: 581,
   overlayIcon: "./works/wisdomhorse/wisdomhorse-icon.svg",
   tags: ["网页"],
   tagsEn: ["Webpage"],
-  date: "2025/01/01",
-  cardIntro: "图文叙事排版实验，强调留白与阅读流。",
-  cardIntroEn: "Image-text narrative layout study focused on whitespace and reading flow.",
-  typeLabel: "作品五 / 网页",
-  typeLabelEn: "Work 05 / Webpage",
+  date: "2024/04/01",
+  cardIntro: "智伯乐全系列产品品牌视觉、官网、模型站与 AI 学术助手界面",
+  cardIntroEn: "Branding, official site, model hub, and AI academic assistant interfaces.",
+  detailTitle: "Wisdom Horse 智伯乐全系列产品品牌视觉、官网、模型站与 AI 学术助手界面",
+  detailTitleEn: "Wisdom Horse Product Family Branding, Website, Model Hub, and AI Academic Assistant UI",
+  typeLabel: "官网 / AI 助手 / 云服务 / 模型站",
+  typeLabelEn: "Official Site / AI Assistant / Cloud / Model Hub",
   details: [
-    { label: "作品类型", value: "图文叙事页面" },
-    { label: "时间", value: "2025/01" },
-    { label: "关键词", value: "图文比例、段落节奏、滚动体验" },
-    { label: "关注点", value: "轻量、顺滑、可读" },
+    { label: "类别", value: "官网 / AI 助手 / 云服务 / 模型站" },
+    { label: "时间", value: "2024.04 - 2024.12" },
+    { label: "关键词", value: "品牌升级、3D 视觉设计、组件库维护、官网更新" },
+    { label: "角色", value: "UI 设计师（实习）" },
   ],
   detailsEn: [
-    { label: "Type", value: "Image-and-Text Narrative Page" },
-    { label: "Time", value: "2025/01" },
-    { label: "Keywords", value: "Image/Text Proportion, Paragraph Rhythm, Scrolling Experience" },
-    { label: "Focus", value: "Lightweight, Smooth, Readable" },
+    { label: "Category", value: "Official Site / AI Assistant / Cloud / Model Hub" },
+    { label: "Timeline", value: "2024.04 - 2024.12" },
+    { label: "Keywords", value: "Brand Upgrade, 3D Visuals, Component Library, Website Refresh" },
+    { label: "Role", value: "UI Designer (Intern)" },
   ],
   overview:
-    "一次偏叙事的排版实验：让图片承载情绪、文字承载信息，通过留白与对齐关系引导视线；滚动过程保持克制和顺滑。",
+    "负责智伯乐全系列产品的品牌视觉定义与界面优化。主导了色彩方案、图标系统及 3D 视觉营销材料的制作、绘制高保真原型并完善公司组件库，确保了品牌调性在官网、社区及 AI 学术助手等多个终端的高标准落地。",
   overviewEn:
-    "A narrative-leaning typography experiment: let images carry emotion while text carries information. Guide the eye through whitespace and alignment; keep the scroll process restrained and smooth.",
+    "Led branding and interface optimization across the Wisdom Horse product family, including color strategy, icon system, 3D marketing assets, high-fidelity prototyping, and component library maintenance for consistent multi-platform delivery.",
   layout: "half",
   cardCover: {
     background: {

@@ -867,9 +867,9 @@ export default function SiteLayout() {
   );
 
   return (
-    <div className="grid min-h-screen grid-cols-1 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
+    <div className="grid min-h-screen grid-cols-1 min-[801px]:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
       {!isMobileLayout && (
-        <aside className="hidden min-w-0 flex-col overflow-hidden bg-[#ffffff] md:flex md:sticky md:top-0 md:h-screen">
+        <aside className="hidden min-w-0 flex-col overflow-hidden bg-[#ffffff] min-[801px]:flex min-[801px]:sticky min-[801px]:top-0 min-[801px]:h-screen">
           <div className="flex h-[76px] shrink-0 items-center justify-start p-6">
             <SiteMark />
           </div>
@@ -901,9 +901,9 @@ export default function SiteLayout() {
             </aside>
           )}
 
-          <div className="flex w-full flex-col items-stretch gap-0 p-4 pt-0 pb-0 md:px-4">
+          <div className="flex w-full flex-col items-stretch gap-0 p-4 pt-0 pb-0 min-[801px]:px-4">
             {!isMobileLayout && (
-              <div className="hidden h-[76px] w-full items-center justify-end gap-[6px] px-[9px] md:flex">
+              <div className="hidden h-[76px] w-full items-center justify-end gap-[6px] px-[9px] min-[801px]:flex">
                 <div className="flex items-center gap-[6px]">
                   <LanguageToggleButtons lang={lang} onChange={setLang} />
                 </div>
@@ -929,7 +929,7 @@ export default function SiteLayout() {
           )}
 
           {!isMobileLayout && (
-            <div className="flex items-center justify-center px-4 py-6 md:hidden">
+            <div className="flex items-center justify-center px-4 py-6 min-[801px]:hidden">
               <Copyright lang={lang} />
             </div>
           )}

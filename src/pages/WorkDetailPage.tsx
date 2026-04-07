@@ -40,6 +40,62 @@ function DetailVideoFrame({ src, borderRadiusPx }: { src: string; borderRadiusPx
   );
 }
 
+function formatDetailsBody(details: Array<{ label: string; value: string }>) {
+  return details
+    .map((item) => {
+      const label = item.label.trim().replace(/[:：]\s*$/, "");
+      return `${label}: ${item.value}`;
+    })
+    .join("\n");
+}
+
+function DetailTopCopy({
+  title,
+  details,
+  overview,
+  lang,
+}: {
+  title: string;
+  details: Array<{ label: string; value: string }>;
+  overview?: string;
+  lang: "cn" | "en";
+}) {
+  const showDetailsColumn = details.length > 0;
+  const showOverviewColumn = Boolean(overview || title);
+  const overviewBody =
+    overview ??
+    (lang === "en"
+      ? "You can place a project description here and update it as needed."
+      : "可在此填写项目说明，并按需更新。");
+  const detailsBody = formatDetailsBody(details);
+
+  return (
+    <div className="pt-8 pb-4 min-[801px]:pb-5 mb-6 min-[801px]:mb-10">
+      <h2 className="text-[24px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)]">{title}</h2>
+
+      <div
+        className={`mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 ${
+          showDetailsColumn && showOverviewColumn ? "min-[801px]:grid-cols-2" : ""
+        }`}
+      >
+        {showDetailsColumn && (
+          <section className="min-w-0">
+            <h3 className="mb-4 text-[11px] font-normal text-[#b0b0b0]">{lang === "en" ? "Details" : "细节"}</h3>
+            <p className="whitespace-pre-line text-[11px] leading-relaxed text-[#000000]">{detailsBody}</p>
+          </section>
+        )}
+
+        {showOverviewColumn && (
+          <section className="min-w-0">
+            <h3 className="mb-4 text-[11px] font-normal text-[#b0b0b0]">{lang === "en" ? "Overview" : "简介"}</h3>
+            <p className="text-[11px] leading-relaxed text-[#000000]">{overviewBody}</p>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function WorkDetailPage({
   work,
   lang,
@@ -71,29 +127,43 @@ export default function WorkDetailPage({
     () => (lang === "en" ? work.detailsEn ?? work.details : work.details) ?? [],
     [lang, work.details, work.detailsEn]
   );
+  const detailTitle = useMemo(
+    () => (lang === "en" ? work.detailTitleEn ?? work.detailTitle ?? work.title : work.detailTitle ?? work.title),
+    [lang, work.detailTitle, work.detailTitleEn, work.title]
+  );
   const overview = useMemo(
     () => (lang === "en" ? work.overviewEn ?? work.overview : work.overview),
     [lang, work.overview, work.overviewEn]
   );
-  const hasTopCopy = Boolean(work.title || overview || details.length > 0);
-  const showDetailsColumn = details.length > 0;
-  const showOverviewColumn = Boolean(overview || work.title);
-  const overviewBody =
-    overview ??
-    (lang === "en"
-      ? "You can place a project description here and update it as needed."
-      : "可在此填写项目说明，并按需更新。");
+  const hasTopCopy = Boolean(detailTitle || overview || details.length > 0);
+  const detailSections = useMemo(() => {
+    if (!work.detailSections?.length) return [];
+    return work.detailSections.map((section) => {
+      const sectionDetails = (lang === "en" ? section.detailsEn ?? section.details : section.details) ?? [];
+      const sectionOverview = lang === "en" ? section.overviewEn ?? section.overview : section.overview;
+      return { ...section, details: sectionDetails, overview: sectionOverview };
+    });
+  }, [lang, work.detailSections]);
 
-  const detailsBody = useMemo(
-    () =>
-      details
-        .map((item) => {
-          const label = item.label.trim().replace(/[:：]\s*$/, "");
-          return `${label}: ${item.value}`;
-        })
-        .join("\n"),
-    [details]
-  );
+  const mediaBlocks = useMemo(() => {
+    if (detailSections.length > 0) {
+      return detailSections.map((section) => ({
+        topCopy: section,
+        media:
+          section.detailMedia ??
+          (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src })),
+      }));
+    }
+
+    return [
+      {
+        topCopy: null,
+        media:
+          work.detailMedia ??
+          (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src })),
+      },
+    ];
+  }, [detailSections, work.detailImages, work.detailMedia, work.image]);
 
   return (
     <div className="min-h-screen w-full bg-[#ffffff]">
@@ -160,86 +230,68 @@ export default function WorkDetailPage({
                 </div>
               </div>
 
-              {hasTopCopy && (
-                <div className="pt-8 pb-4 min-[801px]:pb-5 mb-6 min-[801px]:mb-10">
-                  <h2 className="text-[24px] leading-[1.15] font-medium font-ui-sans-cn text-[rgba(38,37,31,1)]">
-                    {work.title}
-                  </h2>
-
-                  <div
-                    className={`mt-8 grid grid-cols-1 gap-10 min-[801px]:mt-10 ${
-                      showDetailsColumn && showOverviewColumn ? "min-[801px]:grid-cols-2" : ""
-                    }`}
-                  >
-                    {showDetailsColumn && (
-                      <section className="min-w-0">
-                        <h3 className="mb-4 text-[11px] font-normal text-[#b0b0b0]">
-                          {lang === "en" ? "Details" : "细节"}
-                        </h3>
-                        <p className="whitespace-pre-line text-[11px] leading-relaxed text-[#000000]">{detailsBody}</p>
-                      </section>
-                    )}
-
-                    {showOverviewColumn && (
-                      <section className="min-w-0">
-                        <h3 className="mb-4 text-[11px] font-normal text-[#b0b0b0]">
-                          {lang === "en" ? "Overview" : "简介"}
-                        </h3>
-                        <p className="text-[11px] leading-relaxed text-[#000000]">{overviewBody}</p>
-                      </section>
-                    )}
-                  </div>
-                </div>
+              {detailSections.length === 0 && hasTopCopy && (
+                <DetailTopCopy title={detailTitle} details={details} overview={overview} lang={lang} />
               )}
 
               <div className="flex flex-col gap-[50px]">
-                {(
-                  work.detailMedia ??
-                  (work.detailImages ?? [work.image]).map((src) => ({ type: "image" as const, src }))
-                ).map(
-                  (media, i) => {
-                  const block = (() => {
-                    if (media.type === "imageTwoUpThenOne") {
-                      return (
-                        <div className="flex flex-col" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
-                          <div className="grid grid-cols-2" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
-                            <DetailMediaImageFrame
-                              src={publicAssetUrl(media.topLeftSrc)}
-                              alt={`${work.title} - ${i + 1}-a`}
-                              borderRadiusPx={detailMediaBorderRadiusPx}
-                            />
-                            <DetailMediaImageFrame
-                              src={publicAssetUrl(media.topRightSrc)}
-                              alt={`${work.title} - ${i + 1}-b`}
-                              borderRadiusPx={detailMediaBorderRadiusPx}
-                            />
-                          </div>
+                {mediaBlocks.map((section, sectionIndex) => (
+                  <div key={`section-${sectionIndex}`} className="flex flex-col gap-[50px]">
+                    {section.topCopy && (
+                      <DetailTopCopy
+                        title={section.topCopy.title}
+                        details={section.topCopy.details ?? []}
+                        overview={section.topCopy.overview}
+                        lang={lang}
+                      />
+                    )}
+                    {section.media.map((media, i) => {
+                      const block = (() => {
+                        if (media.type === "imageTwoUpThenOne") {
+                          return (
+                            <div className="flex flex-col" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
+                              <div className="grid grid-cols-2" style={{ gap: `${Math.max(0, media.gapPx)}px` }}>
+                                <DetailMediaImageFrame
+                                  src={publicAssetUrl(media.topLeftSrc)}
+                                  alt={`${work.title} - ${sectionIndex + 1}-${i + 1}-a`}
+                                  borderRadiusPx={detailMediaBorderRadiusPx}
+                                />
+                                <DetailMediaImageFrame
+                                  src={publicAssetUrl(media.topRightSrc)}
+                                  alt={`${work.title} - ${sectionIndex + 1}-${i + 1}-b`}
+                                  borderRadiusPx={detailMediaBorderRadiusPx}
+                                />
+                              </div>
+                              <DetailMediaImageFrame
+                                src={publicAssetUrl(media.bottomSrc)}
+                                alt={`${work.title} - ${sectionIndex + 1}-${i + 1}-c`}
+                                borderRadiusPx={detailMediaBorderRadiusPx}
+                              />
+                            </div>
+                          );
+                        }
+
+                        const resolvedSrc = publicAssetUrl(media.src);
+                        if (media.type === "video") {
+                          return <DetailVideoFrame src={resolvedSrc} borderRadiusPx={detailMediaBorderRadiusPx} />;
+                        }
+
+                        return (
                           <DetailMediaImageFrame
-                            src={publicAssetUrl(media.bottomSrc)}
-                            alt={`${work.title} - ${i + 1}-c`}
+                            src={resolvedSrc}
+                            alt={`${work.title} - ${sectionIndex + 1}-${i + 1}`}
                             borderRadiusPx={detailMediaBorderRadiusPx}
                           />
-                        </div>
-                      );
-                    }
+                        );
+                      })();
 
-                    const resolvedSrc = publicAssetUrl(media.src);
-                    if (media.type === "video") {
-                      return <DetailVideoFrame src={resolvedSrc} borderRadiusPx={detailMediaBorderRadiusPx} />;
-                    }
-
-                    return (
-                      <DetailMediaImageFrame
-                        src={resolvedSrc}
-                        alt={`${work.title} - ${i + 1}`}
-                        borderRadiusPx={detailMediaBorderRadiusPx}
-                      />
-                    );
-                  })();
-
-                  return <div key={i}>{block}</div>;
-                }
-                )}
+                      return <div key={`${sectionIndex}-${i}`}>{block}</div>;
+                    })}
+                    {sectionIndex < mediaBlocks.length - 1 && (
+                      <div className="my-0 h-[0.5px] w-full bg-[#E6E6E6]" aria-hidden />
+                    )}
+                  </div>
+                ))}
               </div>
 
               <div className="my-16 min-[801px]:my-[100px]" aria-hidden />

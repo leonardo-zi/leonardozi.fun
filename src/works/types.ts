@@ -115,6 +115,18 @@ export interface WorkCardCover {
   foreground?: WorkCardCoverForeground;
 }
 
+export interface WorkDetailTopCopy {
+  title: string;
+  details?: Array<{ label: string; value: string }>;
+  detailsEn?: Array<{ label: string; value: string }>;
+  overview?: string;
+  overviewEn?: string;
+}
+
+export interface WorkDetailSection extends WorkDetailTopCopy {
+  detailMedia?: WorkDetailMedia[];
+}
+
 export interface Work {
   id: string;
   title: string;
@@ -138,6 +150,10 @@ export interface Work {
   cardIntro?: string;
   /** English version of cardIntro (optional) */
   cardIntroEn?: string;
+  /** 详情页标题（可选，不填则使用 title） */
+  detailTitle?: string;
+  /** English version of detailTitle (optional) */
+  detailTitleEn?: string;
   /** 弹窗顶部信息（可选） */
   typeLabel?: string;
   /** English version of typeLabel (optional) */
@@ -148,5 +164,7 @@ export interface Work {
   overview?: string;
   /** English version of overview (optional) */
   overviewEn?: string;
+  /** 分段详情（可选），存在时用于多段信息模块 + 媒体流 */
+  detailSections?: WorkDetailSection[];
   layout: WorkLayout;
 }

@@ -1,35 +1,38 @@
 import type { Work } from "./types";
+import { WORK_IMAGE_WHITE_FALLBACK } from "./placeholders";
 
 export const work02: Work = {
   id: "2",
   title: "Aro",
-  image: "./works/bg/苏崇铭5.webp",
+  image: WORK_IMAGE_WHITE_FALLBACK,
   cardImageAspectRatio: 1 / 0.7,
   cardImageHeightPx: 400,
   overlayIcon: "./works/aro/aro-icon.svg",
   tags: ["品牌", "视觉"],
   tagsEn: ["Brand", "Visuals"],
-  date: "2025/02/01",
-  cardIntro: "品牌视觉小体系探索，统一色彩与图形语言。",
-  cardIntroEn: "Mini brand visual system study with unified color and graphic language.",
-  typeLabel: "作品二 / 品牌与视觉",
-  typeLabelEn: "Work 02 / Brand & Visuals",
+  date: "2025/05/01",
+  cardIntro: "AI 角色陪伴与开放剧情对话体验探索，面向沉浸式聊天与轻社交",
+  cardIntroEn: "AI character companionship and open-story dialogue for immersive chats.",
+  detailTitle: "Aro",
+  detailTitleEn: "Aro",
+  typeLabel: "AI 对话陪伴 / 角色互动",
+  typeLabelEn: "AI Companion Dialogue / Character Interaction",
   details: [
-    { label: "作品类型", value: "品牌视觉小体系" },
-    { label: "时间", value: "2025/02" },
-    { label: "关键词", value: "色彩、字重对比、图形语言" },
-    { label: "交付", value: "主视觉 / 图标 / 版式模板" },
+    { label: "类别", value: "AI 对话陪伴 / 角色互动" },
+    { label: "时间", value: "2025.05 - 2025.06" },
+    { label: "关键词", value: "AI 对话、角色互动、开放剧情、沉浸交互" },
+    { label: "角色", value: "UI 设计（实习）" },
   ],
   detailsEn: [
-    { label: "Type", value: "A Mini Visual System for the Brand" },
-    { label: "Time", value: "2025/02" },
-    { label: "Keywords", value: "Color, Font-Weight Contrast, Graphic Language" },
-    { label: "Deliverables", value: "Key Visual / Icons / Layout Templates" },
+    { label: "Category", value: "AI Companion Dialogue / Character Interaction" },
+    { label: "Timeline", value: "2025.05 - 2025.06" },
+    { label: "Keywords", value: "AI Dialogue, Character Interaction, Open Story, Immersive UX" },
+    { label: "Role", value: "UI Designer (Intern)" },
   ],
   overview:
-    "这是一次虚构品牌方向的快速探索：先确定气质（轻、静、克制），再把它落到可复用的排版与图形规则里，确保在不同尺寸与媒介上都能保持一致的识别感。",
+    "Aro 是一款以 AI 角色为核心的智能对话陪伴工具，专注于有趣的开放剧情互动与更自然的聊天体验。无论是日常沟通、情境对话还是轻量语音互动，都能让对话更有温度、像真的在交流。项目负责：梳理信息层级、统一交互组件，并将设计语言落到可复用的原型与视觉规范中。",
   overviewEn:
-    "A quick exploration of a fictional brand direction: first define the vibe (light, calm, restrained), then translate it into reusable typography and graphic rules—so the identity stays consistent across sizes and media.",
+    "Aro is an AI character-driven conversation companion focused on open-story interaction and natural dialogue. I worked on information hierarchy, unified interaction components, and reusable design language in prototypes and visual guidelines.",
   layout: "half",
   cardCover: {
     background: {
