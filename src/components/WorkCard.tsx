@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, ComponentType } from "react";
-import * as ReactBits from "reactbits-animation";
+import type { CSSProperties } from "react";
 import type {
   Work,
   WorkCardCover,
@@ -65,22 +64,18 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
 
   const fallbackColor = cover.background.fallbackColor ?? "#0d0d0d";
   const params = cover.background.params ?? {};
-  const maybeExports = ReactBits as Record<string, unknown>;
-  const color1 = `#${String(params.color1 ?? "6a1f16").replace("#", "")}`;
-  const color2 = `#${String(params.color2 ?? "7e2216").replace("#", "")}`;
-  const color3 = `#${String(params.color3 ?? "a33c2e").replace("#", "")}`;
-  const blend = Number(params.blend ?? 0.55);
+
+  if (cover.background.effect === "aurora") {
+    // 临时屏蔽动态 Aurora（其内部会生成 canvas），改为纯色背景方便对比版式与信息层级
+    return <div className="absolute inset-0" style={{ background: "#F4F4F4" }} />;
+  }
+
   const darkVeilOffsetY = Number(params.offsetY ?? 0);
   const darkVeilScale = Number(params.scale ?? 1 + Math.abs(darkVeilOffsetY) * 1.2);
   const darkVeilStyle: CSSProperties = {
     transform: `translateY(${darkVeilOffsetY * 100}%) scale(${darkVeilScale})`,
     transformOrigin: "center",
   };
-
-  if (cover.background.effect === "aurora") {
-    // 临时屏蔽动态 Aurora（其内部会生成 canvas），改为纯色背景方便对比版式与信息层级
-    return <div className="absolute inset-0" style={{ background: "#F4F4F4" }} />;
-  }
 
   if (!reducedMotion && cover.background.effect === "darkVeil") {
     return (
@@ -97,21 +92,6 @@ function renderReactBitsBackground(cover: WorkCardCover, reducedMotion: boolean)
           />
         </div>
       </div>
-    );
-  }
-
-  if (cover.background.effect === "aurora") {
-    return (
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(circle at 20% 25%, ${color1} 0%, transparent 45%),
-          radial-gradient(circle at 78% 30%, ${color2} 0%, transparent 40%),
-          radial-gradient(circle at 48% 78%, ${color3} 0%, transparent 45%),
-          ${fallbackColor}`,
-          opacity: Math.min(1, Math.max(0.25, blend)),
-        }}
-      />
     );
   }
 
