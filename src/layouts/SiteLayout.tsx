@@ -859,10 +859,10 @@ export default function SiteLayout() {
     <>
       <div>
         {lang === "en"
-          ? "Small things made with code and design. This is a collection of personal works and notes—sometimes I write about UI, prototypes, and ideas."
-          : "用代码和设计做点小东西。这里是个人作品与笔记的集合，偶尔写写界面、原型和想法。"}
+          ? "An early-career designer committed to structured, aesthetically considered work. I believe design can be restorative. Currently learning to code and exploring vibe coding."
+          : "新手设计师，致力于创造有秩序感且赏心悦目的设计，相信设计可以抚慰人心。正尝试学习代码，正在享受氛围编程。"}
       </div>
-      <div>{lang === "en" ? "Enjoying Vibe Coding—what a great invention." : "正在享受 Vibe Coding ，这真是个伟大的发明。"}</div>
+      <div>{lang === "en" ? "Interests include games and music; I live with two cats." : "喜欢玩游戏、听音乐，拥有两只猫。"}</div>
     </>
   );
 
