@@ -750,7 +750,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
 
                 <div className="flex flex-col items-center gap-[12px]">
                   <div className="flex w-full items-center justify-between rounded-[6px] bg-[#F3F3F3] px-[8px] py-[6px] border-[0.5px] border-[#E6E6E6]">
-                    <div style={{ fontFamily: "'Andale Mono', monospace" }} className="min-w-0 truncate text-[14px] leading-[20px] font-normal text-[#3A3A3A]">
+                    <div className="min-w-0 truncate text-[14px] leading-[20px] font-normal text-[#3A3A3A]">
                       {emailAddress}
                     </div>
 
@@ -860,7 +860,7 @@ export default function SiteLayout() {
       <div>
         {lang === "en"
           ? "An early-career designer committed to structured, aesthetically considered work. I believe design can be restorative. Currently learning to code and exploring vibe coding."
-          : "新手设计师，致力于创造有秩序感且赏心悦目的设计，相信设计可以抚慰人心。正尝试学习代码，正在享受氛围编程。"}
+          : "新手设计师，努力创造有秩序感且赏心悦目的设计，相信设计可以抚慰人心。正尝试学习代码，正在享受氛围编程。"}
       </div>
       <div>{lang === "en" ? "Interests include games and music; I live with two cats." : "喜欢玩游戏、听音乐，拥有两只猫。"}</div>
     </>

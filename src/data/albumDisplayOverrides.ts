@@ -4,12 +4,8 @@
 export const ALBUM_DISPLAY_BY_FILE: Readonly<
   Record<string, { artist?: string; album?: string }>
 > = {
-  " LINKIN PARK-One More Light.webp": { artist: "Linkin Park" },
   " The Beatles-Sgt. Pepper's Lonely Hearts Club Band.webp": { artist: "The Beatles" },
-  "ACDC-back in black.webp": { artist: "AC/DC", album: "Back in Black" },
   "Bark Psychosis-hex.webp": { album: "Hex" },
-  "LINKIN PARK-HYBRID THEORY.webm": { artist: "Linkin Park", album: "Hybrid Theory" },
-  "LINKIN PARK-METEORA.webm": { artist: "Linkin Park", album: "Meteora" },
   "Pink floyd-the wall.webm": { artist: "Pink Floyd", album: "The Wall" },
   "Yndi Halda-Enjoy Eternal Bliss .webp": { album: "Enjoy Eternal Bliss" },
   "pink floyd-the dark side of the moon.webm": {
@@ -17,9 +13,7 @@ export const ALBUM_DISPLAY_BY_FILE: Readonly<
     album: "The Dark Side of the Moon",
   },
   "pinkfloyd-wish you were here.webp": { artist: "Pink Floyd", album: "Wish You Were Here" },
-  "radio head-kid a.webp": { artist: "Radiohead", album: "Kid A" },
   "radio head-ok computer.webp": { artist: "Radiohead", album: "OK Computer" },
-  "radio head-the bends.webp": { artist: "Radiohead", album: "The Bends" },
   "sleep dealer-imminence.webp": { artist: "Sleep Dealer", album: "Imminence" },
   "the beatles-abbey road.webp": { artist: "The Beatles", album: "Abbey Road" },
   "zard-ZARD Forever Best ~25th Anniversary~.webp": { artist: "ZARD" },
