@@ -869,8 +869,8 @@ export default function SiteLayout() {
     <>
       <div>
         {lang === "en"
-          ? "An early-career designer committed to structured, aesthetically considered work. I believe design can be restorative. Currently learning to code and exploring vibe coding."
-          : "新手设计师，努力创造有秩序感且赏心悦目的设计，相信设计可以抚慰人心。正尝试学习代码，正在享受氛围编程。"}
+          ? "A seasoned introvert and early-career designer committed to structured, aesthetically considered work. I believe design can be restorative. Currently learning to code and exploring vibe coding."
+          : "资深 i 人，新手设计师，努力创造有秩序感且赏心悦目的设计，相信设计可以抚慰人心。正尝试学习代码，正在享受氛围编程。"}
       </div>
       <div>{lang === "en" ? "Interests include games and music; I live with two cats." : "喜欢玩游戏、听音乐，拥有两只猫。"}</div>
     </>
