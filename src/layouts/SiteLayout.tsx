@@ -16,8 +16,11 @@ addCollection(materialSymbolsLight);
 const TOC_BUTTON_CLASS =
   "group flex h-[18px] w-full items-center justify-between text-[14px] sm:text-[12px] leading-[16px] text-[#000000] cursor-pointer hover:opacity-80 active:opacity-60";
 
-function formatEditedDate(date: Date): string {
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+/** 将 git %cs 的 YYYY-MM-DD 格式化为与原先一致的 2026.4.8 */
+function formatCommitIsoToDisplay(iso: string): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+  if (!m) return null;
+  return `${m[1]}.${Number(m[2])}.${Number(m[3])}`;
 }
 
 function SiteMark() {
@@ -33,8 +36,15 @@ function SiteMark() {
 }
 
 function Copyright({ year = CURRENT_YEAR, lang }: { year?: number; lang: Lang }) {
-  const editedDate = formatEditedDate(new Date());
-  const editedText = lang === "en" ? `Edited in ${editedDate}` : `编辑于 ${editedDate}`;
+  const displayDate = formatCommitIsoToDisplay(__SITE_LAST_COMMIT_DATE__);
+  const editedText =
+    displayDate === null
+      ? lang === "en"
+        ? "Edited —"
+        : "编辑于 —"
+      : lang === "en"
+        ? `Edited in ${displayDate}`
+        : `编辑于 ${displayDate}`;
   return (
     <div className="flex items-center gap-[10px] text-[14px] sm:text-[12px]">
       <div className="text-[#000000]">©{year} leonardozi</div>
