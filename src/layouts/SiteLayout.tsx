@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { Icon, addCollection } from "@iconify/react";
 import { icons as materialSymbolsLight } from "@iconify-json/material-symbols-light";
@@ -94,7 +94,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const resumeTooltipAriaLabel =
     lang === "en" ? "Download resume, a modest snapshot" : "获取简历，一览薄才";
 
-  const [resumePopupPlacement, setResumePopupPlacement] = useState<"below" | "above">("above");
   const [resumeOpenByClick, setResumeOpenByClick] = useState(false);
   const [resumeHovered, setResumeHovered] = useState(false);
   const [resumeFocused, setResumeFocused] = useState(false);
@@ -103,7 +102,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const resumeTooltipRef = useRef<HTMLDivElement | null>(null);
   const resumeCloseTimerRef = useRef<number | null>(null);
 
-  const [wechatPopupPlacement, setWechatPopupPlacement] = useState<"below" | "above">("above");
   const [wechatOpenByClick, setWechatOpenByClick] = useState(false);
   const [wechatHovered, setWechatHovered] = useState(false);
   const [wechatFocused, setWechatFocused] = useState(false);
@@ -116,7 +114,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const emailAddress = "ml44142@163.com";
   const emailCaption = lang === "en" ? "Copy email, contact me" : "复制邮箱，与我联络";
 
-  const [emailPopupPlacement, setEmailPopupPlacement] = useState<"below" | "above">("above");
   const [emailOpenByClick, setEmailOpenByClick] = useState(false);
   const [emailWrapperHovered, setEmailWrapperHovered] = useState(false);
   // 点击关闭后：在鼠标离开前，忽略 hover/focus 触发，确保“点关闭立刻消失”
@@ -128,36 +125,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
   const emailCloseTimerRef = useRef<number | null>(null);
   const HOVER_CLOSE_DELAY_MS = 100;
 
-  const computeEmailPlacement = useCallback(() => {
-    const anchor = emailAnchorRef.current;
-    const tooltip = emailTooltipRef.current;
-    if (!anchor || !tooltip) return;
-    if (typeof window === "undefined") return;
-
-    const margin = 2;
-    const rect = anchor.getBoundingClientRect();
-    const tooltipHeight = tooltip.offsetHeight ?? 0;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
-
-    // 默认尽量显示在上方；只有上方空间不够时才翻到下方。
-    const canShowBelow = spaceBelow >= tooltipHeight + margin;
-    const canShowAbove = spaceAbove >= tooltipHeight + margin;
-    if (canShowAbove) {
-      setEmailPopupPlacement("above");
-    } else if (canShowBelow) {
-      setEmailPopupPlacement("below");
-    } else {
-      // 都不够时，选择上方以保持与 WeChat 一致
-      setEmailPopupPlacement("above");
-    }
-  }, []);
-
-  useEffect(() => {
-    const onResize = () => computeEmailPlacement();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [computeEmailPlacement]);
+  // Tooltip 位置：在侧栏内水平居中，并以触发行上下居中（不再做 above/below 计算）
 
   useEffect(() => {
     if (!emailOpenByClick) return;
@@ -228,50 +196,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
       },
     };
 
-  const computeWechatPlacement = useCallback(() => {
-    const anchor = wechatAnchorRef.current;
-    const tooltip = wechatTooltipRef.current;
-    if (!anchor || !tooltip) return;
-    if (typeof window === "undefined") return;
-
-    const margin = 2;
-    const rect = anchor.getBoundingClientRect();
-    const tooltipHeight = tooltip.offsetHeight ?? 0;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
-
-    // 默认尽量在上方；只有上方空间不够时才翻到下方。
-    const shouldShowBelow = spaceAbove < tooltipHeight + margin && spaceBelow >= tooltipHeight + margin;
-    setWechatPopupPlacement(shouldShowBelow ? "below" : "above");
-  }, []);
-
-  useEffect(() => {
-    const onResize = () => computeWechatPlacement();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [computeWechatPlacement]);
-
-  const computeResumePlacement = useCallback(() => {
-    const anchor = resumeAnchorRef.current;
-    const tooltip = resumeTooltipRef.current;
-    if (!anchor || !tooltip) return;
-    if (typeof window === "undefined") return;
-
-    const margin = 2;
-    const rect = anchor.getBoundingClientRect();
-    const tooltipHeight = tooltip.offsetHeight ?? 0;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
-
-    const shouldShowBelow = spaceAbove < tooltipHeight + margin && spaceBelow >= tooltipHeight + margin;
-    setResumePopupPlacement(shouldShowBelow ? "below" : "above");
-  }, []);
-
-  useEffect(() => {
-    const onResize = () => computeResumePlacement();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [computeResumePlacement]);
+  // 由于 tooltip 改为左右/上下居中定位，不需要监听 resize 来计算 above/below。
 
   useEffect(() => {
     if (!wechatOpenByClick) return;
@@ -344,11 +269,9 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     resumeCloseTimerRef.current = null;
                   }
                   setResumeHovered(true);
-                  computeResumePlacement();
                 }}
                 onFocus={() => {
                   setResumeFocused(true);
-                  computeResumePlacement();
                 }}
                 onBlur={() => setResumeFocused(false)}
                 aria-expanded={resumeOpenByClick}
@@ -367,7 +290,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     } else {
                       setResumeDismissed(true);
                     }
-                    if (next) requestAnimationFrame(() => computeResumePlacement());
                     return next;
                   });
                 }}
@@ -388,10 +310,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 animate={resumeTooltipVisible ? "show" : "hidden"}
                 style={{ pointerEvents: resumeTooltipVisible ? "auto" : "none" }}
                 className={[
-                  "absolute left-0 z-50 w-[174px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
-                  resumePopupPlacement === "below"
-                    ? "top-[calc(100%+2px)]"
-                    : "bottom-[calc(100%+2px)]",
+                  "absolute left-1/2 top-1/2 z-50 w-[174px] -translate-x-1/2 -translate-y-1/2 rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                 ].join(" ")}
                 onMouseEnter={() => {
                   if (resumeCloseTimerRef.current) {
@@ -438,7 +357,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 )}
                 <div className="flex flex-col items-center gap-[12px]">
                   <video
-                    className="h-[150px] w-[150px] object-cover"
+                    className="h-[150px] w-[150px] rounded-[6px] object-cover"
                     src={publicAssetUrl("./contact/resume/resume_bg.webm")}
                     autoPlay
                     muted
@@ -507,11 +426,9 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     wechatCloseTimerRef.current = null;
                   }
                   setWechatHovered(true);
-                  computeWechatPlacement();
                 }}
                 onFocus={() => {
                   setWechatFocused(true);
-                  computeWechatPlacement();
                 }}
                 onBlur={() => setWechatFocused(false)}
                 aria-expanded={wechatOpenByClick}
@@ -531,8 +448,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     } else {
                       setWechatDismissed(true);
                     }
-                    // 打开时立即计算 placement，确保弹层出现在光标/触发项上方。
-                    if (next) requestAnimationFrame(() => computeWechatPlacement());
                     return next;
                   });
                 }}
@@ -553,10 +468,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 animate={wechatTooltipVisible ? "show" : "hidden"}
                 style={{ pointerEvents: wechatTooltipVisible ? "auto" : "none" }}
                 className={[
-                  "absolute left-0 z-50 w-[174px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
-                  wechatPopupPlacement === "below"
-                    ? "top-[calc(100%+2px)]"
-                    : "bottom-[calc(100%+2px)]",
+                  "absolute left-1/2 top-1/2 z-50 w-[174px] -translate-x-1/2 -translate-y-1/2 rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                 ].join(" ")}
                 onMouseEnter={() => {
                   if (wechatCloseTimerRef.current) {
@@ -607,7 +519,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     src={publicAssetUrl("./contact/wechat/wechat_qr.jpg")}
                     alt=""
                     aria-hidden
-                    className="h-[150px] w-[150px] object-cover"
+                    className="h-[150px] w-[150px] rounded-[6px] object-cover"
                     loading="lazy"
                     decoding="async"
                   />
@@ -652,12 +564,10 @@ function SidebarToc({ lang }: { lang: Lang }) {
                   }
                   setEmailWrapperHovered(true);
                   setEmailDismissed(false);
-                  computeEmailPlacement();
                 }}
                 onFocus={() => {
                   setEmailWrapperHovered(true);
                   setEmailDismissed(false);
-                  computeEmailPlacement();
                 }}
                 onBlur={() => {
                   setEmailWrapperHovered(false);
@@ -679,7 +589,6 @@ function SidebarToc({ lang }: { lang: Lang }) {
                       setResumeDismissed(true);
                       setResumeHovered(false);
                       setResumeFocused(false);
-                      requestAnimationFrame(() => computeEmailPlacement());
                     } else {
                       setEmailDismissed(true);
                       setEmailCopied(false);
@@ -704,10 +613,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 animate={emailTooltipVisible ? "show" : "hidden"}
                 style={{ pointerEvents: emailTooltipVisible ? "auto" : "none" }}
                 className={[
-                  "absolute left-0 z-50 w-[240px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
-                  emailPopupPlacement === "below"
-                    ? "top-[calc(100%+2px)]"
-                    : "bottom-[calc(100%+2px)]",
+                  "absolute left-1/2 top-1/2 z-50 w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                 ].join(" ")}
                 onMouseEnter={() => {
                   if (emailCloseTimerRef.current) {
@@ -759,7 +665,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 )}
 
                 <div className="flex flex-col items-center gap-[12px]">
-                  <div className="flex w-full items-center justify-between bg-[#F3F3F3] px-[8px] py-[6px] border-[0.5px] border-[#E6E6E6]">
+                  <div className="flex w-full items-center justify-between rounded-[6px] bg-[#F3F3F3] px-[8px] py-[6px] border-[0.5px] border-[#E6E6E6]">
                     <div className="min-w-0 truncate text-[14px] leading-[20px] font-normal text-[#3A3A3A]">
                       {emailAddress}
                     </div>
@@ -768,7 +674,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                       <button
                         type="button"
                         aria-label={emailCopied ? "Copied" : "Copy email"}
-                        className="flex h-[20px] w-[20px] items-center justify-center bg-transparent transition-colors group-hover:bg-black/5 text-[#A9A9A9]"
+                        className="flex h-[20px] w-[20px] items-center justify-center rounded-[3px] bg-transparent transition-colors group-hover:bg-black/5 text-[#A9A9A9]"
                         onClick={async (e) => {
                           e.stopPropagation();
                           try {
