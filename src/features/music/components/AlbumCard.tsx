@@ -46,9 +46,9 @@ export default function AlbumCard({
   const shouldAttachMedia = index <= loadCursor;
 
   return (
-    <article className="min-w-0 rounded-[8px]">
-      <div className="aspect-square w-full rounded-superellipse border-[0.8px] border-[#E6E6E6] bg-[rgba(162,157,150,0.12)] contain-layout">
-        <div className="h-full w-full overflow-hidden rounded-superellipse">
+    <article className="min-w-0">
+      <div className="aspect-square w-full border-[0.8px] border-[#E6E6E6] bg-[rgba(162,157,150,0.12)] contain-layout">
+        <div className="h-full w-full overflow-hidden">
           {shouldAttachMedia ? (
             item.mediaType === "video" ? (
               <video

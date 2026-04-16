@@ -388,7 +388,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 animate={resumeTooltipVisible ? "show" : "hidden"}
                 style={{ pointerEvents: resumeTooltipVisible ? "auto" : "none" }}
                 className={[
-                  "absolute left-0 z-50 w-[174px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+                  "absolute left-0 z-50 w-[174px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                   resumePopupPlacement === "below"
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
@@ -438,7 +438,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 )}
                 <div className="flex flex-col items-center gap-[12px]">
                   <video
-                    className="h-[150px] w-[150px] rounded-[6px] object-cover"
+                    className="h-[150px] w-[150px] object-cover"
                     src={publicAssetUrl("./contact/resume/resume_bg.webm")}
                     autoPlay
                     muted
@@ -553,7 +553,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 animate={wechatTooltipVisible ? "show" : "hidden"}
                 style={{ pointerEvents: wechatTooltipVisible ? "auto" : "none" }}
                 className={[
-                  "absolute left-0 z-50 w-[174px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+                  "absolute left-0 z-50 w-[174px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                   wechatPopupPlacement === "below"
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
@@ -607,7 +607,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                     src={publicAssetUrl("./contact/wechat/wechat_qr.jpg")}
                     alt=""
                     aria-hidden
-                    className="h-[150px] w-[150px] rounded-[6px] object-cover"
+                    className="h-[150px] w-[150px] object-cover"
                     loading="lazy"
                     decoding="async"
                   />
@@ -704,7 +704,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 animate={emailTooltipVisible ? "show" : "hidden"}
                 style={{ pointerEvents: emailTooltipVisible ? "auto" : "none" }}
                 className={[
-                  "absolute left-0 z-50 w-[240px] rounded-[12px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
+                  "absolute left-0 z-50 w-[240px] bg-[#ffffff] p-[12px] border-[0.5px] border-[#e0e0e0] shadow-[0_8px_24px_rgba(0,0,0,0.06)]",
                   emailPopupPlacement === "below"
                     ? "top-[calc(100%+2px)]"
                     : "bottom-[calc(100%+2px)]",
@@ -759,7 +759,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                 )}
 
                 <div className="flex flex-col items-center gap-[12px]">
-                  <div className="flex w-full items-center justify-between rounded-[6px] bg-[#F3F3F3] px-[8px] py-[6px] border-[0.5px] border-[#E6E6E6]">
+                  <div className="flex w-full items-center justify-between bg-[#F3F3F3] px-[8px] py-[6px] border-[0.5px] border-[#E6E6E6]">
                     <div className="min-w-0 truncate text-[14px] leading-[20px] font-normal text-[#3A3A3A]">
                       {emailAddress}
                     </div>
@@ -768,7 +768,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
                       <button
                         type="button"
                         aria-label={emailCopied ? "Copied" : "Copy email"}
-                        className="flex h-[20px] w-[20px] items-center justify-center rounded-[3px] bg-transparent transition-colors group-hover:bg-black/5 text-[#A9A9A9]"
+                        className="flex h-[20px] w-[20px] items-center justify-center bg-transparent transition-colors group-hover:bg-black/5 text-[#A9A9A9]"
                         onClick={async (e) => {
                           e.stopPropagation();
                           try {

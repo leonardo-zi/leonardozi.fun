@@ -17,7 +17,7 @@ html:not([data-platform="apple"]) body {
 
 /* 样式：统一小圆角变量，用于按钮、卡片、图片容器 */
 :root {
-  --radius-superellipse: 4px;
+  --radius-superellipse: 0px;
   --background:
     oklch(1 0 0);
   --foreground:
@@ -64,8 +64,7 @@ html:not([data-platform="apple"]) body {
     oklch(0.371 0 0);
   --chart-5:
     oklch(0.269 0 0);
-  --radius:
-    0.625rem;
+  --radius: 0rem;
   --sidebar:
     oklch(0.985 0 0);
   --sidebar-foreground:
@@ -85,12 +84,12 @@ html:not([data-platform="apple"]) body {
 }
 
 .rounded-superellipse {
-  border-radius: var(--radius-superellipse);
+  border-radius: 0;
 }
 
 /* 样式：弹窗容器圆角 8px、细边框、最大宽度 980px */
 .modal-container {
-  border-radius: 8px;
+  border-radius: 0;
   border: 0.5px solid rgba(219, 219, 219, 1);
   max-width: 980px;
 }
@@ -191,7 +190,7 @@ body {
 .work-card-skeleton {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0;
   background-color: #f4f4f4;
 }
 

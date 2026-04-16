@@ -636,16 +636,16 @@ export default function WorkCard({ work, onClick, isFirst, lang }: WorkCardProps
   );
 
   return (
-    <article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden rounded-[8px]">
+    <article ref={cardRef as React.RefObject<HTMLElement>} className="min-w-0 overflow-hidden">
       <div
         role="button"
         tabIndex={0}
         onClick={handleActivate}
         onKeyDown={handleKeyDown}
-        className="rounded-[8px] border-[0.5px] border-transparent cursor-pointer"
+        className="border-[0.5px] border-transparent cursor-pointer"
       >
         <div
-          className="relative w-full overflow-hidden rounded-superellipse border-[0.5px] border-[#E6E6E6]"
+          className="relative w-full overflow-hidden border-[0.5px] border-[#E6E6E6]"
           style={cardImageContainerStyle}
         >
           {coverContent}

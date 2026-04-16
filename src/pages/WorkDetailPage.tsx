@@ -105,7 +105,7 @@ export default function WorkDetailPage({
   lang: "cn" | "en";
   onBack: () => void;
 }) {
-  const detailMediaBorderRadiusPx = 4;
+  const detailMediaBorderRadiusPx = 0;
 
   useLayoutEffect(() => {
     // 进入详情页时滚动到顶部，避免刷新/恢复滚动后又被“还原回来”
@@ -185,7 +185,7 @@ export default function WorkDetailPage({
               <button
                 type="button"
                 onClick={onBack}
-                className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[11px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
+                className="group inline-flex h-fit items-center gap-2 bg-transparent px-0 pr-[40px] text-[11px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
               >
                 <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={14} height={14} aria-hidden />
                 <span className="relative inline-block">
@@ -205,7 +205,7 @@ export default function WorkDetailPage({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="group inline-flex h-fit items-center gap-2 rounded-full bg-transparent px-0 pr-[40px] text-[11px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
+                  className="group inline-flex h-fit items-center gap-2 bg-transparent px-0 pr-[40px] text-[11px] text-[rgba(38,37,31,1)] cursor-pointer hover:opacity-80 active:opacity-60"
                 >
                   <Icon icon="material-symbols-light:arrow-left-alt-rounded" width={14} height={14} aria-hidden />
                   <span className="relative inline-block">
