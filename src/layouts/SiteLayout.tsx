@@ -10,7 +10,7 @@ import { useSitePreferences, type Lang } from "./SitePreferencesContext";
 import { publicAssetUrl } from "../utils/publicAssetUrl";
 
 const CURRENT_YEAR = new Date().getFullYear();
-const SITE_ICON_SRC = "/works/icon/leonardozi_icon.png";
+const SITE_ICON_SRC = "/works/icon/leonardozi_icon_ani.webm";
 addCollection(materialSymbolsLight);
 
 const TOC_BUTTON_CLASS =
@@ -25,12 +25,33 @@ function formatCommitIsoToDisplay(iso: string): string | null {
 
 function SiteMark() {
   return (
-    <img
+    <video
+      key={SITE_ICON_SRC}
       src={SITE_ICON_SRC}
-      alt="leonardozi.fun"
+      aria-label="leonardozi.fun"
       width={28}
       height={28}
       className="h-[28px] w-[28px] shrink-0 object-contain"
+      muted
+      playsInline
+      autoPlay
+      preload="auto"
+      controls={false}
+      onLoadedMetadata={(e) => {
+        // 确保每次加载都从 0 开始播放（避免 bfcache/恢复策略导致停在末帧）
+        const v = e.currentTarget;
+        try {
+          v.currentTime = 0;
+        } catch {
+          // ignore
+        }
+        v.play().catch(() => undefined);
+      }}
+      onEnded={(e) => {
+        // 不循环，停在最后一帧
+        e.currentTarget.pause();
+      }}
+      onContextMenu={(e) => e.preventDefault()}
     />
   );
 }

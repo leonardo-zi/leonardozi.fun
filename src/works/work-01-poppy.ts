@@ -10,9 +10,9 @@ export const work01Poppy: Work = {
   overlayIcon: "./works/poppy/Poppy-icon.svg",
   detailMedia: [
     { type: "image", src: "./works/poppy/poppy-1.webp" },
+    { type: "video", src: "./works/poppy/poppy-4.webm" },
     { type: "image", src: "./works/poppy/poppy-2.webp" },
     { type: "image", src: "./works/poppy/poppy-3.webp" },
-    { type: "video", src: "./works/poppy/poppy-4.webm" },
     { type: "image", src: "./works/poppy/poppy-5.webp" },
   ],
   tags: ["界面", "原型"],
