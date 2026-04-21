@@ -68,7 +68,7 @@ function Copyright({ year = CURRENT_YEAR, lang }: { year?: number; lang: Lang })
         : `编辑于 ${displayDate}`;
   return (
     <div className="flex items-center gap-[10px] text-[14px] sm:text-[12px]">
-      <div className="text-[#000000]">©{year} leonardozi</div>
+      <div className="text-[#000000]">© {year} leonardozi</div>
       <div className="h-[10px] w-[0.5px] bg-[#aaa]" aria-hidden />
       <div className="text-[#aaa]">{editedText}</div>
     </div>
