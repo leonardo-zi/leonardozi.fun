@@ -13,6 +13,7 @@ export const work01Poppy: Work = {
     { type: "video", src: "./works/poppy/poppy-4.webm" },
     { type: "image", src: "./works/poppy/poppy-2.webp" },
     { type: "image", src: "./works/poppy/poppy-3.webp" },
+    { type: "image", src: "./works/poppy/poppy-3.2.webp" },
     { type: "image", src: "./works/poppy/poppy-5.webp" },
   ],
   tags: ["界面", "原型"],
