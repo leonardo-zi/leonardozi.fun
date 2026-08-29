@@ -417,7 +417,7 @@ function SidebarToc({ lang }: { lang: Lang }) {
               </motion.div>
             </div>
             <div
-              className="relative"
+              className="relative hidden"
               onMouseEnter={() => {
                 if (wechatCloseTimerRef.current) {
                   window.clearTimeout(wechatCloseTimerRef.current);
